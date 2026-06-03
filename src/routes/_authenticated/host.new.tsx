@@ -24,7 +24,7 @@ function NewListing() {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("apartment");
-  const [city, setCity] = useState(CITIES[0]);
+  const [city, setCity] = useState<string>(CITIES[0]);
   const [address, setAddress] = useState("");
   const [price, setPrice] = useState(3500);
   const [guests, setGuests] = useState(2);
