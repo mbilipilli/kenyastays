@@ -14,16 +14,330 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          check_in: string
+          check_out: string
+          created_at: string
+          guest_id: string
+          guests: number
+          host_id: string
+          id: string
+          nights: number
+          notes: string | null
+          property_id: string
+          status: Database["public"]["Enums"]["booking_status"]
+          total_kes: number
+          updated_at: string
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          created_at?: string
+          guest_id: string
+          guests?: number
+          host_id: string
+          id?: string
+          nights: number
+          notes?: string | null
+          property_id: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_kes: number
+          updated_at?: string
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          created_at?: string
+          guest_id?: string
+          guests?: number
+          host_id?: string
+          id?: string
+          nights?: number
+          notes?: string | null
+          property_id?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          total_kes?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount_kes: number
+          booking_id: string
+          created_at: string
+          id: string
+          method: Database["public"]["Enums"]["payment_method"]
+          phone: string | null
+          provider_ref: string | null
+          raw: Json | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_kes: number
+          booking_id: string
+          created_at?: string
+          id?: string
+          method: Database["public"]["Enums"]["payment_method"]
+          phone?: string | null
+          provider_ref?: string | null
+          raw?: Json | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_kes?: number
+          booking_id?: string
+          created_at?: string
+          id?: string
+          method?: Database["public"]["Enums"]["payment_method"]
+          phone?: string | null
+          provider_ref?: string | null
+          raw?: Json | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          is_verified: boolean
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          is_verified?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          is_verified?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          address: string | null
+          amenities: string[]
+          bathrooms: number
+          bedrooms: number
+          city: string
+          cover_image: string | null
+          created_at: string
+          description: string
+          host_id: string
+          id: string
+          is_active: boolean
+          is_community: boolean
+          is_eco: boolean
+          landmarks: string[]
+          latitude: number | null
+          longitude: number | null
+          max_guests: number
+          price_kes: number
+          property_type: Database["public"]["Enums"]["property_type"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[]
+          bathrooms?: number
+          bedrooms?: number
+          city: string
+          cover_image?: string | null
+          created_at?: string
+          description: string
+          host_id: string
+          id?: string
+          is_active?: boolean
+          is_community?: boolean
+          is_eco?: boolean
+          landmarks?: string[]
+          latitude?: number | null
+          longitude?: number | null
+          max_guests?: number
+          price_kes: number
+          property_type?: Database["public"]["Enums"]["property_type"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[]
+          bathrooms?: number
+          bedrooms?: number
+          city?: string
+          cover_image?: string | null
+          created_at?: string
+          description?: string
+          host_id?: string
+          id?: string
+          is_active?: boolean
+          is_community?: boolean
+          is_eco?: boolean
+          landmarks?: string[]
+          latitude?: number | null
+          longitude?: number | null
+          max_guests?: number
+          price_kes?: number
+          property_type?: Database["public"]["Enums"]["property_type"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      property_images: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          guest_id: string
+          id: string
+          property_id: string
+          rating: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          guest_id: string
+          id?: string
+          property_id: string
+          rating: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          guest_id?: string
+          id?: string
+          property_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "guest" | "host" | "admin"
+      booking_status: "pending" | "confirmed" | "cancelled" | "completed"
+      payment_method: "mpesa" | "card"
+      payment_status: "initiated" | "pending" | "success" | "failed"
+      property_type:
+        | "apartment"
+        | "lodge"
+        | "homestay"
+        | "guest_house"
+        | "villa"
+        | "cottage"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +464,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["guest", "host", "admin"],
+      booking_status: ["pending", "confirmed", "cancelled", "completed"],
+      payment_method: ["mpesa", "card"],
+      payment_status: ["initiated", "pending", "success", "failed"],
+      property_type: [
+        "apartment",
+        "lodge",
+        "homestay",
+        "guest_house",
+        "villa",
+        "cottage",
+      ],
+    },
   },
 } as const
