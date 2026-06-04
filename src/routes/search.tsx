@@ -6,13 +6,15 @@ import { useState } from "react";
 import { searchProperties } from "@/lib/api/properties.functions";
 import { PropertyCard } from "@/components/PropertyCard";
 import { SearchBar } from "@/components/SearchBar";
+import { LiveMap } from "@/components/LiveMap";
+import { Footer } from "@/components/Footer";
 import { AMENITIES, CITIES, formatKES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { SlidersHorizontal, Leaf } from "lucide-react";
+import { SlidersHorizontal, Leaf, Map as MapIcon, LayoutGrid } from "lucide-react";
 
 const searchSchema = z.object({
   city: z.string().optional(),
@@ -36,8 +38,8 @@ export const Route = createFileRoute("/search")({
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(qo(deps)),
   head: ({ loaderData }) => ({
     meta: [
-      { title: "Explore stays in Kenya — Karibu Stays" },
-      { name: "description", content: `Browse ${loaderData?.length ?? 0} listings across Kenya.` },
+      { title: "Explore Kenyan stays — Mbilipilli Stays" },
+      { name: "description", content: `Browse ${loaderData?.length ?? 0} verified listings across Kenya.` },
     ],
   }),
   component: SearchPage,
@@ -47,29 +49,62 @@ export const Route = createFileRoute("/search")({
 function SearchPage() {
   const search = Route.useSearch();
   const { data: results } = useSuspenseQuery(qo(search));
+  const [view, setView] = useState<"grid" | "map">("grid");
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-4 pb-12">
-      <SearchBar initialCity={search.city ?? ""} initialQ={search.q ?? ""} />
+    <>
+      <main className="mx-auto max-w-6xl px-4 pt-4 pb-12">
+        <SearchBar initialCity={search.city ?? ""} initialQ={search.q ?? ""} />
 
-      <div className="mt-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {results.length} {results.length === 1 ? "stay" : "stays"} found
-          {search.city ? ` in ${search.city}` : ""}
-        </p>
-        <FilterSheet />
-      </div>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">
+            {results.length} {results.length === 1 ? "stay" : "stays"} found
+            {search.city ? ` in ${search.city}` : ""}
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="hidden rounded-full border bg-card p-0.5 sm:flex">
+              <button
+                onClick={() => setView("grid")}
+                className={`inline-flex h-8 items-center gap-1 rounded-full px-3 text-xs font-medium ${view === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              >
+                <LayoutGrid className="size-3.5" /> Grid
+              </button>
+              <button
+                onClick={() => setView("map")}
+                className={`inline-flex h-8 items-center gap-1 rounded-full px-3 text-xs font-medium ${view === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+              >
+                <MapIcon className="size-3.5" /> Map
+              </button>
+            </div>
+            <FilterSheet />
+          </div>
+        </div>
 
-      {results.length === 0 ? (
-        <div className="mt-12 rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
-          No stays match those filters yet. Try widening your search.
-        </div>
-      ) : (
-        <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
-          {results.map((p) => <PropertyCard key={p.id} {...p} />)}
-        </div>
-      )}
-    </main>
+        {results.length === 0 ? (
+          <div className="mt-12 rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
+            No stays match those filters yet. Try widening your search.
+          </div>
+        ) : view === "map" ? (
+          <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_360px]">
+            <LiveMap points={results} height={620} />
+            <div className="max-h-[620px] space-y-3 overflow-y-auto pr-1">
+              {results.map((p) => <PropertyCard key={p.id} {...p} />)}
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
+              {results.map((p) => <PropertyCard key={p.id} {...p} />)}
+            </div>
+            <div className="mt-10">
+              <h2 className="mb-3 font-serif text-xl">Stays on the map</h2>
+              <LiveMap points={results} height={380} />
+            </div>
+          </>
+        )}
+      </main>
+      <Footer />
+    </>
   );
 }
 
