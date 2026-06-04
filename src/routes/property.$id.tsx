@@ -1,19 +1,26 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions, useMutation } from "@tanstack/react-query";
+import { useSuspenseQuery, queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { type DateRange } from "react-day-picker";
 import { getProperty } from "@/lib/api/properties.functions";
-import { createBooking } from "@/lib/api/bookings.functions";
+import { createBooking, getBookedDates } from "@/lib/api/bookings.functions";
 import { initiateMpesa } from "@/lib/api/payments.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi } from "lucide-react";
+import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi, CalendarIcon } from "lucide-react";
 import { formatKES } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
+import { LiveMap } from "@/components/LiveMap";
+import { Footer } from "@/components/Footer";
+import { cn } from "@/lib/utils";
 
 const qo = (id: string) =>
   queryOptions({ queryKey: ["property", id], queryFn: () => getProperty({ data: { id } }) });
@@ -22,7 +29,7 @@ export const Route = createFileRoute("/property/$id")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(qo(params.id)),
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData ? `${loaderData.title} — Karibu Stays` : "Stay" },
+      { title: loaderData ? `${loaderData.title} — Mbilipilli Stays` : "Stay" },
       { name: "description", content: loaderData?.description?.slice(0, 160) ?? "" },
       { property: "og:title", content: loaderData?.title ?? "Stay" },
       { property: "og:image", content: loaderData?.cover_url ?? "" },
@@ -37,20 +44,41 @@ function PropertyPage() {
   const { id } = Route.useParams();
   const { data: p } = useSuspenseQuery(qo(id));
   const navigate = useNavigate();
-  const today = new Date().toISOString().slice(0, 10);
-  const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-  const [checkIn, setCheckIn] = useState(today);
-  const [checkOut, setCheckOut] = useState(tomorrow);
+  const today = new Date();
+  const [range, setRange] = useState<DateRange | undefined>({
+    from: today,
+    to: new Date(Date.now() + 2 * 86400000),
+  });
   const [guests, setGuests] = useState(1);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [phone, setPhone] = useState("");
+
+  const fetchBooked = useServerFn(getBookedDates);
+  const { data: booked = [] } = useQuery({
+    queryKey: ["booked", id],
+    queryFn: () => fetchBooked({ data: { property_id: id } }),
+  });
+
+  const disabledDays = useMemo(() => {
+    const ranges = booked.map((b) => ({ from: new Date(b.from), to: new Date(new Date(b.to).getTime() - 86400000) }));
+    return [{ before: today }, ...ranges];
+  }, [booked]);
 
   const book = useServerFn(createBooking);
   const pay = useServerFn(initiateMpesa);
 
   const bookM = useMutation({
-    mutationFn: () =>
-      book({ data: { property_id: id, check_in: checkIn, check_out: checkOut, guests } }),
+    mutationFn: () => {
+      if (!range?.from || !range?.to) throw new Error("Pick check-in and check-out dates");
+      return book({
+        data: {
+          property_id: id,
+          check_in: format(range.from, "yyyy-MM-dd"),
+          check_out: format(range.to, "yyyy-MM-dd"),
+          guests,
+        },
+      });
+    },
     onSuccess: (b) => {
       setBookingId(b.id);
       toast.success("Booking created. Now pay with M-Pesa to confirm.");
@@ -73,13 +101,13 @@ function PropertyPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const nights = Math.max(
-    1,
-    Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000),
-  );
+  const nights = range?.from && range?.to
+    ? Math.max(1, Math.round((range.to.getTime() - range.from.getTime()) / 86400000))
+    : 1;
   const total = nights * p.price_kes;
 
   return (
+    <>
     <main className="mx-auto max-w-6xl px-4 pt-4 pb-24">
       {/* Gallery */}
       <div className="grid gap-2 overflow-hidden rounded-2xl md:grid-cols-4 md:grid-rows-2">
@@ -154,6 +182,18 @@ function PropertyPage() {
             </div>
           )}
 
+          {/* Map */}
+          <div className="mt-8">
+            <h2 className="mb-3 font-serif text-xl">Where you'll stay</h2>
+            <LiveMap
+              points={[{
+                id: p.id, title: p.title, city: p.city, price_kes: p.price_kes,
+                latitude: p.latitude, longitude: p.longitude,
+              }]}
+              height={320}
+            />
+          </div>
+
           {/* Reviews */}
           <div className="mt-8">
             <h2 className="font-serif text-xl">Reviews ({p.reviews_count})</h2>
@@ -185,19 +225,37 @@ function PropertyPage() {
               <span className="text-2xl font-semibold">{formatKES(p.price_kes)}</span>
               <span className="text-muted-foreground">/ night</span>
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <div>
-                <Label className="text-xs">Check-in</Label>
-                <Input type="date" min={today} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
-              </div>
-              <div>
-                <Label className="text-xs">Check-out</Label>
-                <Input type="date" min={checkIn} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
-              </div>
-              <div className="col-span-2">
-                <Label className="text-xs">Guests</Label>
-                <Input type="number" min={1} max={p.max_guests} value={guests} onChange={(e) => setGuests(Math.max(1, +e.target.value))} />
-              </div>
+
+            <div className="mt-3 space-y-2">
+              <Label className="text-xs">Check-in → Check-out</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full justify-start text-left font-normal", !range?.from && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 size-4" />
+                    {range?.from ? (
+                      range.to ? (
+                        <>{format(range.from, "MMM d")} → {format(range.to, "MMM d, yyyy")}</>
+                      ) : format(range.from, "MMM d, yyyy")
+                    ) : <span>Pick dates</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={range}
+                    onSelect={setRange}
+                    numberOfMonths={1}
+                    disabled={disabledDays}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Label className="text-xs">Guests</Label>
+              <Input type="number" min={1} max={p.max_guests} value={guests} onChange={(e) => setGuests(Math.max(1, +e.target.value))} />
             </div>
 
             <div className="mt-4 flex items-center justify-between border-t pt-3 text-sm">
@@ -224,5 +282,7 @@ function PropertyPage() {
         </aside>
       </div>
     </main>
+    <Footer />
+    </>
   );
 }

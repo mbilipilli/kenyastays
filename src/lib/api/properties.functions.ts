@@ -36,6 +36,8 @@ export type PropertyCard = {
   cover_url: string | null;
   rating: number | null;
   reviews_count: number;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 const searchSchema = z.object({
@@ -97,6 +99,8 @@ export const searchProperties = createServerFn({ method: "POST" })
       cover_url: r.cover_image ? signed[r.cover_image] ?? null : null,
       rating: reviewsByProp[r.id] ? +(reviewsByProp[r.id].sum / reviewsByProp[r.id].n).toFixed(1) : null,
       reviews_count: reviewsByProp[r.id]?.n ?? 0,
+      latitude: r.latitude,
+      longitude: r.longitude,
     }));
   });
 
