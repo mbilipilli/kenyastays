@@ -103,3 +103,16 @@ export const updateBookingStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const getBookedDates = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ property_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("bookings")
+      .select("check_in,check_out")
+      .eq("property_id", data.property_id)
+      .in("status", ["pending", "confirmed"]);
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map((r) => ({ from: r.check_in as string, to: r.check_out as string }));
+  });
