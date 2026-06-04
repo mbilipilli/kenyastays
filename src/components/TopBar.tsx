@@ -1,18 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { TreePine } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 export function TopBar() {
   const { user, signOut } = useAuth();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <TreePine className="size-4" />
-          </span>
-          <span className="font-serif text-lg font-semibold tracking-tight">Karibu Stays</span>
+    <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <Link to="/" className="flex items-center gap-2.5">
+          <Logo className="size-9" />
+          <div className="leading-tight">
+            <div className="font-serif text-lg font-semibold tracking-tight">Mbilipilli Stays</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Stay Local. Stay Kenyan.</div>
+          </div>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
           <Button asChild variant="ghost" size="sm"><Link to="/search">Explore</Link></Button>
