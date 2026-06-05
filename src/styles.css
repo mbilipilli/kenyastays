@@ -148,3 +148,19 @@
     letter-spacing: -0.01em;
   }
 }
+
+/* Cinematic Ken Burns "video effect" for hero stills */
+@keyframes ken-burns {
+  0%   { transform: scale(1.05) translate3d(0, 0, 0); }
+  50%  { transform: scale(1.18) translate3d(-2%, -1.5%, 0); }
+  100% { transform: scale(1.05) translate3d(0, 0, 0); }
+}
+.animate-ken-burns {
+  animation: ken-burns 22s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes hero-shimmer {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.78; }
+}
+.animate-hero-shimmer { animation: hero-shimmer 7s ease-in-out infinite; }
