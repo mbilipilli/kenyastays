@@ -43,9 +43,10 @@ function Index() {
     <main>
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImg} alt="" className="size-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background" />
+        <div className="absolute inset-0 overflow-hidden">
+          <img src={heroImg} alt="" className="size-full object-cover animate-ken-burns" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
+          <div className="absolute inset-0 animate-hero-shimmer bg-gradient-to-tr from-primary/20 via-transparent to-acacia/20 mix-blend-overlay" />
         </div>
         <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-12 md:pt-20 md:pb-20">
           <div className="flex flex-col items-center text-center">
