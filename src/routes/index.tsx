@@ -55,7 +55,7 @@ function Index() {
               🌍 Stay Local. Stay Kenyan.
             </span>
             <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight text-foreground md:text-6xl">
-              Find your perfect Kenyan stay — from <span className="text-primary">Nairobi streets</span> to <span className="text-primary">Maasai Mara retreats</span>.
+              From <span className="text-primary">city beats</span> to <span className="text-primary">safari seats</span> — find your perfect Kenyan stay.
             </h1>
             <p className="mt-3 max-w-xl text-base text-foreground/80 md:text-lg">
               Trusted hosts, secure payments, and authentic experiences.
