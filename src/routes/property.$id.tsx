@@ -195,6 +195,25 @@ function PropertyPage() {
             />
           </div>
 
+          {/* Nearby facilities */}
+          {(() => {
+            const cityFallback: Record<string, [number, number]> = {
+              Nairobi: [-1.2921, 36.8219], Mombasa: [-4.0435, 39.6682], Kisumu: [-0.0917, 34.768],
+              Nakuru: [-0.3031, 36.08], Eldoret: [0.5143, 35.2698], "Maasai Mara": [-1.5061, 35.1432],
+              Naivasha: [-0.7172, 36.4314], Diani: [-4.2767, 39.5933], Lamu: [-2.2696, 40.902], Nanyuki: [0.0167, 37.0731],
+            };
+            const lat = p.latitude ?? cityFallback[p.city]?.[0];
+            const lng = p.longitude ?? cityFallback[p.city]?.[1];
+            if (lat == null || lng == null) return null;
+            return (
+              <div className="mt-8">
+                <h2 className="mb-1 font-serif text-xl">What's nearby</h2>
+                <p className="mb-3 text-sm text-muted-foreground">Restaurants, hospitals, shopping, attractions and fuel/ATMs within 1.5 km — live from OpenStreetMap.</p>
+                <NearbyMap lat={lat} lng={lng} radiusM={1500} height={380} />
+              </div>
+            );
+          })()}
+
           {/* Reviews */}
           <div className="mt-8">
             <h2 className="font-serif text-xl">Reviews ({p.reviews_count})</h2>
