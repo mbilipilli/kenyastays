@@ -19,6 +19,7 @@ import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi, CalendarIcon }
 import { formatKES } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { LiveMap } from "@/components/LiveMap";
+import { NearbyMap } from "@/components/NearbyMap";
 import { Footer } from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
