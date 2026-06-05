@@ -85,7 +85,7 @@ export const hostBookings = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("bookings")
-      .select("*, properties:property_id(id,title,city), profiles:guest_id(full_name,avatar_url,phone)")
+      .select("*, properties!bookings_property_id_fkey(id,title,city), profiles!bookings_guest_id_fkey(full_name,avatar_url,phone)")
       .eq("host_id", userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
