@@ -183,6 +183,7 @@ export type Database = {
           longitude: number | null
           max_guests: number
           price_kes: number
+          profileId: string
           property_type: Database["public"]["Enums"]["property_type"]
           title: string
           updated_at: string
@@ -206,6 +207,7 @@ export type Database = {
           longitude?: number | null
           max_guests?: number
           price_kes: number
+          profileId: string
           property_type?: Database["public"]["Enums"]["property_type"]
           title: string
           updated_at?: string
@@ -229,11 +231,20 @@ export type Database = {
           longitude?: number | null
           max_guests?: number
           price_kes?: number
+          profileId?: string
           property_type?: Database["public"]["Enums"]["property_type"]
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "properties_profileId_fkey"
+            columns: ["profileId"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       property_images: {
         Row: {
