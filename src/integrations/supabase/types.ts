@@ -25,6 +25,7 @@ export type Database = {
           id: string
           nights: number
           notes: string | null
+          profileId: string
           property_id: string
           status: Database["public"]["Enums"]["booking_status"]
           total_kes: number
@@ -40,6 +41,7 @@ export type Database = {
           id?: string
           nights: number
           notes?: string | null
+          profileId: string
           property_id: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_kes: number
@@ -55,12 +57,20 @@ export type Database = {
           id?: string
           nights?: number
           notes?: string | null
+          profileId?: string
           property_id?: string
           status?: Database["public"]["Enums"]["booking_status"]
           total_kes?: number
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_profileId_fkey"
+            columns: ["profileId"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_property_id_fkey"
             columns: ["property_id"]
