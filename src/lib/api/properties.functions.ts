@@ -175,6 +175,7 @@ export const createProperty = createServerFn({ method: "POST" })
       .from("properties")
       .insert({
         host_id: userId,
+        profileId: userId,
         title: data.title,
         description: data.description,
         property_type: data.property_type,
