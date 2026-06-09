@@ -68,7 +68,7 @@ function NewListing() {
           amenities: amen,
           landmarks: landmarks ? landmarks.split(",").map((s) => s.trim()).filter(Boolean) : [],
           is_eco: eco, is_community: community,
-          cover_image: photos[0]?.path ?? imageUrl.trim() || undefined,
+          cover_image: photos[0]?.path ?? (imageUrl.trim() || undefined),
           image_paths: [...photos.map((p) => p.path), ...(imageUrl.trim() ? [imageUrl.trim()] : [])],
         },
       }),
