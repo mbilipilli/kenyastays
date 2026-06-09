@@ -169,7 +169,10 @@ export const createProperty = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     // Ensure host role
-    await supabase.from("user_roles").insert({ user_id: userId, role: "host" }).select().maybeSingle();
+    const { error: roleError } = await supabase
+      .from("user_roles")
+      .upsert({ user_id: userId, role: "host" }, { onConflict: "user_id,role", ignoreDuplicates: true });
+    if (roleError) throw new Error(roleError.message);
 
     const { data: prop, error } = await supabase
       .from("properties")
