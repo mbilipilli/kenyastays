@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { createProperty } from "@/lib/api/properties.functions";
@@ -34,9 +34,11 @@ function NewListing() {
   const [landmarks, setLandmarks] = useState("");
   const [eco, setEco] = useState(false);
   const [community, setCommunity] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const [photos, setPhotos] = useState<{ path: string; preview: string }[]>([]);
   const [uploading, setUploading] = useState(false);
 
+  const queryClient = useQueryClient();
   const uploadFn = useServerFn(getUploadUrl);
   const createFn = useServerFn(createProperty);
 
@@ -66,13 +68,14 @@ function NewListing() {
           amenities: amen,
           landmarks: landmarks ? landmarks.split(",").map((s) => s.trim()).filter(Boolean) : [],
           is_eco: eco, is_community: community,
-          cover_image: photos[0]?.path,
-          image_paths: photos.map((p) => p.path),
+          cover_image: photos[0]?.path ?? imageUrl.trim() || undefined,
+          image_paths: [...photos.map((p) => p.path), ...(imageUrl.trim() ? [imageUrl.trim()] : [])],
         },
       }),
-    onSuccess: (r) => {
+    onSuccess: async () => {
       toast.success("Listing published!");
-      navigate({ to: "/property/$id", params: { id: r.id } });
+      await queryClient.invalidateQueries({ queryKey: ["my-listings"] });
+      navigate({ to: "/host" });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -141,6 +144,12 @@ function NewListing() {
 
         <div>
           <Label>Photos</Label>
+          <Input
+            className="mt-2"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            placeholder="https://example.com/apartment1.jpg"
+          />
           <div className="mt-2 grid grid-cols-3 gap-2">
             {photos.map((p, i) => (
               <div key={p.path} className="relative aspect-square overflow-hidden rounded-md border bg-muted">
