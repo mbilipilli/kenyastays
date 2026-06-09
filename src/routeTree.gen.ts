@@ -17,7 +17,6 @@ import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/host'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
-import { Route as AuthenticatedHostIndexRouteImport } from './routes/_authenticated/host.index'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
 
 const SearchRoute = SearchRouteImport.update({
@@ -59,11 +58,6 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedHostIndexRoute = AuthenticatedHostIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthenticatedHostRoute,
-} as any)
 const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -79,17 +73,16 @@ export interface FileRoutesByFullPath {
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
-  '/host/': typeof AuthenticatedHostIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
-  '/host': typeof AuthenticatedHostIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,7 +95,6 @@ export interface FileRoutesById {
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
-  '/_authenticated/host/': typeof AuthenticatedHostIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,17 +107,16 @@ export interface FileRouteTypes {
     | '/trips'
     | '/property/$id'
     | '/host/new'
-    | '/host/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/search'
     | '/account'
+    | '/host'
     | '/trips'
     | '/property/$id'
     | '/host/new'
-    | '/host'
   id:
     | '__root__'
     | '/'
@@ -137,7 +128,6 @@ export interface FileRouteTypes {
     | '/_authenticated/trips'
     | '/property/$id'
     | '/_authenticated/host/new'
-    | '/_authenticated/host/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -206,13 +196,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/host/': {
-      id: '/_authenticated/host/'
-      path: '/'
-      fullPath: '/host/'
-      preLoaderRoute: typeof AuthenticatedHostIndexRouteImport
-      parentRoute: typeof AuthenticatedHostRoute
-    }
     '/_authenticated/host/new': {
       id: '/_authenticated/host/new'
       path: '/new'
@@ -225,12 +208,10 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedHostRouteChildren {
   AuthenticatedHostNewRoute: typeof AuthenticatedHostNewRoute
-  AuthenticatedHostIndexRoute: typeof AuthenticatedHostIndexRoute
 }
 
 const AuthenticatedHostRouteChildren: AuthenticatedHostRouteChildren = {
   AuthenticatedHostNewRoute: AuthenticatedHostNewRoute,
-  AuthenticatedHostIndexRoute: AuthenticatedHostIndexRoute,
 }
 
 const AuthenticatedHostRouteWithChildren =
