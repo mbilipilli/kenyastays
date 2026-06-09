@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouter, useRouterState } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -20,11 +20,25 @@ export const Route = createFileRoute("/_authenticated/host")({
       context.queryClient.ensureQueryData(bookingsQO),
     ]),
   head: () => ({ meta: [{ title: "Host dashboard" }] }),
-  component: HostPage,
-  errorComponent: ({ error }) => <div className="p-6">{error.message}</div>,
+  component: HostShell,
+  errorComponent: ({ error, reset }) => {
+    const router = useRouter();
+    return (
+      <div className="p-6">
+        <p>{error.message}</p>
+        <Button className="mt-3" onClick={() => { router.invalidate(); reset(); }}>Try again</Button>
+      </div>
+    );
+  },
+  notFoundComponent: () => <div className="p-6">Host dashboard not found.</div>,
 });
 
-function HostPage() {
+function HostShell() {
+  const isNewListingRoute = useRouterState({ select: (s) => s.location.pathname === "/host/new" });
+  return isNewListingRoute ? <Outlet /> : <HostDashboard />;
+}
+
+function HostDashboard() {
   const { data: listings } = useSuspenseQuery(listingsQO);
   const { data: bookings } = useSuspenseQuery(bookingsQO);
   const qc = useQueryClient();
@@ -60,7 +74,7 @@ function HostPage() {
               <li key={l.id} className="overflow-hidden rounded-2xl border bg-card">
                 <div className="flex">
                   <div className="aspect-square w-28 shrink-0 bg-muted">
-                    {l.cover_url && <img src={l.cover_url} alt="" className="size-full object-cover" />}
+                    {l.cover_url && <img src={l.cover_url} alt={l.title} className="size-full object-cover" />}
                   </div>
                   <div className="flex flex-1 flex-col p-3">
                     <Link to="/property/$id" params={{ id: l.id }} className="font-medium hover:underline">{l.title}</Link>
