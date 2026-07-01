@@ -18,6 +18,8 @@ import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/host'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
+import { Route as ApiPublicHooksSyncListingsRouteImport } from './routes/api/public/hooks/sync-listings'
+import { Route as ApiPublicHooksMpesaCallbackRouteImport } from './routes/api/public/hooks/mpesa-callback'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -63,6 +65,18 @@ const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AuthenticatedHostRoute,
 } as any)
+const ApiPublicHooksSyncListingsRoute =
+  ApiPublicHooksSyncListingsRouteImport.update({
+    id: '/api/public/hooks/sync-listings',
+    path: '/api/public/hooks/sync-listings',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksMpesaCallbackRoute =
+  ApiPublicHooksMpesaCallbackRouteImport.update({
+    id: '/api/public/hooks/mpesa-callback',
+    path: '/api/public/hooks/mpesa-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
+  '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
+  '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +99,8 @@ export interface FileRoutesByTo {
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
+  '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
+  '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +113,8 @@ export interface FileRoutesById {
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
+  '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
+  '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +127,8 @@ export interface FileRouteTypes {
     | '/trips'
     | '/property/$id'
     | '/host/new'
+    | '/api/public/hooks/mpesa-callback'
+    | '/api/public/hooks/sync-listings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +139,8 @@ export interface FileRouteTypes {
     | '/trips'
     | '/property/$id'
     | '/host/new'
+    | '/api/public/hooks/mpesa-callback'
+    | '/api/public/hooks/sync-listings'
   id:
     | '__root__'
     | '/'
@@ -128,6 +152,8 @@ export interface FileRouteTypes {
     | '/_authenticated/trips'
     | '/property/$id'
     | '/_authenticated/host/new'
+    | '/api/public/hooks/mpesa-callback'
+    | '/api/public/hooks/sync-listings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,6 +162,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SearchRoute: typeof SearchRoute
   PropertyIdRoute: typeof PropertyIdRoute
+  ApiPublicHooksMpesaCallbackRoute: typeof ApiPublicHooksMpesaCallbackRoute
+  ApiPublicHooksSyncListingsRoute: typeof ApiPublicHooksSyncListingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -203,6 +231,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHostNewRouteImport
       parentRoute: typeof AuthenticatedHostRoute
     }
+    '/api/public/hooks/sync-listings': {
+      id: '/api/public/hooks/sync-listings'
+      path: '/api/public/hooks/sync-listings'
+      fullPath: '/api/public/hooks/sync-listings'
+      preLoaderRoute: typeof ApiPublicHooksSyncListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/mpesa-callback': {
+      id: '/api/public/hooks/mpesa-callback'
+      path: '/api/public/hooks/mpesa-callback'
+      fullPath: '/api/public/hooks/mpesa-callback'
+      preLoaderRoute: typeof ApiPublicHooksMpesaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -238,6 +280,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SearchRoute: SearchRoute,
   PropertyIdRoute: PropertyIdRoute,
+  ApiPublicHooksMpesaCallbackRoute: ApiPublicHooksMpesaCallbackRoute,
+  ApiPublicHooksSyncListingsRoute: ApiPublicHooksSyncListingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
