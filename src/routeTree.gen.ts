@@ -17,7 +17,11 @@ import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/host'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
+import { Route as ApiPublicHooksSyncListingsRouteImport } from './routes/api/public/hooks/sync-listings'
+import { Route as ApiPublicHooksMpesaCallbackRouteImport } from './routes/api/public/hooks/mpesa-callback'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -58,21 +62,47 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   id: '/new',
   path: '/new',
   getParentRoute: () => AuthenticatedHostRoute,
 } as any)
+const ApiPublicHooksSyncListingsRoute =
+  ApiPublicHooksSyncListingsRouteImport.update({
+    id: '/api/public/hooks/sync-listings',
+    path: '/api/public/hooks/sync-listings',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksMpesaCallbackRoute =
+  ApiPublicHooksMpesaCallbackRouteImport.update({
+    id: '/api/public/hooks/mpesa-callback',
+    path: '/api/public/hooks/mpesa-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/account': typeof AuthenticatedAccountRoute
   '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
+  '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +113,9 @@ export interface FileRoutesByTo {
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
+  '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -90,11 +123,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/host': typeof AuthenticatedHostRouteWithChildren
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
+  '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -102,11 +139,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/search'
+    | '/admin'
     | '/account'
     | '/host'
     | '/trips'
     | '/property/$id'
     | '/host/new'
+    | '/admin/'
+    | '/api/public/hooks/mpesa-callback'
+    | '/api/public/hooks/sync-listings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,17 +158,24 @@ export interface FileRouteTypes {
     | '/trips'
     | '/property/$id'
     | '/host/new'
+    | '/admin'
+    | '/api/public/hooks/mpesa-callback'
+    | '/api/public/hooks/sync-listings'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/search'
+    | '/_authenticated/admin'
     | '/_authenticated/account'
     | '/_authenticated/host'
     | '/_authenticated/trips'
     | '/property/$id'
     | '/_authenticated/host/new'
+    | '/_authenticated/admin/'
+    | '/api/public/hooks/mpesa-callback'
+    | '/api/public/hooks/sync-listings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -136,6 +184,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SearchRoute: typeof SearchRoute
   PropertyIdRoute: typeof PropertyIdRoute
+  ApiPublicHooksMpesaCallbackRoute: typeof ApiPublicHooksMpesaCallbackRoute
+  ApiPublicHooksSyncListingsRoute: typeof ApiPublicHooksSyncListingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,6 +246,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/host/new': {
       id: '/_authenticated/host/new'
       path: '/new'
@@ -203,8 +267,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHostNewRouteImport
       parentRoute: typeof AuthenticatedHostRoute
     }
+    '/api/public/hooks/sync-listings': {
+      id: '/api/public/hooks/sync-listings'
+      path: '/api/public/hooks/sync-listings'
+      fullPath: '/api/public/hooks/sync-listings'
+      preLoaderRoute: typeof ApiPublicHooksSyncListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/mpesa-callback': {
+      id: '/api/public/hooks/mpesa-callback'
+      path: '/api/public/hooks/mpesa-callback'
+      fullPath: '/api/public/hooks/mpesa-callback'
+      preLoaderRoute: typeof ApiPublicHooksMpesaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
 
 interface AuthenticatedHostRouteChildren {
   AuthenticatedHostNewRoute: typeof AuthenticatedHostNewRoute
@@ -218,12 +310,14 @@ const AuthenticatedHostRouteWithChildren =
   AuthenticatedHostRoute._addFileChildren(AuthenticatedHostRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedHostRoute: typeof AuthenticatedHostRouteWithChildren
   AuthenticatedTripsRoute: typeof AuthenticatedTripsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedHostRoute: AuthenticatedHostRouteWithChildren,
   AuthenticatedTripsRoute: AuthenticatedTripsRoute,
@@ -238,17 +332,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SearchRoute: SearchRoute,
   PropertyIdRoute: PropertyIdRoute,
+  ApiPublicHooksMpesaCallbackRoute: ApiPublicHooksMpesaCallbackRoute,
+  ApiPublicHooksSyncListingsRoute: ApiPublicHooksSyncListingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

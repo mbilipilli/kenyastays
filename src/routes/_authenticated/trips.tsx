@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { myTrips } from "@/lib/api/bookings.functions";
 import { Badge } from "@/components/ui/badge";
 import { formatKES } from "@/lib/constants";
+import { PayBookingDialog } from "@/components/PayBookingDialog";
 
 const qo = queryOptions({ queryKey: ["my-trips"], queryFn: () => myTrips() });
 
@@ -46,6 +47,9 @@ function TripsPage() {
                 <div className="text-right">
                   <Badge className={statusColor[t.status] ?? ""}>{t.status}</Badge>
                   <div className="mt-2 font-semibold">{formatKES(t.total_kes)}</div>
+                  {t.status === "pending" && (
+                    <div className="mt-2"><PayBookingDialog bookingId={t.id} amountKes={t.total_kes} /></div>
+                  )}
                 </div>
               </div>
             </li>
