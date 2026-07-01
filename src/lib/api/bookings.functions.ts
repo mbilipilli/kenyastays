@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { calcFees } from "@/lib/monetization";
 
 const bookSchema = z.object({
   property_id: z.string().uuid(),
@@ -8,12 +9,29 @@ const bookSchema = z.object({
   check_out: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   guests: z.number().int().min(1).max(30),
   notes: z.string().max(500).optional(),
+  affiliate_code: z.string().trim().min(2).max(40).optional(),
 });
 
 function nightsBetween(a: string, b: string) {
   const ms = new Date(b).getTime() - new Date(a).getTime();
   return Math.round(ms / (1000 * 60 * 60 * 24));
 }
+
+export const quoteBooking = createServerFn({ method: "POST" })
+  .inputValidator((d) =>
+    z.object({ property_id: z.string().uuid(), nights: z.number().int().min(1).max(60) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prop, error } = await supabaseAdmin
+      .from("properties")
+      .select("price_kes,cleaning_fee_kes")
+      .eq("id", data.property_id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!prop) throw new Error("Listing not found");
+    return calcFees({ price_kes: prop.price_kes, nights: data.nights, cleaning_fee_kes: prop.cleaning_fee_kes ?? 0 });
+  });
 
 export const createBooking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -26,7 +44,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: prop, error: pErr } = await supabaseAdmin
       .from("properties")
-      .select("id,host_id,price_kes,max_guests,is_active")
+      .select("id,host_id,price_kes,max_guests,is_active,cleaning_fee_kes")
       .eq("id", data.property_id)
       .maybeSingle();
     if (pErr) throw new Error(pErr.message);
@@ -45,7 +63,27 @@ export const createBooking = createServerFn({ method: "POST" })
       .limit(1);
     if (clash && clash.length) throw new Error("Those dates are already booked");
 
-    const total = prop.price_kes * nights;
+    // Resolve affiliate (optional) — RLS allows anyone to read active affiliates
+    let affiliate: { id: string; code: string; commission_pct: number } | null = null;
+    if (data.affiliate_code) {
+      const { data: aff } = await supabaseAdmin
+        .from("affiliates")
+        .select("id,code,commission_pct")
+        .eq("code", data.affiliate_code)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (aff) affiliate = aff as any;
+    }
+
+    const fees = calcFees({
+      price_kes: prop.price_kes,
+      nights,
+      cleaning_fee_kes: prop.cleaning_fee_kes ?? 0,
+    });
+    const affiliateCommission = affiliate
+      ? Math.round(fees.commission_kes * (Number(affiliate.commission_pct) / 100))
+      : 0;
+
     const { data: booking, error } = await supabase
       .from("bookings")
       .insert({
@@ -57,13 +95,29 @@ export const createBooking = createServerFn({ method: "POST" })
         check_out: data.check_out,
         guests: data.guests,
         nights,
-        total_kes: total,
+        subtotal_kes: fees.subtotal_kes,
+        cleaning_fee_kes: fees.cleaning_fee_kes,
+        service_fee_kes: fees.service_fee_kes,
+        total_kes: fees.total_kes,
+        commission_kes: fees.commission_kes,
+        host_payout_kes: fees.host_payout_kes,
+        affiliate_code: affiliate?.code ?? null,
+        affiliate_commission_kes: affiliateCommission,
         notes: data.notes ?? null,
         status: "pending",
       })
       .select()
       .single();
     if (error) throw new Error(error.message);
+
+    if (affiliate && affiliateCommission > 0) {
+      await supabaseAdmin.from("affiliate_referrals").insert({
+        affiliate_id: affiliate.id,
+        booking_id: booking.id,
+        commission_kes: affiliateCommission,
+        status: "pending",
+      });
+    }
     return booking;
   });
 
