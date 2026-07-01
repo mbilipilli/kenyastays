@@ -229,6 +229,71 @@ export type Database = {
         }
         Relationships: []
       }
+      external_listings: {
+        Row: {
+          availability: Json
+          booking_status: string
+          city: string | null
+          created_at: string
+          currency: string
+          external_id: string
+          hotel_name: string
+          id: string
+          price_kes: number
+          price_native: number
+          property_id: string | null
+          raw: Json | null
+          room_type: string
+          source: Database["public"]["Enums"]["sync_source"]
+          synced_at: string
+          updated_at: string
+        }
+        Insert: {
+          availability?: Json
+          booking_status?: string
+          city?: string | null
+          created_at?: string
+          currency: string
+          external_id: string
+          hotel_name: string
+          id?: string
+          price_kes: number
+          price_native: number
+          property_id?: string | null
+          raw?: Json | null
+          room_type: string
+          source: Database["public"]["Enums"]["sync_source"]
+          synced_at?: string
+          updated_at?: string
+        }
+        Update: {
+          availability?: Json
+          booking_status?: string
+          city?: string | null
+          created_at?: string
+          currency?: string
+          external_id?: string
+          hotel_name?: string
+          id?: string
+          price_kes?: number
+          price_native?: number
+          property_id?: string | null
+          raw?: Json | null
+          room_type?: string
+          source?: Database["public"]["Enums"]["sync_source"]
+          synced_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_listings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       featured_subscriptions: {
         Row: {
           created_at: string
@@ -279,6 +344,89 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fx_rates: {
+        Row: {
+          base: string
+          fetched_at: string
+          id: string
+          quote: string
+          rate: number
+        }
+        Insert: {
+          base: string
+          fetched_at?: string
+          id?: string
+          quote: string
+          rate: number
+        }
+        Update: {
+          base?: string
+          fetched_at?: string
+          id?: string
+          quote?: string
+          rate?: number
+        }
+        Relationships: []
+      }
+      mpesa_transactions: {
+        Row: {
+          amount_kes: number
+          booking_id: string
+          checkout_request_id: string | null
+          created_at: string
+          id: string
+          merchant_request_id: string | null
+          mpesa_receipt: string | null
+          phone: string
+          raw_callback: Json | null
+          result_code: number | null
+          result_desc: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_kes: number
+          booking_id: string
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt?: string | null
+          phone: string
+          raw_callback?: Json | null
+          result_code?: number | null
+          result_desc?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_kes?: number
+          booking_id?: string
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt?: string | null
+          phone?: string
+          raw_callback?: Json | null
+          result_code?: number | null
+          result_desc?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mpesa_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
         ]
@@ -535,6 +683,39 @@ export type Database = {
           },
         ]
       }
+      sync_runs: {
+        Row: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          items_upserted: number
+          source: Database["public"]["Enums"]["sync_source"]
+          started_at: string
+          status: Database["public"]["Enums"]["sync_status"]
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          items_upserted?: number
+          source: Database["public"]["Enums"]["sync_source"]
+          started_at?: string
+          status: Database["public"]["Enums"]["sync_status"]
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          items_upserted?: number
+          source?: Database["public"]["Enums"]["sync_source"]
+          started_at?: string
+          status?: Database["public"]["Enums"]["sync_status"]
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -581,6 +762,8 @@ export type Database = {
         | "guest_house"
         | "villa"
         | "cottage"
+      sync_source: "sirvoy" | "hoteldruid"
+      sync_status: "running" | "success" | "error"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -720,6 +903,8 @@ export const Constants = {
         "villa",
         "cottage",
       ],
+      sync_source: ["sirvoy", "hoteldruid"],
+      sync_status: ["running", "success", "error"],
     },
   },
 } as const
