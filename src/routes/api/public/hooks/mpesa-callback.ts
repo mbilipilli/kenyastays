@@ -43,9 +43,10 @@ export const Route = createFileRoute("/api/public/hooks/mpesa-callback")({
             booking_id: tx.booking_id,
             user_id: tx.user_id,
             amount_kes: tx.amount_kes,
-            provider: "mpesa",
-            status: "succeeded",
-            reference: receipt ?? checkoutRequestId,
+            method: "mpesa",
+            status: "success",
+            provider_ref: receipt ?? checkoutRequestId,
+            phone: tx.phone,
           });
         }
         return Response.json({ ResultCode: 0, ResultDesc: "OK" });
