@@ -147,7 +147,7 @@ function Kpi({ icon, label, value, tint }: { icon: React.ReactNode; label: strin
 function DataBridge({ sirvoy, hoteldruid }: { sirvoy?: { count: number; last: string | null }; hoteldruid?: { count: number; last: string | null } }) {
   return (
     <div className="grid items-center gap-4 md:grid-cols-3">
-      <SourceBox name="Sirvoy Pro" tag="Channel Manager" count={sirvoy?.count ?? 0} last={sirvoy?.last} tint="from-primary/20 to-primary/5" />
+      <SourceBox name="Sirvoy Pro" tag="Channel Manager" count={sirvoy?.count ?? 0} last={sirvoy?.last ?? null} tint="from-primary/20 to-primary/5" />
       <div className="rounded-2xl border bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-4 text-center">
         <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Mbilipilli Bridge</div>
         <div className="flex flex-col gap-1 text-xs text-foreground/80">
@@ -156,7 +156,7 @@ function DataBridge({ sirvoy, hoteldruid }: { sirvoy?: { count: number; last: st
           <span>← Reports →</span>
         </div>
       </div>
-      <SourceBox name="HotelDruid" tag="Open Source PMS" count={hoteldruid?.count ?? 0} last={hoteldruid?.last} tint="from-accent/20 to-accent/5" />
+      <SourceBox name="HotelDruid" tag="Open Source PMS" count={hoteldruid?.count ?? 0} last={hoteldruid?.last ?? null} tint="from-accent/20 to-accent/5" />
     </div>
   );
 }
