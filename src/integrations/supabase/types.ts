@@ -14,52 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          booking_id: string
+          commission_kes: number
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          booking_id: string
+          commission_kes: number
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          booking_id?: string
+          commission_kes?: number
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_referrals_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          code: string
+          commission_pct: number
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          profile_id: string | null
+          total_earned_kes: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          commission_pct?: number
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          profile_id?: string | null
+          total_earned_kes?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          commission_pct?: number
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          profile_id?: string | null
+          total_earned_kes?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
+          affiliate_code: string | null
+          affiliate_commission_kes: number
           check_in: string
           check_out: string
+          cleaning_fee_kes: number
+          commission_kes: number
           created_at: string
           guest_id: string
           guests: number
           host_id: string
+          host_payout_kes: number
           id: string
           nights: number
           notes: string | null
           profileId: string
           property_id: string
+          service_fee_kes: number
           status: Database["public"]["Enums"]["booking_status"]
+          subtotal_kes: number
           total_kes: number
           updated_at: string
         }
         Insert: {
+          affiliate_code?: string | null
+          affiliate_commission_kes?: number
           check_in: string
           check_out: string
+          cleaning_fee_kes?: number
+          commission_kes?: number
           created_at?: string
           guest_id: string
           guests?: number
           host_id: string
+          host_payout_kes?: number
           id?: string
           nights: number
           notes?: string | null
           profileId: string
           property_id: string
+          service_fee_kes?: number
           status?: Database["public"]["Enums"]["booking_status"]
+          subtotal_kes?: number
           total_kes: number
           updated_at?: string
         }
         Update: {
+          affiliate_code?: string | null
+          affiliate_commission_kes?: number
           check_in?: string
           check_out?: string
+          cleaning_fee_kes?: number
+          commission_kes?: number
           created_at?: string
           guest_id?: string
           guests?: number
           host_id?: string
+          host_payout_kes?: number
           id?: string
           nights?: number
           notes?: string | null
           profileId?: string
           property_id?: string
+          service_fee_kes?: number
           status?: Database["public"]["Enums"]["booking_status"]
+          subtotal_kes?: number
           total_kes?: number
           updated_at?: string
         }
@@ -73,6 +186,96 @@ export type Database = {
           },
           {
             foreignKeyName: "bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cleaning_partners: {
+        Row: {
+          city: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          platform_cut_pct: number
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          platform_cut_pct?: number
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          platform_cut_pct?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      featured_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string
+          id: string
+          monthly_price_kes: number
+          plan: string
+          profile_id: string
+          property_id: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string
+          id?: string
+          monthly_price_kes: number
+          plan: string
+          profile_id: string
+          property_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string
+          id?: string
+          monthly_price_kes?: number
+          plan?: string
+          profile_id?: string
+          property_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_subscriptions_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
@@ -170,14 +373,18 @@ export type Database = {
           bathrooms: number
           bedrooms: number
           city: string
+          cleaning_fee_kes: number
+          cleaning_partner_id: string | null
           cover_image: string | null
           created_at: string
           description: string
+          featured_until: string | null
           host_id: string
           id: string
           is_active: boolean
           is_community: boolean
           is_eco: boolean
+          is_featured: boolean
           landmarks: string[]
           latitude: number | null
           longitude: number | null
@@ -194,14 +401,18 @@ export type Database = {
           bathrooms?: number
           bedrooms?: number
           city: string
+          cleaning_fee_kes?: number
+          cleaning_partner_id?: string | null
           cover_image?: string | null
           created_at?: string
           description: string
+          featured_until?: string | null
           host_id: string
           id?: string
           is_active?: boolean
           is_community?: boolean
           is_eco?: boolean
+          is_featured?: boolean
           landmarks?: string[]
           latitude?: number | null
           longitude?: number | null
@@ -218,14 +429,18 @@ export type Database = {
           bathrooms?: number
           bedrooms?: number
           city?: string
+          cleaning_fee_kes?: number
+          cleaning_partner_id?: string | null
           cover_image?: string | null
           created_at?: string
           description?: string
+          featured_until?: string | null
           host_id?: string
           id?: string
           is_active?: boolean
           is_community?: boolean
           is_eco?: boolean
+          is_featured?: boolean
           landmarks?: string[]
           latitude?: number | null
           longitude?: number | null
@@ -237,6 +452,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "properties_cleaning_partner_fkey"
+            columns: ["cleaning_partner_id"]
+            isOneToOne: false
+            referencedRelation: "cleaning_partners"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "properties_profileId_fkey"
             columns: ["profileId"]

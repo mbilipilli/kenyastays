@@ -15,8 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi, CalendarIcon } from "lucide-react";
+import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi, CalendarIcon, Tag } from "lucide-react";
 import { formatKES } from "@/lib/constants";
+import { calcFees } from "@/lib/monetization";
 import { supabase } from "@/integrations/supabase/client";
 import { LiveMap } from "@/components/LiveMap";
 import { NearbyMap } from "@/components/NearbyMap";
@@ -53,6 +54,8 @@ function PropertyPage() {
   const [guests, setGuests] = useState(1);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [phone, setPhone] = useState("");
+  const initialRef = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") ?? "" : "";
+  const [affiliateCode, setAffiliateCode] = useState(initialRef);
 
   const fetchBooked = useServerFn(getBookedDates);
   const { data: booked = [] } = useQuery({
@@ -77,6 +80,7 @@ function PropertyPage() {
           check_in: format(range.from, "yyyy-MM-dd"),
           check_out: format(range.to, "yyyy-MM-dd"),
           guests,
+          ...(affiliateCode.trim() ? { affiliate_code: affiliateCode.trim() } : {}),
         },
       });
     },
@@ -105,7 +109,7 @@ function PropertyPage() {
   const nights = range?.from && range?.to
     ? Math.max(1, Math.round((range.to.getTime() - range.from.getTime()) / 86400000))
     : 1;
-  const total = nights * p.price_kes;
+  const fees = calcFees({ price_kes: p.price_kes, nights, cleaning_fee_kes: p.cleaning_fee_kes ?? 0 });
 
   return (
     <>
@@ -278,9 +282,35 @@ function PropertyPage() {
               <Input type="number" min={1} max={p.max_guests} value={guests} onChange={(e) => setGuests(Math.max(1, +e.target.value))} />
             </div>
 
-            <div className="mt-4 flex items-center justify-between border-t pt-3 text-sm">
-              <span>{formatKES(p.price_kes)} × {nights} {nights === 1 ? "night" : "nights"}</span>
-              <span className="font-semibold">{formatKES(total)}</span>
+            <div className="mt-4 space-y-1.5 border-t pt-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span>{formatKES(p.price_kes)} × {nights} {nights === 1 ? "night" : "nights"}</span>
+                <span>{formatKES(fees.subtotal_kes)}</span>
+              </div>
+              {fees.cleaning_fee_kes > 0 && (
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Cleaning fee</span>
+                  <span>{formatKES(fees.cleaning_fee_kes)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Platform service fee (4%)</span>
+                <span>{formatKES(fees.service_fee_kes)}</span>
+              </div>
+              <div className="flex items-center justify-between border-t pt-2 font-semibold">
+                <span>Total</span>
+                <span>{formatKES(fees.total_kes)}</span>
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <Label className="text-xs inline-flex items-center gap-1"><Tag className="size-3" /> Referral code (optional)</Label>
+              <Input
+                placeholder="e.g. TRAVELBLOG10"
+                value={affiliateCode}
+                onChange={(e) => setAffiliateCode(e.target.value.toUpperCase())}
+                className="mt-1 uppercase"
+              />
             </div>
 
             {!bookingId ? (
@@ -292,12 +322,12 @@ function PropertyPage() {
                 <Label className="text-xs">M-Pesa phone</Label>
                 <Input placeholder="0712 345 678" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 <Button className="w-full" size="lg" onClick={() => payM.mutate()} disabled={payM.isPending || !phone}>
-                  {payM.isPending ? "Sending STK push…" : `Pay ${formatKES(total)} with M-Pesa`}
+                  {payM.isPending ? "Sending STK push…" : `Pay ${formatKES(fees.total_kes)} with M-Pesa`}
                 </Button>
                 <Link to="/trips" className="block text-center text-xs text-muted-foreground hover:underline">View my trips</Link>
               </div>
             )}
-            <p className="mt-3 text-center text-xs text-muted-foreground">You won't be charged until you confirm payment.</p>
+            <p className="mt-3 text-center text-xs text-muted-foreground">You won't be charged until you confirm payment. Fees shown transparently before booking.</p>
           </div>
         </aside>
       </div>
