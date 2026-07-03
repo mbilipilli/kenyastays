@@ -21,7 +21,7 @@ export function Footer() {
         <div>
           <h4 className="font-serif text-sm font-semibold">Follow</h4>
           <div className="mt-3 flex gap-3 text-muted-foreground">
-            <a href="#" aria-label="Instagram" className="hover:text-primary"><Instagram className="size-5" /></a>
+            <a href="#" aria-label="YouTube" className="hover:text-primary"><Youtube className="size-5" /></a>
             <a href="#" aria-label="LinkedIn" className="hover:text-primary"><Linkedin className="size-5" /></a>
             <a href="#" aria-label="WhatsApp" className="hover:text-primary"><MessageCircle className="size-5" /></a>
           </div>
