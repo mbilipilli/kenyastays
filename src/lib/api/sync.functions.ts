@@ -18,6 +18,31 @@ export const runSync = createServerFn({ method: "POST" })
     return await runAllSyncs();
   });
 
+const HD_THUMBS = [
+  "https://images.unsplash.com/photo-1590523278191-995cbcda646b?auto=format&fit=crop&w=800&q=70",
+  "https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=800&q=70",
+  "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=800&q=70",
+  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=70",
+  "https://images.unsplash.com/photo-1549366021-9f761d450615?auto=format&fit=crop&w=800&q=70",
+  "https://images.unsplash.com/photo-1568084680786-a84f91d1153c?auto=format&fit=crop&w=800&q=70",
+];
+
+export const listHotelDruidFeatured = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { fetchHotelDruidRooms } = await import("@/lib/sync/hoteldruid.server");
+    const rooms = await fetchHotelDruidRooms();
+    return rooms.map((r, i) => ({
+      external_id: r.external_id,
+      hotel_name: r.hotel_name,
+      room_type: r.room_type,
+      city: r.city,
+      price_kes: r.price_kes,
+      booking_status: r.booking_status,
+      thumbnail: HD_THUMBS[i % HD_THUMBS.length],
+    }));
+  });
+
+
 export const getSyncStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
