@@ -17,6 +17,12 @@ const featuredQO = queryOptions({
   queryFn: () => searchProperties({ data: {} }),
 });
 
+const hotelDruidQO = queryOptions({
+  queryKey: ["hoteldruid", "featured"],
+  queryFn: () => listHotelDruidFeatured(),
+});
+
+
 const CITY_CHIPS = [
   { name: "Nairobi", emoji: "🏙️" },
   { name: "Mombasa", emoji: "🌊" },
