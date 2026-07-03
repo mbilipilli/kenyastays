@@ -70,17 +70,18 @@ function Index() {
               🌍 Stay Local. Stay Kenyan.
             </span>
             <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight text-foreground md:text-6xl">
-              From <span className="text-primary">city beats</span> to <span className="text-primary">safari seats</span> — find your perfect Kenyan stay.
+              Discover Your Perfect <span className="text-primary">Stay in Kenya</span>
             </h1>
             <p className="mt-3 max-w-xl text-base text-foreground/80 md:text-lg">
-              Trusted hosts, secure payments, and authentic experiences.
+              Real-time availability powered by HotelDruid + Sirvoy Pro.
             </p>
             <Link
               to="/search"
               className="mt-5 inline-flex h-12 items-center rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
             >
-              Book Your Stay
+              Book Now
             </Link>
+
           </div>
 
           <div className="mt-8 max-w-3xl mx-auto">
