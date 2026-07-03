@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { searchProperties } from "@/lib/api/properties.functions";
+import { listHotelDruidFeatured } from "@/lib/api/sync.functions";
 import { PropertyCard } from "@/components/PropertyCard";
+import { HotelDruidCard } from "@/components/HotelDruidCard";
+
 import { SearchBar } from "@/components/SearchBar";
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
