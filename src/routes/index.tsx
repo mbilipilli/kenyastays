@@ -39,7 +39,11 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Find authentic Kenyan stays — Nairobi apartments, Mombasa beach cottages, Maasai Mara lodges. Trusted hosts, secure M-Pesa & card payments, real-time availability." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(featuredQO),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(featuredQO);
+    context.queryClient.prefetchQuery(hotelDruidQO);
+  },
+
   component: Index,
   errorComponent: ({ error }) => (
     <div className="p-6 text-sm text-muted-foreground">Couldn't load listings: {error.message}</div>
