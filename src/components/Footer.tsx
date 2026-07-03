@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Linkedin, MessageCircle } from "lucide-react";
+import { Youtube, Linkedin, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 export function Footer() {
@@ -21,15 +21,19 @@ export function Footer() {
         <div>
           <h4 className="font-serif text-sm font-semibold">Follow</h4>
           <div className="mt-3 flex gap-3 text-muted-foreground">
-            <a href="#" aria-label="Instagram" className="hover:text-primary"><Instagram className="size-5" /></a>
+            <a href="#" aria-label="YouTube" className="hover:text-primary"><Youtube className="size-5" /></a>
             <a href="#" aria-label="LinkedIn" className="hover:text-primary"><Linkedin className="size-5" /></a>
             <a href="#" aria-label="WhatsApp" className="hover:text-primary"><MessageCircle className="size-5" /></a>
           </div>
         </div>
       </div>
+      <div className="border-t border-border/60 py-2 text-center text-[11px] text-muted-foreground">
+        Powered by HotelDruid + Sirvoy Pro — secure API sync
+      </div>
       <div className="border-t border-border/60 py-4 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} Mbilipilli Stays — Made with ❤️ in Kenya
       </div>
+
     </footer>
   );
 }

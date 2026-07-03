@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { searchProperties } from "@/lib/api/properties.functions";
+import { listHotelDruidFeatured } from "@/lib/api/sync.functions";
 import { PropertyCard } from "@/components/PropertyCard";
+import { HotelDruidCard } from "@/components/HotelDruidCard";
+
 import { SearchBar } from "@/components/SearchBar";
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
@@ -13,6 +16,12 @@ const featuredQO = queryOptions({
   queryKey: ["properties", "featured"],
   queryFn: () => searchProperties({ data: {} }),
 });
+
+const hotelDruidQO = queryOptions({
+  queryKey: ["hoteldruid", "featured"],
+  queryFn: () => listHotelDruidFeatured(),
+});
+
 
 const CITY_CHIPS = [
   { name: "Nairobi", emoji: "🏙️" },
@@ -30,7 +39,11 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Find authentic Kenyan stays — Nairobi apartments, Mombasa beach cottages, Maasai Mara lodges. Trusted hosts, secure M-Pesa & card payments, real-time availability." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(featuredQO),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(featuredQO);
+    context.queryClient.prefetchQuery(hotelDruidQO);
+  },
+
   component: Index,
   errorComponent: ({ error }) => (
     <div className="p-6 text-sm text-muted-foreground">Couldn't load listings: {error.message}</div>
@@ -39,6 +52,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data: properties } = useSuspenseQuery(featuredQO);
+  const { data: hdRooms } = useSuspenseQuery(hotelDruidQO);
+
   return (
     <main>
       {/* Hero */}
@@ -55,17 +70,18 @@ function Index() {
               🌍 Stay Local. Stay Kenyan.
             </span>
             <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight text-foreground md:text-6xl">
-              From <span className="text-primary">city beats</span> to <span className="text-primary">safari seats</span> — find your perfect Kenyan stay.
+              Discover Your Perfect <span className="text-primary">Stay in Kenya</span>
             </h1>
             <p className="mt-3 max-w-xl text-base text-foreground/80 md:text-lg">
-              Trusted hosts, secure payments, and authentic experiences.
+              Real-time availability powered by HotelDruid + Sirvoy Pro.
             </p>
             <Link
               to="/search"
               className="mt-5 inline-flex h-12 items-center rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
             >
-              Book Your Stay
+              Book Now
             </Link>
+
           </div>
 
           <div className="mt-8 max-w-3xl mx-auto">
@@ -109,6 +125,28 @@ function Index() {
           </div>
         )}
       </section>
+
+      {/* HotelDruid live inventory */}
+      {hdRooms.length > 0 && (
+        <section className="bg-sand/40">
+          <div className="mx-auto max-w-6xl px-4 py-10">
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div>
+                <h2 className="font-serif text-2xl md:text-3xl">Featured Stays — Live from HotelDruid</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Real-time rooms & rates synced securely from partner PMS.</p>
+              </div>
+              <span className="hidden shrink-0 rounded-full bg-acacia/15 px-3 py-1 text-xs font-medium text-accent sm:inline">
+                Live sync
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
+              {hdRooms.slice(0, 8).map((r) => <HotelDruidCard key={r.external_id} {...r} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+
 
       {/* Live Map */}
       {properties.length > 0 && (
