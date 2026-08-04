@@ -1,15 +1,19 @@
+import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { adminOverview, listAllHosts, setHostVerified, paymentsOverview } from "@/lib/api/admin.functions";
+import { testStkPush } from "@/lib/api/mpesa.functions";
 import { runSync, getSyncStatus, listExternalListings } from "@/lib/api/sync.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2 } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin Dashboard — Mbilipilli Stays" }] }),
