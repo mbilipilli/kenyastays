@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
@@ -61,6 +61,11 @@ function PropertyPage() {
   const [phone, setPhone] = useState("");
   const initialRef = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") ?? "" : "";
   const [affiliateCode, setAffiliateCode] = useState(initialRef);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
+  }, []);
+  const isOwnListing = !!currentUserId && currentUserId === p.host_id;
 
   const fetchBooked = useServerFn(getBookedDates);
   const { data: booked = [] } = useQuery({
@@ -186,8 +191,21 @@ function PropertyPage() {
               />
             </div>
 
-            {!bookingId ? (
-              <Button className="mt-4 w-full gap-1.5" size="lg" onClick={() => bookM.mutate()} disabled={bookM.isPending}>
+            {isOwnListing ? (
+              <div className="mt-4 rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">
+                This is your listing — you can't book your own stay.{" "}
+                <Link to="/host" className="font-medium text-primary underline-offset-2 hover:underline">
+                  Manage it in your host dashboard
+                </Link>
+                .
+              </div>
+            ) : !bookingId ? (
+              <Button
+                className="mt-4 w-full gap-1.5"
+                size="lg"
+                onClick={() => bookM.mutate()}
+                disabled={bookM.isPending}
+              >
                 <Zap className="size-4" />
                 {bookM.isPending ? "Reserving…" : "Reserve instantly"}
               </Button>
