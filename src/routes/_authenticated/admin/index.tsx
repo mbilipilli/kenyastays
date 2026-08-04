@@ -235,7 +235,7 @@ function TestStkPushCard() {
       <CardContent className="space-y-3">
         <p className="text-xs text-muted-foreground">Sends a KES 1 sandbox prompt to your phone to verify M-Pesa credentials.</p>
         <div className="flex gap-2">
-          <Input placeholder="07XX XXX XXX" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <Input placeholder="07XX XXX XXX" value={phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)} />
           <Button disabled={!phone || m.isPending} onClick={() => m.mutate()}>
             {m.isPending ? "Sending…" : "Test"}
           </Button>
