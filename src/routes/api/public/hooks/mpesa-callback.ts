@@ -48,7 +48,41 @@ export const Route = createFileRoute("/api/public/hooks/mpesa-callback")({
             provider_ref: receipt ?? checkoutRequestId,
             phone: tx.phone,
           });
+
+          // Push the paid booking back to the partner PMS (best effort).
+          try {
+            const { data: bk } = await supabaseAdmin
+              .from("bookings")
+              .select("id,check_in,check_out,property_id,profileId,properties:property_id(title)")
+              .eq("id", tx.booking_id)
+              .maybeSingle();
+            if (bk) {
+              const { data: profile } = await supabaseAdmin
+                .from("profiles")
+                .select("full_name")
+                .eq("id", bk.profileId)
+                .maybeSingle();
+              const { data: ext } = await supabaseAdmin
+                .from("external_listings")
+                .select("external_id")
+                .eq("source", "hoteldruid")
+                .eq("property_id", bk.property_id)
+                .maybeSingle();
+              const { createHotelDruidBooking } = await import("@/lib/sync/hoteldruid.server");
+              await createHotelDruidBooking({
+                room_id: ext?.external_id ?? bk.property_id,
+                guest_name: profile?.full_name ?? "Mbilipilli Guest",
+                guest_phone: tx.phone,
+                check_in: bk.check_in,
+                check_out: bk.check_out,
+                payment_status: "Paid",
+              });
+            }
+          } catch (e) {
+            console.error("HotelDruid booking push failed", e);
+          }
         }
+
         return Response.json({ ResultCode: 0, ResultDesc: "OK" });
       },
     },
