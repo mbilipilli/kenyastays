@@ -1,15 +1,19 @@
+import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { adminOverview, listAllHosts, setHostVerified, paymentsOverview } from "@/lib/api/admin.functions";
+import { testStkPush } from "@/lib/api/mpesa.functions";
 import { runSync, getSyncStatus, listExternalListings } from "@/lib/api/sync.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2 } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin Dashboard — Mbilipilli Stays" }] }),
@@ -208,6 +212,48 @@ function HostsPanel() {
   );
 }
 
+function TestStkPushCard() {
+  const fn = useServerFn(testStkPush);
+  const [phone, setPhone] = useState("");
+  const [result, setResult] = useState<any>(null);
+  const m = useMutation({
+    mutationFn: () => fn({ data: { phone, amount: 1 } }),
+    onSuccess: (r: any) => {
+      setResult(r);
+      r.ok ? toast.success("STK Push sent — check your phone") : toast.error(r.error ?? "Failed");
+    },
+    onError: (e: any) => {
+      setResult({ ok: false, error: e?.message ?? "Request failed" });
+      toast.error(e?.message ?? "Request failed");
+    },
+  });
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2"><Smartphone className="size-4" /> Test STK Push</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">Sends a KES 1 sandbox prompt to your phone to verify M-Pesa credentials.</p>
+        <div className="flex gap-2">
+          <Input placeholder="07XX XXX XXX" value={phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)} />
+          <Button disabled={!phone || m.isPending} onClick={() => m.mutate()}>
+            {m.isPending ? "Sending…" : "Test"}
+          </Button>
+        </div>
+        {result && (
+          <pre
+            className={`overflow-x-auto rounded-lg border p-3 text-xs ${
+              result.ok ? "border-primary/40 bg-primary/5" : "border-destructive/40 bg-destructive/5 text-destructive"
+            }`}
+          >
+{JSON.stringify(result, null, 2)}
+          </pre>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function PaymentsPanel() {
   const fn = useServerFn(paymentsOverview);
   const { data } = useQuery({ queryKey: ["admin", "payments"], queryFn: () => fn({ data: undefined as any }) });
@@ -221,9 +267,11 @@ function PaymentsPanel() {
         <CardHeader><CardTitle className="text-base">M-Pesa STK Push</CardTitle></CardHeader>
         <CardContent><PayList rows={data?.mpesa ?? []} col="mpesa_receipt" /></CardContent>
       </Card>
+      <div className="md:col-span-2"><TestStkPushCard /></div>
     </div>
   );
 }
+
 
 function PayList({ rows, col }: { rows: any[]; col: string }) {
   if (!rows.length) return <p className="py-6 text-center text-sm text-muted-foreground">No activity</p>;

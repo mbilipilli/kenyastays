@@ -67,3 +67,36 @@ export const getMpesaStatus = createServerFn({ method: "POST" })
     if (!row || row.user_id !== context.userId) throw new Error("Not found");
     return row;
   });
+
+export const testStkPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ phone: z.string().min(9).max(15), amount: z.number().int().min(1).max(1000).default(1) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+
+    const { normalizePhone, stkPush } = await import("@/lib/mpesa/daraja.server");
+    const phone = normalizePhone(data.phone);
+    const env = process.env["MPESA_ENV"] ?? "sandbox";
+    const origin =
+      process.env["PUBLIC_APP_URL"] ??
+      "https://project--4775c4eb-263c-4831-a768-038a33a5e678.lovable.app";
+
+    try {
+      const res = await stkPush({
+        phone,
+        amount: data.amount,
+        accountRef: "TEST",
+        description: "Test STK Push",
+        callbackUrl: `${origin}/api/public/hooks/mpesa-callback`,
+      });
+      return { ok: true as const, env, phone, ...res };
+    } catch (e: any) {
+      return { ok: false as const, env, phone, error: String(e?.message ?? e) };
+    }
+  });
