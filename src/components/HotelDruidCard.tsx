@@ -30,8 +30,8 @@ export function HotelDruidCard(p: HotelDruidCardProps) {
         >
           {available ? "Available" : "Sold out"}
         </span>
-        <span className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-clay backdrop-blur">
-          HotelDruid
+        <span className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold text-accent backdrop-blur">
+          Verified
         </span>
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">

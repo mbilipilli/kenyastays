@@ -73,7 +73,7 @@ function Index() {
               Discover Your Perfect <span className="text-primary">Stay in Kenya</span>
             </h1>
             <p className="mt-3 max-w-xl text-base text-foreground/80 md:text-lg">
-              Real-time availability powered by HotelDruid + Sirvoy Pro.
+              Trusted local hosts, instant M-Pesa payments, and real-time availability across Kenya.
             </p>
             <Link
               to="/search"
@@ -132,7 +132,7 @@ function Index() {
           <div className="mx-auto max-w-6xl px-4 py-10">
             <div className="mb-4 flex items-end justify-between gap-3">
               <div>
-                <h2 className="font-serif text-2xl md:text-3xl">Featured Stays — Live from HotelDruid</h2>
+                <h2 className="font-serif text-2xl md:text-3xl">Featured stays — live across Kenya</h2>
                 <p className="mt-1 text-sm text-muted-foreground">Real-time rooms & rates synced securely from partner PMS.</p>
               </div>
               <span className="hidden shrink-0 rounded-full bg-acacia/15 px-3 py-1 text-xs font-medium text-accent sm:inline">
