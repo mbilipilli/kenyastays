@@ -8,7 +8,8 @@ import { PropertyCard } from "@/components/PropertyCard";
 import { SearchBar } from "@/components/SearchBar";
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
-import { AMENITIES, CITIES, formatKES } from "@/lib/constants";
+import { CsrStories } from "@/components/CsrStories";
+import { AMENITIES, CITIES, PROPERTY_TYPES, formatKES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,6 +25,7 @@ const searchSchema = z.object({
   amenities: z.array(z.string()).optional(),
   guests: z.coerce.number().int().optional(),
   eco: z.coerce.boolean().optional(),
+  type: z.enum(["apartment","lodge","homestay","guest_house","villa","cottage"]).optional(),
 });
 
 const qo = (search: z.infer<typeof searchSchema>) =>
@@ -102,6 +104,9 @@ function SearchPage() {
             </div>
           </>
         )}
+        <div className="mt-12">
+          <CsrStories />
+        </div>
       </main>
       <Footer />
     </>
@@ -118,12 +123,14 @@ function FilterSheet() {
   const [amenities, setAmen] = useState<string[]>(search.amenities ?? []);
   const [eco, setEco] = useState(!!search.eco);
   const [city, setCity] = useState(search.city ?? "");
+  const [ptype, setPtype] = useState<string>(search.type ?? "");
 
   function apply() {
     navigate({
       search: {
         ...search,
         city: city || undefined,
+        type: (ptype || undefined) as any,
         minPrice: minPrice ? Number(minPrice) : undefined,
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
         guests: guests ? Number(guests) : undefined,
@@ -134,7 +141,7 @@ function FilterSheet() {
     setOpen(false);
   }
   function reset() {
-    setMin(""); setMax(""); setGuests(""); setAmen([]); setEco(false); setCity("");
+    setMin(""); setMax(""); setGuests(""); setAmen([]); setEco(false); setCity(""); setPtype("");
     navigate({ search: {} });
     setOpen(false);
   }
@@ -154,6 +161,13 @@ function FilterSheet() {
             <select value={city} onChange={(e) => setCity(e.target.value)} className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm">
               <option value="">Any</option>
               {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <Label>Property type</Label>
+            <select value={ptype} onChange={(e) => setPtype(e.target.value)} className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm">
+              <option value="">Any type</option>
+              {PROPERTY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
           <div>

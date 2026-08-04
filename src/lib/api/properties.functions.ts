@@ -48,6 +48,7 @@ const searchSchema = z.object({
   amenities: z.array(z.string()).optional(),
   guests: z.number().int().positive().optional(),
   eco: z.boolean().optional(),
+  type: z.enum(["apartment","lodge","homestay","guest_house","villa","cottage"]).optional(),
 });
 
 export const searchProperties = createServerFn({ method: "POST" })
@@ -61,6 +62,7 @@ export const searchProperties = createServerFn({ method: "POST" })
     if (data.maxPrice != null) q = q.lte("price_kes", data.maxPrice);
     if (data.guests) q = q.gte("max_guests", data.guests);
     if (data.eco) q = q.eq("is_eco", true);
+    if (data.type) q = q.eq("property_type", data.type);
     if (data.amenities?.length) q = q.contains("amenities", data.amenities);
     q = q.order("created_at", { ascending: false }).limit(60);
     const { data: rows, error } = await q;
