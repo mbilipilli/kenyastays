@@ -36,7 +36,12 @@ export function PropertyCard(p: Props) {
             <span className="font-serif text-2xl">{p.title.slice(0, 1)}</span>
           </div>
         )}
-        <div className="absolute left-2 top-2 flex gap-1">
+        <div className="absolute right-2 top-2">
+          <Badge variant="secondary" className="gap-1 bg-background/85 text-[10px] font-semibold text-clay backdrop-blur">
+            Kenyan-owned
+          </Badge>
+        </div>
+        <div className="absolute left-2 top-2 flex flex-wrap gap-1">
           {p.is_eco && (
             <Badge variant="secondary" className="gap-1 bg-acacia/90 text-accent-foreground">
               <Leaf className="size-3" /> Eco

@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import { formatKES } from "@/lib/constants";
 import { FEATURED_PLANS } from "@/lib/monetization";
-import { Plus, Sparkles, Sparkle, Sprout, Tag } from "lucide-react";
+import { Plus, Sparkles, Sparkle, Sprout, Tag, MessageCircle, CalendarDays, CheckCircle2 } from "lucide-react";
+import { HostCalendar } from "@/components/HostCalendar";
 
 const listingsQO = queryOptions({ queryKey: ["my-listings"], queryFn: () => myListings() });
 const bookingsQO = queryOptions({ queryKey: ["host-bookings"], queryFn: () => hostBookings() });
@@ -88,6 +89,9 @@ function HostDashboard() {
   const grossRevenue = revenueRows.reduce((s: number, b: any) => s + (b.subtotal_kes ?? 0), 0);
   const commissionTaken = revenueRows.reduce((s: number, b: any) => s + (b.commission_kes ?? 0), 0);
   const netPayout = revenueRows.reduce((s: number, b: any) => s + (b.host_payout_kes ?? 0), 0);
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const upcoming = bookings.filter((b: any) => b.check_in >= todayISO && b.status !== "cancelled");
+  const pendingCount = bookings.filter((b: any) => b.status === "pending").length;
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
@@ -96,8 +100,38 @@ function HostDashboard() {
         <Button asChild><Link to="/host/new" className="gap-1"><Plus className="size-4" /> New listing</Link></Button>
       </div>
 
+      {/* Analytics */}
+      <section className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-4">
+        <div className="rounded-2xl border bg-card p-4">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><CalendarDays className="size-3.5" /> Upcoming stays</div>
+          <div className="mt-1 font-serif text-2xl">{upcoming.length}</div>
+        </div>
+        <div className="rounded-2xl border bg-card p-4">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><CheckCircle2 className="size-3.5" /> Awaiting your reply</div>
+          <div className="mt-1 font-serif text-2xl">{pendingCount}</div>
+        </div>
+        <div className="rounded-2xl border bg-card p-4">
+          <div className="text-xs text-muted-foreground">Active listings</div>
+          <div className="mt-1 font-serif text-2xl">{listings.filter((l: any) => l.is_active).length}</div>
+        </div>
+        <div className="rounded-2xl border bg-card p-4">
+          <div className="text-xs text-muted-foreground">Next check-in</div>
+          <div className="mt-1 font-serif text-lg">
+            {upcoming.length
+              ? new Date(upcoming.map((b: any) => b.check_in).sort()[0]).toLocaleDateString(undefined, { day: "numeric", month: "short" })
+              : "—"}
+          </div>
+        </div>
+      </section>
+
+      {/* Booking calendar */}
+      <section className="mt-6">
+        <h2 className="mb-3 font-serif text-xl">Booking calendar</h2>
+        <HostCalendar bookings={bookings as any} />
+      </section>
+
       {/* Revenue summary */}
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
+      <section className="mt-8 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border bg-card p-4">
           <div className="text-xs text-muted-foreground">Gross bookings</div>
           <div className="mt-1 font-serif text-2xl">{formatKES(grossRevenue)}</div>
@@ -201,12 +235,32 @@ function HostDashboard() {
                   <div><dt className="text-muted-foreground">Your payout</dt><dd className="font-semibold text-primary">{formatKES(b.host_payout_kes ?? 0)}</dd></div>
                 </dl>
 
-                {b.status === "pending" && (
-                  <div className="mt-3 flex gap-2">
-                    <Button size="sm" onClick={() => statusM.mutate({ id: b.id, status: "confirmed" })}>Accept</Button>
-                    <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "cancelled" })}>Decline</Button>
-                  </div>
-                )}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {b.status === "pending" && (
+                    <>
+                      <Button size="sm" onClick={() => statusM.mutate({ id: b.id, status: "confirmed" })}>Accept &amp; confirm</Button>
+                      <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "cancelled" })}>Decline</Button>
+                    </>
+                  )}
+                  {b.status === "confirmed" && new Date(b.check_out) < new Date() && (
+                    <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "completed" })}>Mark completed</Button>
+                  )}
+                  {b.profile?.phone ? (
+                    <Button asChild size="sm" variant="outline" className="gap-1.5 border-acacia/40 text-acacia">
+                      <a
+                        href={`https://wa.me/${String(b.profile.phone).replace(/\D/g, "").replace(/^0/, "254")}?text=${encodeURIComponent(
+                          `Hi ${b.profile?.full_name ?? "there"}, this is your host on Mbilipilli Stays about your booking at ${b.properties?.title ?? "our place"} (${new Date(b.check_in).toLocaleDateString()} – ${new Date(b.check_out).toLocaleDateString()}).`,
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <MessageCircle className="size-3.5" /> Message guest
+                      </a>
+                    </Button>
+                  ) : (
+                    <span className="self-center text-xs text-muted-foreground">Guest has no phone on file</span>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

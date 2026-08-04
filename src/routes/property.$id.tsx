@@ -15,13 +15,17 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi, CalendarIcon, Tag } from "lucide-react";
+import { Star, MapPin, Users, Bed, Bath, ShieldCheck, Leaf, Wifi, CalendarIcon, Tag, Smartphone, Zap } from "lucide-react";
 import { formatKES } from "@/lib/constants";
 import { calcFees } from "@/lib/monetization";
 import { supabase } from "@/integrations/supabase/client";
 import { LiveMap } from "@/components/LiveMap";
 import { NearbyMap } from "@/components/NearbyMap";
 import { Footer } from "@/components/Footer";
+import { ShareButtons } from "@/components/ShareButtons";
+import { ReviewForm } from "@/components/ReviewForm";
+import { CsrStories } from "@/components/CsrStories";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 const qo = (id: string) =>
@@ -53,6 +57,7 @@ function PropertyPage() {
   });
   const [guests, setGuests] = useState(1);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [phone, setPhone] = useState("");
   const initialRef = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") ?? "" : "";
   const [affiliateCode, setAffiliateCode] = useState(initialRef);
@@ -111,6 +116,104 @@ function PropertyPage() {
     : 1;
   const fees = calcFees({ price_kes: p.price_kes, nights, cleaning_fee_kes: p.cleaning_fee_kes ?? 0 });
 
+  const bookingPanel = (
+<div className="rounded-2xl border bg-card p-5 shadow-sm">
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-semibold">{formatKES(p.price_kes)}</span>
+              <span className="text-muted-foreground">/ night</span>
+            </div>
+
+            <div className="mt-3 space-y-2">
+              <Label className="text-xs">Check-in → Check-out</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full justify-start text-left font-normal", !range?.from && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 size-4" />
+                    {range?.from ? (
+                      range.to ? (
+                        <>{format(range.from, "MMM d")} → {format(range.to, "MMM d, yyyy")}</>
+                      ) : format(range.from, "MMM d, yyyy")
+                    ) : <span>Pick dates</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={range}
+                    onSelect={setRange}
+                    numberOfMonths={1}
+                    disabled={disabledDays}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Label className="text-xs">Guests</Label>
+              <Input type="number" min={1} max={p.max_guests} value={guests} onChange={(e) => setGuests(Math.max(1, +e.target.value))} />
+            </div>
+
+            <div className="mt-4 space-y-1.5 border-t pt-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span>{formatKES(p.price_kes)} × {nights} {nights === 1 ? "night" : "nights"}</span>
+                <span>{formatKES(fees.subtotal_kes)}</span>
+              </div>
+              {fees.cleaning_fee_kes > 0 && (
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Cleaning fee</span>
+                  <span>{formatKES(fees.cleaning_fee_kes)}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Platform service fee (4%)</span>
+                <span>{formatKES(fees.service_fee_kes)}</span>
+              </div>
+              <div className="flex items-center justify-between border-t pt-2 font-semibold">
+                <span>Total</span>
+                <span>{formatKES(fees.total_kes)}</span>
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <Label className="text-xs inline-flex items-center gap-1"><Tag className="size-3" /> Referral code (optional)</Label>
+              <Input
+                placeholder="e.g. TRAVELBLOG10"
+                value={affiliateCode}
+                onChange={(e) => setAffiliateCode(e.target.value.toUpperCase())}
+                className="mt-1 uppercase"
+              />
+            </div>
+
+            {!bookingId ? (
+              <Button className="mt-4 w-full gap-1.5" size="lg" onClick={() => bookM.mutate()} disabled={bookM.isPending}>
+                <Zap className="size-4" />
+                {bookM.isPending ? "Reserving…" : "Reserve instantly"}
+              </Button>
+            ) : (
+              <div className="mt-4 space-y-2">
+                <Label className="text-xs">M-Pesa phone</Label>
+                <Input placeholder="0712 345 678" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <Button
+                  className="w-full gap-2 bg-acacia text-accent-foreground hover:bg-acacia/90"
+                  size="lg"
+                  onClick={() => payM.mutate()}
+                  disabled={payM.isPending || !phone}
+                >
+                  <Smartphone className="size-4" />
+                  {payM.isPending ? "Sending STK push…" : `Pay ${formatKES(fees.total_kes)} with M-Pesa`}
+                </Button>
+                <Link to="/trips" className="block text-center text-xs text-muted-foreground hover:underline">View my trips</Link>
+              </div>
+            )}
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              Instant STK push · no card needed · <span className="font-medium text-acacia">0% checkout commission</span> on M-Pesa.
+            </p>
+
+          </div>
+  );
+
   return (
     <>
     <main className="mx-auto max-w-6xl px-4 pt-4 pb-24">
@@ -135,6 +238,7 @@ function PropertyPage() {
             {p.is_eco && <Badge className="gap-1 bg-acacia text-accent-foreground"><Leaf className="size-3" /> Eco</Badge>}
             {p.is_community && <Badge variant="secondary">Community-run</Badge>}
             <Badge variant="outline">{p.property_type.replace("_", " ")}</Badge>
+            <Badge variant="secondary" className="bg-sand text-clay">Kenyan-owned</Badge>
           </div>
           <h1 className="mt-2 font-serif text-3xl md:text-4xl">{p.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
@@ -143,6 +247,8 @@ function PropertyPage() {
               <span className="inline-flex items-center gap-1"><Star className="size-4 fill-primary text-primary" /> {p.rating} · {p.reviews_count} reviews</span>
             )}
           </div>
+
+          <ShareButtons title={p.title} className="mt-3" />
 
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
             <span className="inline-flex items-center gap-1"><Users className="size-4" /> {p.max_guests} guests</span>
@@ -243,94 +349,31 @@ function PropertyPage() {
         </div>
 
         {/* Booking card */}
-        <aside className="lg:sticky lg:top-20 self-start">
-          <div className="rounded-2xl border bg-card p-5 shadow-sm">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-semibold">{formatKES(p.price_kes)}</span>
-              <span className="text-muted-foreground">/ night</span>
-            </div>
-
-            <div className="mt-3 space-y-2">
-              <Label className="text-xs">Check-in → Check-out</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn("w-full justify-start text-left font-normal", !range?.from && "text-muted-foreground")}
-                  >
-                    <CalendarIcon className="mr-2 size-4" />
-                    {range?.from ? (
-                      range.to ? (
-                        <>{format(range.from, "MMM d")} → {format(range.to, "MMM d, yyyy")}</>
-                      ) : format(range.from, "MMM d, yyyy")
-                    ) : <span>Pick dates</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={range}
-                    onSelect={setRange}
-                    numberOfMonths={1}
-                    disabled={disabledDays}
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Label className="text-xs">Guests</Label>
-              <Input type="number" min={1} max={p.max_guests} value={guests} onChange={(e) => setGuests(Math.max(1, +e.target.value))} />
-            </div>
-
-            <div className="mt-4 space-y-1.5 border-t pt-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span>{formatKES(p.price_kes)} × {nights} {nights === 1 ? "night" : "nights"}</span>
-                <span>{formatKES(fees.subtotal_kes)}</span>
-              </div>
-              {fees.cleaning_fee_kes > 0 && (
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span>Cleaning fee</span>
-                  <span>{formatKES(fees.cleaning_fee_kes)}</span>
-                </div>
-              )}
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span>Platform service fee (4%)</span>
-                <span>{formatKES(fees.service_fee_kes)}</span>
-              </div>
-              <div className="flex items-center justify-between border-t pt-2 font-semibold">
-                <span>Total</span>
-                <span>{formatKES(fees.total_kes)}</span>
-              </div>
-            </div>
-
-            <div className="mt-3">
-              <Label className="text-xs inline-flex items-center gap-1"><Tag className="size-3" /> Referral code (optional)</Label>
-              <Input
-                placeholder="e.g. TRAVELBLOG10"
-                value={affiliateCode}
-                onChange={(e) => setAffiliateCode(e.target.value.toUpperCase())}
-                className="mt-1 uppercase"
-              />
-            </div>
-
-            {!bookingId ? (
-              <Button className="mt-4 w-full" size="lg" onClick={() => bookM.mutate()} disabled={bookM.isPending}>
-                {bookM.isPending ? "Reserving…" : "Reserve"}
-              </Button>
-            ) : (
-              <div className="mt-4 space-y-2">
-                <Label className="text-xs">M-Pesa phone</Label>
-                <Input placeholder="0712 345 678" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                <Button className="w-full" size="lg" onClick={() => payM.mutate()} disabled={payM.isPending || !phone}>
-                  {payM.isPending ? "Sending STK push…" : `Pay ${formatKES(fees.total_kes)} with M-Pesa`}
-                </Button>
-                <Link to="/trips" className="block text-center text-xs text-muted-foreground hover:underline">View my trips</Link>
-              </div>
-            )}
-            <p className="mt-3 text-center text-xs text-muted-foreground">You won't be charged until you confirm payment. Fees shown transparently before booking.</p>
-          </div>
-        </aside>
+        <aside className="hidden self-start lg:sticky lg:top-20 lg:block">{bookingPanel}</aside>
       </div>
+      {/* Mobile booking bar */}
+      <div className="fixed inset-x-0 bottom-14 z-40 border-t bg-background/95 p-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-semibold">{formatKES(fees.total_kes)} total</div>
+            <div className="truncate text-xs text-muted-foreground">{nights} {nights === 1 ? "night" : "nights"} · fees included</div>
+          </div>
+          <Button className="shrink-0 gap-1.5" onClick={() => setMobileOpen(true)}>
+            <Zap className="size-4" /> {bookingId ? "Pay now" : "Book now"}
+          </Button>
+        </div>
+      </div>
+
+      <Dialog open={mobileOpen} onOpenChange={setMobileOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-serif">
+              <Smartphone className="size-4 text-primary" /> Book &amp; pay with M-Pesa
+            </DialogTitle>
+          </DialogHeader>
+          {bookingPanel}
+        </DialogContent>
+      </Dialog>
     </main>
     <Footer />
     </>
