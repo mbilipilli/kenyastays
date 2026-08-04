@@ -27,9 +27,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <div className="border-t border-border/60 py-2 text-center text-[11px] text-muted-foreground">
-        Powered by HotelDruid + Sirvoy Pro — secure API sync
-      </div>
       <div className="border-t border-border/60 py-4 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} Mbilipilli Stays — Made with ❤️ in Kenya
       </div>
