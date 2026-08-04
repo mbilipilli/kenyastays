@@ -61,6 +61,11 @@ function PropertyPage() {
   const [phone, setPhone] = useState("");
   const initialRef = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") ?? "" : "";
   const [affiliateCode, setAffiliateCode] = useState(initialRef);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null));
+  }, []);
+  const isOwnListing = !!currentUserId && currentUserId === p.host_id;
 
   const fetchBooked = useServerFn(getBookedDates);
   const { data: booked = [] } = useQuery({
