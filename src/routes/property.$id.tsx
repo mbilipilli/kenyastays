@@ -186,8 +186,21 @@ function PropertyPage() {
               />
             </div>
 
-            {!bookingId ? (
-              <Button className="mt-4 w-full gap-1.5" size="lg" onClick={() => bookM.mutate()} disabled={bookM.isPending}>
+            {isOwnListing ? (
+              <div className="mt-4 rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">
+                This is your listing — you can't book your own stay.{" "}
+                <Link to="/host" className="font-medium text-primary underline-offset-2 hover:underline">
+                  Manage it in your host dashboard
+                </Link>
+                .
+              </div>
+            ) : !bookingId ? (
+              <Button
+                className="mt-4 w-full gap-1.5"
+                size="lg"
+                onClick={() => bookM.mutate()}
+                disabled={bookM.isPending}
+              >
                 <Zap className="size-4" />
                 {bookM.isPending ? "Reserving…" : "Reserve instantly"}
               </Button>
