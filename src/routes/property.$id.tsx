@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import { getProperty } from "@/lib/api/properties.functions";
 import { createBooking, getBookedDates } from "@/lib/api/bookings.functions";
-import { initiateMpesa } from "@/lib/api/payments.functions";
+import { initiateMpesaPayment } from "@/lib/api/mpesa.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
