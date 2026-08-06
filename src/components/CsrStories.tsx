@@ -4,7 +4,7 @@ const STORIES = [
   {
     icon: HeartHandshake,
     title: "Children's home visits",
-    body: "1% of every Mbilipilli booking funds monthly visits and supplies to children's homes in Nairobi and Kisumu.",
+    body: "1% of every Kenya Stays booking funds monthly visits and supplies to children's homes in Nairobi and Kisumu.",
   },
   {
     icon: Users,

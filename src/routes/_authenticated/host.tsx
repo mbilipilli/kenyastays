@@ -249,7 +249,7 @@ function HostDashboard() {
                     <Button asChild size="sm" variant="outline" className="gap-1.5 border-acacia/40 text-acacia">
                       <a
                         href={`https://wa.me/${String(b.profile.phone).replace(/\D/g, "").replace(/^0/, "254")}?text=${encodeURIComponent(
-                          `Hi ${b.profile?.full_name ?? "there"}, this is your host on Mbilipilli Stays about your booking at ${b.properties?.title ?? "our place"} (${new Date(b.check_in).toLocaleDateString()} – ${new Date(b.check_out).toLocaleDateString()}).`,
+                          `Hi ${b.profile?.full_name ?? "there"}, this is your host on Kenya Stays about your booking at ${b.properties?.title ?? "our place"} (${new Date(b.check_in).toLocaleDateString()} – ${new Date(b.check_out).toLocaleDateString()}).`,
                         )}`}
                         target="_blank"
                         rel="noreferrer"

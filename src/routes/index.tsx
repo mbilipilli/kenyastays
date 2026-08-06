@@ -35,7 +35,7 @@ const CITY_CHIPS = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Mbilipilli Stays — Stay Local. Stay Kenyan." },
+      { title: "Kenya Stays — Stay Local. Stay Kenyan." },
       { name: "description", content: "Find authentic Kenyan stays — Nairobi apartments, Mombasa beach cottages, Maasai Mara lodges. Trusted hosts, secure M-Pesa & card payments, real-time availability." },
     ],
   }),
@@ -186,7 +186,7 @@ function Index() {
             <h2 className="mt-3 font-serif text-3xl md:text-4xl">Stay close to Kenyan culture.</h2>
             <p className="mt-3 text-foreground/80">
               From matatu art in Nairobi to Eldoret's highland charm, Nakuru's flamingo lakes, and coastal Swahili heritage —
-              Mbilipilli connects you to stays where the country feels like home.
+              Kenya Stays connects you to stays where the country feels like home.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {["Matatu art", "Swahili coast", "Rift Valley", "Highland farms", "Mara plains"].map((t) => (
@@ -208,7 +208,7 @@ function Index() {
       {/* Host CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-14">
         <div className="rounded-3xl bg-gradient-to-br from-primary to-clay px-6 py-10 text-primary-foreground md:px-10 md:py-14">
-          <h3 className="font-serif text-3xl md:text-4xl">Own a property? Earn with Mbilipilli.</h3>
+          <h3 className="font-serif text-3xl md:text-4xl">Own a property? Earn with Kenya Stays.</h3>
           <p className="mt-2 max-w-xl text-primary-foreground/90">
             List your apartment, lodge or homestay in minutes. Reach travelers across East Africa.
           </p>

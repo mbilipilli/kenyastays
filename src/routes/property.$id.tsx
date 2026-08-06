@@ -35,7 +35,7 @@ export const Route = createFileRoute("/property/$id")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(qo(params.id)),
   head: ({ loaderData }) => ({
     meta: [
-      { title: loaderData ? `${loaderData.title} — Mbilipilli Stays` : "Stay" },
+      { title: loaderData ? `${loaderData.title} — Kenya Stays` : "Stay" },
       { name: "description", content: loaderData?.description?.slice(0, 160) ?? "" },
       { property: "og:title", content: loaderData?.title ?? "Stay" },
       { property: "og:image", content: loaderData?.cover_url ?? "" },

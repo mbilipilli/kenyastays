@@ -45,7 +45,7 @@ export async function fetchHotelDruidRooms(date = today()): Promise<HotelDruidRo
   const rooms = (await res.json()) as ApiRoom[];
   if (!Array.isArray(rooms)) throw new Error("Unexpected HotelDruid response");
 
-  const defaultHotel = process.env.HOTELDRUID_HOTEL_NAME ?? "Mbilipilli Partner Hotel";
+  const defaultHotel = process.env.HOTELDRUID_HOTEL_NAME ?? "Kenya Stays Partner Hotel";
   const defaultCity = process.env.HOTELDRUID_CITY ?? "Nairobi";
 
   return rooms.map((r) => ({
