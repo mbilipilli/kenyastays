@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { type DateRange } from "react-day-picker";
 import { getProperty } from "@/lib/api/properties.functions";
 import { createBooking, getBookedDates } from "@/lib/api/bookings.functions";
-import { initiateMpesa } from "@/lib/api/payments.functions";
+import { initiateMpesaPayment } from "@/lib/api/mpesa.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +79,7 @@ function PropertyPage() {
   }, [booked]);
 
   const book = useServerFn(createBooking);
-  const pay = useServerFn(initiateMpesa);
+  const pay = useServerFn(initiateMpesaPayment);
 
   const bookM = useMutation({
     mutationFn: () => {
@@ -109,9 +109,8 @@ function PropertyPage() {
 
   const payM = useMutation({
     mutationFn: () => pay({ data: { booking_id: bookingId!, phone } }),
-    onSuccess: (r: any) => {
-      if (r.pending_setup) toast.warning(r.message);
-      else toast.success("Check your phone for the M-Pesa prompt");
+    onSuccess: () => {
+      toast.success("Check your phone for the M-Pesa prompt");
     },
     onError: (e: Error) => toast.error(e.message),
   });
