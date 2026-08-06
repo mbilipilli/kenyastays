@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function ShareButtons({ title, className = "" }: { title: string; className?: string }) {
   const url = typeof window !== "undefined" ? window.location.href : "";
-  const text = `${title} — book it on Mbilipilli Stays 🌶️`;
+  const text = `${title} — book it on Kenya Stays 🌶️`;
 
   const nativeShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {

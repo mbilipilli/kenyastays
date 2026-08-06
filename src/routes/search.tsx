@@ -40,7 +40,7 @@ export const Route = createFileRoute("/search")({
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(qo(deps)),
   head: ({ loaderData }) => ({
     meta: [
-      { title: "Explore Kenyan stays — Mbilipilli Stays" },
+      { title: "Explore Kenyan stays — Kenya Stays" },
       { name: "description", content: `Browse ${loaderData?.length ?? 0} verified listings across Kenya.` },
     ],
   }),

@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 
 export const Route = createFileRoute("/_authenticated/admin/")({
-  head: () => ({ meta: [{ title: "Admin Dashboard — Mbilipilli Stays" }] }),
+  head: () => ({ meta: [{ title: "Admin Dashboard — Kenya Stays" }] }),
   component: AdminPage,
 });
 
@@ -46,7 +46,7 @@ function AdminPage() {
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">Mbilipilli Admin</h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
           <p className="text-sm text-muted-foreground">Sirvoy Pro + HotelDruid data bridge</p>
         </div>
         <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
@@ -153,7 +153,7 @@ function DataBridge({ sirvoy, hoteldruid }: { sirvoy?: { count: number; last: st
     <div className="grid items-center gap-4 md:grid-cols-3">
       <SourceBox name="Sirvoy Pro" tag="Channel Manager" count={sirvoy?.count ?? 0} last={sirvoy?.last ?? null} tint="from-primary/20 to-primary/5" />
       <div className="rounded-2xl border bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-4 text-center">
-        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Mbilipilli Bridge</div>
+        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Kenya Stays Bridge</div>
         <div className="flex flex-col gap-1 text-xs text-foreground/80">
           <span>← Booking Data →</span>
           <span>← Payments →</span>

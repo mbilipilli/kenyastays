@@ -10,7 +10,7 @@ export function Footer() {
           <div className="flex items-center gap-2">
             <Logo className="size-9" />
             <div>
-              <div className="font-serif text-lg font-semibold">Mbilipilli Stays</div>
+              <div className="font-serif text-lg font-semibold">Kenya Stays</div>
               <div className="text-xs text-muted-foreground">Stay Local. Stay Kenyan.</div>
             </div>
           </div>
@@ -28,7 +28,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-border/60 py-4 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Mbilipilli Stays — Made with ❤️ in Kenya
+        © {new Date().getFullYear()} Kenya Stays — Made with ❤️ in Kenya
       </div>
 
     </footer>
