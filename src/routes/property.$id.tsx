@@ -109,9 +109,8 @@ function PropertyPage() {
 
   const payM = useMutation({
     mutationFn: () => pay({ data: { booking_id: bookingId!, phone } }),
-    onSuccess: (r: any) => {
-      if (r.pending_setup) toast.warning(r.message);
-      else toast.success("Check your phone for the M-Pesa prompt");
+    onSuccess: () => {
+      toast.success("Check your phone for the M-Pesa prompt");
     },
     onError: (e: Error) => toast.error(e.message),
   });
