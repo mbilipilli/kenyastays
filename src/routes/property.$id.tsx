@@ -79,7 +79,7 @@ function PropertyPage() {
   }, [booked]);
 
   const book = useServerFn(createBooking);
-  const pay = useServerFn(initiateMpesa);
+  const pay = useServerFn(initiateMpesaPayment);
 
   const bookM = useMutation({
     mutationFn: () => {
