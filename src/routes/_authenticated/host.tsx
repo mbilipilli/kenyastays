@@ -32,6 +32,7 @@ import { formatKES } from "@/lib/constants";
 import { FEATURED_PLANS } from "@/lib/monetization";
 import { Plus, Sparkles, Sparkle, Sprout, Tag, MessageCircle, CalendarDays, CheckCircle2 } from "lucide-react";
 import { HostCalendar } from "@/components/HostCalendar";
+import { PayoutSettingsCard } from "@/components/PayoutSettingsCard";
 
 const listingsQO = queryOptions({ queryKey: ["my-listings"], queryFn: () => myListings() });
 const bookingsQO = queryOptions({ queryKey: ["host-bookings"], queryFn: () => hostBookings() });
@@ -145,6 +146,9 @@ function HostDashboard() {
           <div className="mt-1 font-serif text-2xl text-primary">{formatKES(netPayout)}</div>
         </div>
       </section>
+
+      <PayoutSettingsCard />
+
 
       {/* Listings */}
       <section className="mt-8">
