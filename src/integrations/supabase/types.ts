@@ -372,6 +372,65 @@ export type Database = {
         }
         Relationships: []
       }
+      host_payouts: {
+        Row: {
+          amount_kes: number
+          booking_id: string
+          conversation_id: string | null
+          created_at: string
+          host_id: string
+          id: string
+          mpesa_receipt: string | null
+          originator_conversation_id: string | null
+          phone: string | null
+          raw: Json | null
+          result_code: number | null
+          result_desc: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_kes: number
+          booking_id: string
+          conversation_id?: string | null
+          created_at?: string
+          host_id: string
+          id?: string
+          mpesa_receipt?: string | null
+          originator_conversation_id?: string | null
+          phone?: string | null
+          raw?: Json | null
+          result_code?: number | null
+          result_desc?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_kes?: number
+          booking_id?: string
+          conversation_id?: string | null
+          created_at?: string
+          host_id?: string
+          id?: string
+          mpesa_receipt?: string | null
+          originator_conversation_id?: string | null
+          phone?: string | null
+          raw?: Json | null
+          result_code?: number | null
+          result_desc?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "host_payouts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mpesa_transactions: {
         Row: {
           amount_kes: number
@@ -489,6 +548,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_verified: boolean
+          payout_phone: string | null
           phone: string | null
           updated_at: string
         }
@@ -499,6 +559,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_verified?: boolean
+          payout_phone?: string | null
           phone?: string | null
           updated_at?: string
         }
@@ -509,6 +570,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_verified?: boolean
+          payout_phone?: string | null
           phone?: string | null
           updated_at?: string
         }
