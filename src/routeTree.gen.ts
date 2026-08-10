@@ -20,6 +20,8 @@ import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
+import { Route as ApiPublicHooksMpesaB2cResultRouteImport } from './routes/api/public/hooks/mpesa-b2c-result'
+import { Route as ApiPublicHooksMpesaB2cTimeoutRouteImport } from './routes/api/public/hooks/mpesa-b2c-timeout'
 import { Route as ApiPublicHooksMpesaCallbackRouteImport } from './routes/api/public/hooks/mpesa-callback'
 import { Route as ApiPublicHooksSyncListingsRouteImport } from './routes/api/public/hooks/sync-listings'
 
@@ -77,6 +79,18 @@ const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AuthenticatedHostRoute,
 } as any)
+const ApiPublicHooksMpesaB2cResultRoute =
+  ApiPublicHooksMpesaB2cResultRouteImport.update({
+    id: '/api/public/hooks/mpesa-b2c-result',
+    path: '/api/public/hooks/mpesa-b2c-result',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksMpesaB2cTimeoutRoute =
+  ApiPublicHooksMpesaB2cTimeoutRouteImport.update({
+    id: '/api/public/hooks/mpesa-b2c-timeout',
+    path: '/api/public/hooks/mpesa-b2c-timeout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMpesaCallbackRoute =
   ApiPublicHooksMpesaCallbackRouteImport.update({
     id: '/api/public/hooks/mpesa-callback',
@@ -101,6 +115,8 @@ export interface FileRoutesByFullPath {
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/mpesa-b2c-result': typeof ApiPublicHooksMpesaB2cResultRoute
+  '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
   '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
@@ -114,6 +130,8 @@ export interface FileRoutesByTo {
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/mpesa-b2c-result': typeof ApiPublicHooksMpesaB2cResultRoute
+  '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
   '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
@@ -130,6 +148,8 @@ export interface FileRoutesById {
   '/property/$id': typeof PropertyIdRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/mpesa-b2c-result': typeof ApiPublicHooksMpesaB2cResultRoute
+  '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
   '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
@@ -146,6 +166,8 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/host/new'
     | '/admin/'
+    | '/api/public/hooks/mpesa-b2c-result'
+    | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
     | '/api/public/hooks/sync-listings'
   fileRoutesByTo: FileRoutesByTo
@@ -159,6 +181,8 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/host/new'
     | '/admin'
+    | '/api/public/hooks/mpesa-b2c-result'
+    | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
     | '/api/public/hooks/sync-listings'
   id:
@@ -174,6 +198,8 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/_authenticated/host/new'
     | '/_authenticated/admin/'
+    | '/api/public/hooks/mpesa-b2c-result'
+    | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
     | '/api/public/hooks/sync-listings'
   fileRoutesById: FileRoutesById
@@ -184,6 +210,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SearchRoute: typeof SearchRoute
   PropertyIdRoute: typeof PropertyIdRoute
+  ApiPublicHooksMpesaB2cResultRoute: typeof ApiPublicHooksMpesaB2cResultRoute
+  ApiPublicHooksMpesaB2cTimeoutRoute: typeof ApiPublicHooksMpesaB2cTimeoutRoute
   ApiPublicHooksMpesaCallbackRoute: typeof ApiPublicHooksMpesaCallbackRoute
   ApiPublicHooksSyncListingsRoute: typeof ApiPublicHooksSyncListingsRoute
 }
@@ -267,6 +295,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHostNewRouteImport
       parentRoute: typeof AuthenticatedHostRoute
     }
+    '/api/public/hooks/mpesa-b2c-result': {
+      id: '/api/public/hooks/mpesa-b2c-result'
+      path: '/api/public/hooks/mpesa-b2c-result'
+      fullPath: '/api/public/hooks/mpesa-b2c-result'
+      preLoaderRoute: typeof ApiPublicHooksMpesaB2cResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/mpesa-b2c-timeout': {
+      id: '/api/public/hooks/mpesa-b2c-timeout'
+      path: '/api/public/hooks/mpesa-b2c-timeout'
+      fullPath: '/api/public/hooks/mpesa-b2c-timeout'
+      preLoaderRoute: typeof ApiPublicHooksMpesaB2cTimeoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/mpesa-callback': {
       id: '/api/public/hooks/mpesa-callback'
       path: '/api/public/hooks/mpesa-callback'
@@ -332,19 +374,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SearchRoute: SearchRoute,
   PropertyIdRoute: PropertyIdRoute,
+  ApiPublicHooksMpesaB2cResultRoute: ApiPublicHooksMpesaB2cResultRoute,
+  ApiPublicHooksMpesaB2cTimeoutRoute: ApiPublicHooksMpesaB2cTimeoutRoute,
   ApiPublicHooksMpesaCallbackRoute: ApiPublicHooksMpesaCallbackRoute,
   ApiPublicHooksSyncListingsRoute: ApiPublicHooksSyncListingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
