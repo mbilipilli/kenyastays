@@ -49,6 +49,15 @@ export const Route = createFileRoute("/api/public/hooks/mpesa-callback")({
             phone: tx.phone,
           });
 
+          // Split the money: platform keeps commission + service fee, host gets
+          // their share sent straight to their M-Pesa (best effort, idempotent).
+          try {
+            const { payoutHostForBooking } = await import("@/lib/mpesa/payouts.server");
+            await payoutHostForBooking(tx.booking_id);
+          } catch (e) {
+            console.error("Host payout failed", e);
+          }
+
           // Push the paid booking back to the partner PMS (best effort).
           try {
             const { data: bk } = await supabaseAdmin
