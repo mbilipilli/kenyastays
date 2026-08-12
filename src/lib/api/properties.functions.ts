@@ -5,6 +5,13 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const BUCKET = "property-photos";
 const SIGN_SECONDS = 60 * 60 * 6; // 6h
 
+/**
+ * Public surfaces only ever get an approximate pin (~1km) — the exact
+ * coordinates and street address stay private until a booking is confirmed.
+ */
+const APPROX = (v: number | null) => (v == null ? null : Math.round(v * 100) / 100);
+
+
 async function signMany(paths: string[]): Promise<Record<string, string>> {
   if (!paths.length) return {};
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
