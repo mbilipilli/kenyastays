@@ -93,10 +93,22 @@ export function PayBookingDialog({ bookingId, amountKes, defaultPhone }: { booki
           </div>
         )}
         {method !== "mpesa" && (
-          <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-            {method === "card" ? "Card payments" : "PayPal"} coming soon — please use M-Pesa.
+          <div className="space-y-3">
+            <Button
+              className="w-full"
+              disabled={ipay.isPending}
+              onClick={() => ipay.mutate(method)}
+            >
+              {ipay.isPending
+                ? "Opening secure checkout…"
+                : `Pay ${formatKES(amountKes)} with ${method === "card" ? "Card" : "PayPal"}`}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              You'll be taken to iPay's secure checkout, then returned here once payment completes.
+            </p>
           </div>
         )}
+
       </DialogContent>
     </Dialog>
   );
