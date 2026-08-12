@@ -431,6 +431,62 @@ export type Database = {
           },
         ]
       }
+      ipay_transactions: {
+        Row: {
+          amount_kes: number
+          booking_id: string
+          channel: string
+          created_at: string
+          id: string
+          ipay_status_code: string | null
+          ipay_txn_id: string | null
+          order_id: string
+          raw: Json | null
+          result_desc: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_kes: number
+          booking_id: string
+          channel?: string
+          created_at?: string
+          id?: string
+          ipay_status_code?: string | null
+          ipay_txn_id?: string | null
+          order_id: string
+          raw?: Json | null
+          result_desc?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_kes?: number
+          booking_id?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          ipay_status_code?: string | null
+          ipay_txn_id?: string | null
+          order_id?: string
+          raw?: Json | null
+          result_desc?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ipay_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mpesa_transactions: {
         Row: {
           amount_kes: number
