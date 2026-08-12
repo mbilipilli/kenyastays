@@ -108,8 +108,9 @@ export const searchProperties = createServerFn({ method: "POST" })
       cover_url: r.cover_image ? signed[r.cover_image] ?? null : null,
       rating: reviewsByProp[r.id] ? +(reviewsByProp[r.id].sum / reviewsByProp[r.id].n).toFixed(1) : null,
       reviews_count: reviewsByProp[r.id]?.n ?? 0,
-      latitude: r.latitude,
-      longitude: r.longitude,
+      latitude: APPROX(r.latitude),
+      longitude: APPROX(r.longitude),
+
     }));
   });
 
@@ -145,6 +146,10 @@ export const getProperty = createServerFn({ method: "POST" })
 
     return {
       ...prop,
+      // Exact street address + GPS stay private on this public endpoint.
+      address: null,
+      latitude: APPROX(prop.latitude),
+      longitude: APPROX(prop.longitude),
       cover_url: prop.cover_image ? signed[prop.cover_image] ?? null : null,
       images: (images ?? []).map((i) => ({ ...i, signed_url: signed[i.url] ?? i.url })),
       reviews: reviews ?? [],
@@ -152,6 +157,7 @@ export const getProperty = createServerFn({ method: "POST" })
       reviews_count: reviews?.length ?? 0,
       host,
     };
+
   });
 
 const createSchema = z.object({
