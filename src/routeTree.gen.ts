@@ -20,6 +20,7 @@ import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
+import { Route as ApiPublicHooksIpayCallbackRouteImport } from './routes/api/public/hooks/ipay-callback'
 import { Route as ApiPublicHooksMpesaB2cResultRouteImport } from './routes/api/public/hooks/mpesa-b2c-result'
 import { Route as ApiPublicHooksMpesaB2cTimeoutRouteImport } from './routes/api/public/hooks/mpesa-b2c-timeout'
 import { Route as ApiPublicHooksMpesaCallbackRouteImport } from './routes/api/public/hooks/mpesa-callback'
@@ -79,6 +80,12 @@ const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AuthenticatedHostRoute,
 } as any)
+const ApiPublicHooksIpayCallbackRoute =
+  ApiPublicHooksIpayCallbackRouteImport.update({
+    id: '/api/public/hooks/ipay-callback',
+    path: '/api/public/hooks/ipay-callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksMpesaB2cResultRoute =
   ApiPublicHooksMpesaB2cResultRouteImport.update({
     id: '/api/public/hooks/mpesa-b2c-result',
@@ -115,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/ipay-callback': typeof ApiPublicHooksIpayCallbackRoute
   '/api/public/hooks/mpesa-b2c-result': typeof ApiPublicHooksMpesaB2cResultRoute
   '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
@@ -130,6 +138,7 @@ export interface FileRoutesByTo {
   '/property/$id': typeof PropertyIdRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/ipay-callback': typeof ApiPublicHooksIpayCallbackRoute
   '/api/public/hooks/mpesa-b2c-result': typeof ApiPublicHooksMpesaB2cResultRoute
   '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
@@ -148,6 +157,7 @@ export interface FileRoutesById {
   '/property/$id': typeof PropertyIdRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/api/public/hooks/ipay-callback': typeof ApiPublicHooksIpayCallbackRoute
   '/api/public/hooks/mpesa-b2c-result': typeof ApiPublicHooksMpesaB2cResultRoute
   '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/host/new'
     | '/admin/'
+    | '/api/public/hooks/ipay-callback'
     | '/api/public/hooks/mpesa-b2c-result'
     | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/host/new'
     | '/admin'
+    | '/api/public/hooks/ipay-callback'
     | '/api/public/hooks/mpesa-b2c-result'
     | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
@@ -198,6 +210,7 @@ export interface FileRouteTypes {
     | '/property/$id'
     | '/_authenticated/host/new'
     | '/_authenticated/admin/'
+    | '/api/public/hooks/ipay-callback'
     | '/api/public/hooks/mpesa-b2c-result'
     | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
@@ -210,6 +223,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SearchRoute: typeof SearchRoute
   PropertyIdRoute: typeof PropertyIdRoute
+  ApiPublicHooksIpayCallbackRoute: typeof ApiPublicHooksIpayCallbackRoute
   ApiPublicHooksMpesaB2cResultRoute: typeof ApiPublicHooksMpesaB2cResultRoute
   ApiPublicHooksMpesaB2cTimeoutRoute: typeof ApiPublicHooksMpesaB2cTimeoutRoute
   ApiPublicHooksMpesaCallbackRoute: typeof ApiPublicHooksMpesaCallbackRoute
@@ -295,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHostNewRouteImport
       parentRoute: typeof AuthenticatedHostRoute
     }
+    '/api/public/hooks/ipay-callback': {
+      id: '/api/public/hooks/ipay-callback'
+      path: '/api/public/hooks/ipay-callback'
+      fullPath: '/api/public/hooks/ipay-callback'
+      preLoaderRoute: typeof ApiPublicHooksIpayCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/mpesa-b2c-result': {
       id: '/api/public/hooks/mpesa-b2c-result'
       path: '/api/public/hooks/mpesa-b2c-result'
@@ -374,6 +395,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SearchRoute: SearchRoute,
   PropertyIdRoute: PropertyIdRoute,
+  ApiPublicHooksIpayCallbackRoute: ApiPublicHooksIpayCallbackRoute,
   ApiPublicHooksMpesaB2cResultRoute: ApiPublicHooksMpesaB2cResultRoute,
   ApiPublicHooksMpesaB2cTimeoutRoute: ApiPublicHooksMpesaB2cTimeoutRoute,
   ApiPublicHooksMpesaCallbackRoute: ApiPublicHooksMpesaCallbackRoute,
