@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { initiateMpesaPayment } from "@/lib/api/mpesa.functions";
+import { initiateIpayPayment } from "@/lib/api/ipay.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -9,12 +10,29 @@ import { Smartphone, CreditCard, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { formatKES } from "@/lib/constants";
 
+/** Posts a signed iPay payload to their hosted checkout page. */
+function redirectToIpay(action: string, fields: Record<string, string>) {
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = action;
+  for (const [name, value] of Object.entries(fields)) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
+}
+
 export function PayBookingDialog({ bookingId, amountKes, defaultPhone }: { bookingId: string; amountKes: number; defaultPhone?: string | null }) {
   const [open, setOpen] = useState(false);
   const [method, setMethod] = useState<"mpesa" | "card" | "paypal">("mpesa");
   const [phone, setPhone] = useState(defaultPhone ?? "");
   const qc = useQueryClient();
   const fn = useServerFn(initiateMpesaPayment);
+  const ipayFn = useServerFn(initiateIpayPayment);
   const m = useMutation({
     mutationFn: () => fn({ data: { booking_id: bookingId, phone } }),
     onSuccess: () => {
@@ -24,6 +42,16 @@ export function PayBookingDialog({ bookingId, amountKes, defaultPhone }: { booki
     },
     onError: (e: any) => toast.error(e?.message ?? "Payment failed"),
   });
+  const ipay = useMutation({
+    mutationFn: (channel: "card" | "paypal") =>
+      ipayFn({ data: { booking_id: bookingId, channel, phone } }),
+    onSuccess: (res: any) => {
+      toast.success("Redirecting to secure checkout…");
+      redirectToIpay(res.action, res.fields);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Could not start checkout"),
+  });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -65,10 +93,22 @@ export function PayBookingDialog({ bookingId, amountKes, defaultPhone }: { booki
           </div>
         )}
         {method !== "mpesa" && (
-          <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-            {method === "card" ? "Card payments" : "PayPal"} coming soon — please use M-Pesa.
+          <div className="space-y-3">
+            <Button
+              className="w-full"
+              disabled={ipay.isPending}
+              onClick={() => ipay.mutate(method)}
+            >
+              {ipay.isPending
+                ? "Opening secure checkout…"
+                : `Pay ${formatKES(amountKes)} with ${method === "card" ? "Card" : "PayPal"}`}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              You'll be taken to iPay's secure checkout, then returned here once payment completes.
+            </p>
           </div>
         )}
+
       </DialogContent>
     </Dialog>
   );
