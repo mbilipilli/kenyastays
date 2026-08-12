@@ -151,7 +151,13 @@ export const getProperty = createServerFn({ method: "POST" })
       latitude: APPROX(prop.latitude),
       longitude: APPROX(prop.longitude),
       cover_url: prop.cover_image ? signed[prop.cover_image] ?? null : null,
-      images: (images ?? []).map((i) => ({ ...i, signed_url: signed[i.url] ?? i.url })),
+      // Only the signed URL leaves the server — raw storage paths embed host user IDs.
+      images: (images ?? []).map((i) => ({
+        id: i.id,
+        sort_order: i.sort_order,
+        signed_url: signed[i.url] ?? null,
+      })),
+
       reviews: reviews ?? [],
       rating,
       reviews_count: reviews?.length ?? 0,
