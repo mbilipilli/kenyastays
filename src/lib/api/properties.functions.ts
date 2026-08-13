@@ -231,8 +231,11 @@ export const createProperty = createServerFn({ method: "POST" })
 export const myListings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data, error } = await supabase
+    const { userId } = context;
+    // Exact address/GPS are not readable through the user's client anymore;
+    // the server scopes the admin read strictly to the caller's own listings.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("properties")
       .select("*")
       .eq("host_id", userId)
@@ -242,6 +245,7 @@ export const myListings = createServerFn({ method: "POST" })
     const signed = await signMany(covers);
     return data.map((r) => ({ ...r, cover_url: r.cover_image ? signed[r.cover_image] ?? null : null }));
   });
+
 
 export const toggleListingActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
