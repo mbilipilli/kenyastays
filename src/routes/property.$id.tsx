@@ -33,14 +33,60 @@ const qo = (id: string) =>
 
 export const Route = createFileRoute("/property/$id")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(qo(params.id)),
-  head: ({ loaderData }) => ({
-    meta: [
-      { title: loaderData ? `${loaderData.title} — Kenya Stays` : "Stay" },
-      { name: "description", content: loaderData?.description?.slice(0, 160) ?? "" },
-      { property: "og:title", content: loaderData?.title ?? "Stay" },
-      { property: "og:image", content: loaderData?.cover_url ?? "" },
-    ],
-  }),
+  head: ({ params, loaderData }) => {
+    const url = `https://kenyastayske.lovable.app/property/${params.id}`;
+    const desc = loaderData
+      ? `${loaderData.title} in ${loaderData.city} — ${loaderData.bedrooms} bed, ${loaderData.bathrooms} bath, sleeps ${loaderData.max_guests}. From KES ${loaderData.price_kes.toLocaleString()} per night, book with M-Pesa.`
+      : "Book a verified Kenyan stay with M-Pesa on Kenya Stays.";
+    return {
+      meta: [
+        { title: loaderData ? `${loaderData.title} — Kenya Stays` : "Stay" },
+        { name: "description", content: desc },
+        { property: "og:title", content: loaderData?.title ?? "Stay" },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        ...(loaderData?.cover_url
+          ? [
+              { property: "og:image", content: loaderData.cover_url },
+              { name: "twitter:image", content: loaderData.cover_url },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: loaderData
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: loaderData.title,
+                description: loaderData.description?.slice(0, 300),
+                ...(loaderData.cover_url ? { image: loaderData.cover_url } : {}),
+                offers: {
+                  "@type": "Offer",
+                  price: loaderData.price_kes,
+                  priceCurrency: "KES",
+                  availability: "https://schema.org/InStock",
+                  url,
+                },
+                ...(loaderData.rating
+                  ? {
+                      aggregateRating: {
+                        "@type": "AggregateRating",
+                        ratingValue: loaderData.rating,
+                        reviewCount: loaderData.reviews_count,
+                      },
+                    }
+                  : {}),
+              }),
+            },
+          ]
+        : [],
+    };
+  },
+
   component: PropertyPage,
   errorComponent: ({ error }) => <div className="p-6">Couldn't load: {error.message}</div>,
   notFoundComponent: () => <div className="p-6">Listing not found.</div>,

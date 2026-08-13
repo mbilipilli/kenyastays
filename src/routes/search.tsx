@@ -41,9 +41,29 @@ export const Route = createFileRoute("/search")({
   head: ({ loaderData }) => ({
     meta: [
       { title: "Explore Kenyan stays — Kenya Stays" },
-      { name: "description", content: `Browse ${loaderData?.length ?? 0} verified listings across Kenya.` },
+      {
+        name: "description",
+        content: `Browse ${loaderData?.length ?? 0} verified Kenyan stays — filter by city, price, guests, amenities and eco-friendly options, then book with M-Pesa.`,
+      },
+      { property: "og:title", content: "Search stays across Kenya — Kenya Stays" },
+      { property: "og:description", content: "Filter Kenyan apartments, lodges, cottages and homestays by city, price and amenities, and book securely." },
+      { property: "og:url", content: "https://kenyastayske.lovable.app/search" },
+    ],
+    links: [{ rel: "canonical", href: "https://kenyastayske.lovable.app/search" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Search stays across Kenya",
+          description: "Verified short-term rentals across Kenyan cities and safari destinations.",
+          url: "https://kenyastayske.lovable.app/search",
+        }),
+      },
     ],
   }),
+
   component: SearchPage,
   errorComponent: ({ error }) => <div className="p-6 text-sm">Error: {error.message}</div>,
 });
@@ -56,7 +76,11 @@ function SearchPage() {
   return (
     <>
       <main className="mx-auto max-w-6xl px-4 pt-4 pb-12">
+        <h1 className="mb-3 font-serif text-2xl md:text-3xl">
+          {search.city ? `Stays in ${search.city}` : "Explore stays across Kenya"}
+        </h1>
         <SearchBar initialCity={search.city ?? ""} initialQ={search.q ?? ""} />
+
 
         <div className="mt-4 flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">

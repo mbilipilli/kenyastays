@@ -13,7 +13,18 @@ import { TreePine } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: zodValidator(z.object({ redirect: z.string().optional() })),
-  head: () => ({ meta: [{ title: "Sign in — Karibu Stays" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in — Kenya Stays" },
+      { name: "description", content: "Sign in or create your Kenya Stays account to book verified Kenyan stays and manage your trips and listings." },
+      { property: "og:title", content: "Sign in to Kenya Stays" },
+      { property: "og:description", content: "Access your bookings, trips and host dashboard on Kenya Stays." },
+      { property: "og:url", content: "https://kenyastayske.lovable.app/auth" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://kenyastayske.lovable.app/auth" }],
+  }),
+
   component: AuthPage,
 });
 

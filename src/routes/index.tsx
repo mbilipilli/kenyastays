@@ -36,9 +36,41 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Kenya Stays — Stay Local. Stay Kenyan." },
-      { name: "description", content: "Find authentic Kenyan stays — Nairobi apartments, Mombasa beach cottages, Maasai Mara lodges. Trusted hosts, secure M-Pesa & card payments, real-time availability." },
+      { name: "description", content: "Find authentic Kenyan stays — Nairobi apartments, Mombasa beach cottages and Maasai Mara lodges. Trusted hosts, secure M-Pesa payments." },
+      { property: "og:title", content: "Kenya Stays — Stay Local. Stay Kenyan." },
+      { property: "og:description", content: "Authentic Kenyan stays from Nairobi to the Maasai Mara, booked securely with M-Pesa or card." },
+      { property: "og:url", content: "https://kenyastayske.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://kenyastayske.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "Kenya Stays",
+              url: "https://kenyastayske.lovable.app/",
+              slogan: "Stay Local. Stay Kenyan.",
+              areaServed: "KE",
+            },
+            {
+              "@type": "WebSite",
+              name: "Kenya Stays",
+              url: "https://kenyastayske.lovable.app/",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: "https://kenyastayske.lovable.app/search?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
+        }),
+      },
     ],
   }),
+
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredQO);
     context.queryClient.prefetchQuery(hotelDruidQO);
