@@ -76,7 +76,11 @@ function SearchPage() {
   return (
     <>
       <main className="mx-auto max-w-6xl px-4 pt-4 pb-12">
+        <h1 className="mb-3 font-serif text-2xl md:text-3xl">
+          {search.city ? `Stays in ${search.city}` : "Explore stays across Kenya"}
+        </h1>
         <SearchBar initialCity={search.city ?? ""} initialQ={search.q ?? ""} />
+
 
         <div className="mt-4 flex items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
