@@ -1,0 +1,11 @@
+# Kenya Stays
+
+> Book verified short-term rentals across Kenya — apartments, lodges, cottages and homestays — and pay securely with M-Pesa or card.
+
+Kenya Stays connects travellers with local Kenyan hosts in Nairobi, Mombasa, Kisumu, Nakuru, Eldoret, Diani, Naivasha and the Maasai Mara. Listings show real-time availability, verified host profiles, guest reviews, eco-friendly and community-run badges, and prices in Kenyan shillings.
+
+## Pages
+
+- [Home](/): Featured Kenyan stays, live map and how booking works.
+- [Search stays](/search): Browse and filter listings by city, price, guests, amenities and eco-friendly options.
+- [Become a host](/host/new): List an apartment, lodge or homestay on Kenya Stays.
