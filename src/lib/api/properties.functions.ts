@@ -215,7 +215,9 @@ export const createProperty = createServerFn({ method: "POST" })
         is_community: data.is_community ?? false,
         cover_image: data.cover_image ?? null,
       })
-      .select()
+      // Only select granted columns: `authenticated` has no SELECT on
+      // address/latitude/longitude, so `select=*` would fail the RETURNING step.
+      .select("id")
       .single();
     if (error) throw new Error(error.message);
 
