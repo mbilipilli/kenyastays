@@ -30,7 +30,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             entries.push({ path: `/property/${p.id}`, changefreq: "weekly", priority: "0.8" }),
           );
         } catch {
-          // listings unavailable — still serve the static routes
+          console.error("sitemap listings failed");
         }
 
         const urls = entries.map((e) =>
