@@ -192,10 +192,34 @@ function NewListing() {
           </div>
         </div>
 
-        <Button size="lg" className="w-full" disabled={create.isPending || !title || !desc} onClick={() => create.mutate()}>
-          {create.isPending ? "Publishing…" : "Publish listing"}
+        {!accepted && !agreement.isLoading && (
+          <div className="rounded-xl border bg-muted/40 p-3 text-sm">
+            <p className="text-muted-foreground">
+              You must accept the Host Agreement checklist before publishing.
+            </p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => setShowAgreement(true)}>
+              Review Host Agreement
+            </Button>
+          </div>
+        )}
+
+        <Button
+          size="lg"
+          className="w-full"
+          disabled={create.isPending || !title || !desc || agreement.isLoading}
+          onClick={() => (accepted ? create.mutate() : setShowAgreement(true))}
+        >
+          {create.isPending ? "Publishing…" : accepted ? "Publish listing" : "Accept agreement to publish"}
         </Button>
       </div>
+
+      <HostAgreementModal
+        open={showAgreement}
+        pending={accept.isPending}
+        onAccept={() => accept.mutate()}
+        onDismiss={() => setShowAgreement(false)}
+      />
     </main>
   );
+
 }
