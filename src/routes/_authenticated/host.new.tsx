@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { createProperty } from "@/lib/api/properties.functions";
 import { getUploadUrl } from "@/lib/api/storage.functions";
+import { myHostAgreement, acceptHostAgreement } from "@/lib/api/host-agreement.functions";
+import { HostAgreementModal } from "@/components/HostAgreementModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AMENITIES, CITIES, PROPERTY_TYPES } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, Loader2 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/host/new")({
   head: () => ({ meta: [{ title: "Create a listing" }] }),
