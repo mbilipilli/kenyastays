@@ -12,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { TreePine } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   validateSearch: zodValidator(z.object({ redirect: z.string().optional() })),
   head: () => ({
     meta: [
