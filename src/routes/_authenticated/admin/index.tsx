@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminOverview, listAllHosts, setHostVerified, paymentsOverview } from "@/lib/api/admin.functions";
+import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs } from "@/lib/api/admin.functions";
 import { testStkPush } from "@/lib/api/mpesa.functions";
 import { runSync, getSyncStatus, listExternalListings } from "@/lib/api/sync.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 
@@ -341,6 +341,46 @@ function SyncPanel() {
             </div>
           ))}
           {!data?.runs?.length && <p className="py-6 text-center text-sm text-muted-foreground">No runs yet</p>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function LocationAuditPanel() {
+  const fn = useServerFn(locationAccessLogs);
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "location-audit"],
+    queryFn: () => fn({ data: { limit: 100 } }),
+  });
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <MapPin className="size-4" /> Exact location access log
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading && <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>}
+        {!isLoading && !data?.length && (
+          <p className="py-6 text-center text-sm text-muted-foreground">No exact-location requests recorded yet</p>
+        )}
+        <div className="divide-y">
+          {(data ?? []).map((r: any) => (
+            <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+              <div className="min-w-0">
+                <div className="font-medium">{r.action}</div>
+                <div className="text-xs text-muted-foreground break-all">
+                  user {r.user_id ?? "anonymous"} · {r.record_count} record(s) · {r.ip_address ?? "no IP"}
+                </div>
+                <div className="text-xs text-muted-foreground">{fmtDate(r.created_at)}</div>
+              </div>
+              <div className="flex gap-2">
+                {r.exposed_address && <Badge variant="secondary">Address</Badge>}
+                {r.exposed_gps && <Badge variant="secondary">GPS</Badge>}
+              </div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
