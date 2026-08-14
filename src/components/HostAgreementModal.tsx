@@ -7,7 +7,7 @@ import {
   Handshake,
   IdCard,
   Shield,
-  ShieldHome,
+  HousePlus,
   TriangleAlert,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -22,7 +22,7 @@ const ITEMS = [
   { icon: Handshake, label: "Guest Relations", description: "Treat guests fairly & protect their privacy." },
   { icon: IdCard, label: "Verification Docs", description: "Upload ID, ownership proof & KRA PIN." },
   { icon: Shield, label: "Platform Rules", description: "No direct bookings or policy violations." },
-  { icon: ShieldHome, label: "Host Liability", description: "Responsible for safety & insurance." },
+  { icon: HousePlus, label: "Host Liability", description: "Responsible for safety & insurance." },
   { icon: TriangleAlert, label: "Termination Terms", description: "Honor pending bookings if ending agreement." },
 ];
 
