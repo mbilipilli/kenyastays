@@ -10,12 +10,22 @@ export type SirvoyRoom = {
   booking_status: "available" | "sold_out";
 };
 
-function nextDates(days = 30) {
+// Deterministic pseudo-randomness: SSR and client must agree.
+function seededInt(key: string, max: number) {
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h) % max;
+}
+
+function nextDates(seed: string, days = 30) {
   const out: Record<string, number> = {};
   const now = new Date();
   for (let i = 0; i < days; i++) {
     const d = new Date(now.getTime() + i * 86400_000).toISOString().slice(0, 10);
-    out[d] = Math.floor(Math.random() * 5) + 1;
+    out[d] = seededInt(`${seed}:${d}`, 5) + 1;
   }
   return out;
 }
@@ -31,7 +41,7 @@ export async function fetchSirvoyRooms(): Promise<SirvoyRoom[]> {
   // Real impl: fetch(`${SIRVOY_API}/rooms`, { headers: { Authorization: `Bearer ${process.env.SIRVOY_API_KEY}` } })
   return SEED.map((s) => ({
     ...s,
-    availability: nextDates(),
-    booking_status: Math.random() > 0.15 ? "available" : "sold_out",
+    availability: nextDates(s.external_id),
+    booking_status: seededInt(`${s.external_id}:status`, 10) > 1 ? "available" : "sold_out",
   }));
 }
