@@ -98,9 +98,6 @@ function Index() {
             <h1 className="mt-4 max-w-3xl font-serif text-4xl leading-tight text-foreground md:text-6xl">
               Discover Your Perfect <span className="text-primary">Stay in Kenya</span>
             </h1>
-            <p className="mt-3 max-w-xl text-base text-foreground/80 md:text-lg">
-              Trusted local hosts, instant M-Pesa payments, and real-time availability across Kenya.
-            </p>
           </div>
         </div>
       </section>
