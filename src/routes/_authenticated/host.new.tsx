@@ -44,6 +44,23 @@ function NewListing() {
   const queryClient = useQueryClient();
   const uploadFn = useServerFn(getUploadUrl);
   const createFn = useServerFn(createProperty);
+  const agreementFn = useServerFn(myHostAgreement);
+  const acceptFn = useServerFn(acceptHostAgreement);
+
+  const agreement = useQuery({ queryKey: ["host-agreement"], queryFn: () => agreementFn({}) });
+  const accepted = agreement.data?.accepted ?? false;
+  const [showAgreement, setShowAgreement] = useState(false);
+
+  const accept = useMutation({
+    mutationFn: () => acceptFn({ data: { userAgent: navigator.userAgent.slice(0, 400) } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["host-agreement"] });
+      setShowAgreement(false);
+      toast.success("Host agreement accepted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   async function onUpload(files: FileList | null) {
     if (!files?.length) return;
