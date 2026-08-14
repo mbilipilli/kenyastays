@@ -289,7 +289,9 @@ function HostDashboard() {
       {/* Affiliate panel — only visible to users registered as affiliates */}
       {affiliate && <AffiliatePanel data={affiliate} />}
     </main>
+    </div>
   );
+
 }
 
 // ============ Featured Dialog ============
