@@ -144,7 +144,7 @@ function AdminPage() {
                   <XAxis dataKey="date" stroke="currentColor" fontSize={12} />
                   <YAxis stroke="currentColor" fontSize={12} />
                   <Tooltip formatter={(v: any) => kes(Number(v))} />
-                  <Line type="monotone" dataKey="kes" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="kes" stroke="var(--admin)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -153,7 +153,8 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="approvals"><ApprovalsPanel /></TabsContent>
-        <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><HostsPanel /></TabsContent>
+        <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><EscalationsPanel /><HostsPanel /></TabsContent>
+
         <TabsContent value="payments"><PaymentsPanel /></TabsContent>
         <TabsContent value="external"><ExternalPanel /></TabsContent>
         <TabsContent value="sync"><SyncPanel /></TabsContent>
