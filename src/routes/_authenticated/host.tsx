@@ -95,11 +95,18 @@ function HostDashboard() {
   const pendingCount = bookings.filter((b: any) => b.status === "pending").length;
 
   return (
+    <div className="min-h-screen bg-secondary/40">
     <main className="mx-auto max-w-5xl px-4 py-6">
       <div className="flex items-center justify-between">
-        <h1 className="font-serif text-3xl">Host dashboard</h1>
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-accent-foreground shadow">
+            <Home className="size-3.5" /> Host dashboard
+          </div>
+          <h1 className="font-serif text-3xl">Host dashboard</h1>
+        </div>
         <Button asChild><Link to="/host/new" className="gap-1"><Plus className="size-4" /> New listing</Link></Button>
       </div>
+
 
       {/* Analytics */}
       <section className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-4">
