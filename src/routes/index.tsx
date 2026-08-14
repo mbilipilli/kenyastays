@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { searchProperties } from "@/lib/api/properties.functions";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
@@ -70,6 +71,14 @@ function Index() {
   const { data: properties } = useSuspenseQuery(featuredQO);
   const { isAdmin } = useIsAdmin();
 
+  if (isAdmin) {
+    return (
+      <main>
+        <AdminDashboard />
+      </main>
+    );
+  }
+
   return (
     <main>
       {/* Hero */}
@@ -96,7 +105,6 @@ function Index() {
       </section>
 
       {/* Featured */}
-      {!isAdmin && (
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-4">
           <h2 className="font-serif text-2xl md:text-3xl">Featured stays</h2>
@@ -110,7 +118,8 @@ function Index() {
           </div>
         )}
       </section>
-      )}
+
+
 
 
 
