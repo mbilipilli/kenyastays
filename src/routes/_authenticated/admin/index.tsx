@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs, locationAlerts, updateLocationAlertRule, addSuspiciousIp, removeSuspiciousIp, acknowledgeLocationAlert } from "@/lib/api/admin.functions";
+import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs, locationAlerts, updateLocationAlertRule, addSuspiciousIp, removeSuspiciousIp, acknowledgeLocationAlert, listingsForReview, reviewListing } from "@/lib/api/admin.functions";
 import { testStkPush } from "@/lib/api/mpesa.functions";
 import { runSync, getSyncStatus, listExternalListings } from "@/lib/api/sync.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
@@ -79,6 +80,7 @@ function AdminPage() {
         <TabsList className="flex flex-wrap gap-1">
           <TabsTrigger value="bookings">Bookings</TabsTrigger>
           <TabsTrigger value="revenue">Analytics</TabsTrigger>
+          <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="hosts">Hosts</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
@@ -132,6 +134,7 @@ function AdminPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="approvals"><ApprovalsPanel /></TabsContent>
         <TabsContent value="hosts"><HostsPanel /></TabsContent>
         <TabsContent value="payments"><PaymentsPanel /></TabsContent>
         <TabsContent value="external"><ExternalPanel /></TabsContent>
@@ -531,5 +534,107 @@ function LocationAlertsPanel() {
         </Card>
       </div>
     </div>
+  );
+}
+
+function StatusTracker({ status }: { status: string }) {
+  const steps = ["pending", "approved", "rejected"];
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      {steps.map((st) => (
+        <span
+          key={st}
+          className={
+            "rounded-full border px-2 py-0.5 capitalize " +
+            (st === status
+              ? st === "approved"
+                ? "border-transparent bg-primary text-primary-foreground"
+                : st === "rejected"
+                  ? "border-transparent bg-destructive text-destructive-foreground"
+                  : "border-transparent bg-secondary text-secondary-foreground"
+              : "text-muted-foreground")
+          }
+        >
+          {st}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ApprovalsPanel() {
+  const listFn = useServerFn(listingsForReview);
+  const reviewFn = useServerFn(reviewListing);
+  const qc = useQueryClient();
+  const [status, setStatus] = useState<"pending" | "approved" | "rejected">("pending");
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const q = useQuery({ queryKey: ["listings-review", status], queryFn: () => listFn({ data: { status } }) });
+
+  const review = useMutation({
+    mutationFn: (v: { id: string; decision: "approved" | "rejected" }) =>
+      reviewFn({ data: { ...v, notes: notes[v.id] || undefined } }),
+    onSuccess: (r: any) => {
+      toast.success(r.status === "approved" ? "Listing approved — host notified" : "Listing rejected — host notified");
+      qc.invalidateQueries({ queryKey: ["listings-review"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Admin Approval Panel</CardTitle>
+        <p className="text-sm text-muted-foreground">Review host agreement and listing before activation.</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex gap-2">
+          {(["pending", "approved", "rejected"] as const).map((s) => (
+            <Button key={s} size="sm" variant={s === status ? "default" : "outline"} onClick={() => setStatus(s)} className="capitalize">
+              {s}
+            </Button>
+          ))}
+        </div>
+        {q.isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {q.data?.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Nothing here.</p>}
+        <div className="space-y-3">
+          {(q.data ?? []).map((r: any) => (
+            <div key={r.id} className="rounded-xl border p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="text-sm">
+                  <div className="text-xs text-muted-foreground">Host Name</div>
+                  <div className="font-medium">{r.host_name}</div>
+                  <div className="mt-2 text-xs text-muted-foreground">Property Title</div>
+                  <div className="font-medium">{r.title}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{r.city} • {kes(r.price_kes)}/night</div>
+                </div>
+                <div className="space-y-2 text-right">
+                  <div className="text-xs text-muted-foreground">Documents Verified</div>
+                  <Badge variant={r.host_verified ? "default" : "secondary"}>{r.host_verified ? "Verified" : "Pending"}</Badge>
+                  <div className="text-xs text-muted-foreground">
+                    Agreement: {r.agreement_accepted_at ? new Date(r.agreement_accepted_at).toLocaleDateString() : "not signed"}
+                  </div>
+                  <StatusTracker status={r.approval_status} />
+                </div>
+              </div>
+              <Textarea
+                className="mt-3"
+                rows={2}
+                placeholder="Admin comments"
+                value={notes[r.id] ?? r.admin_notes ?? ""}
+                onChange={(e) => setNotes((p) => ({ ...p, [r.id]: e.target.value }))}
+              />
+              <div className="mt-3 flex gap-2">
+                <Button size="sm" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, decision: "approved" })}>
+                  Approve
+                </Button>
+                <Button size="sm" variant="destructive" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, decision: "rejected" })}>
+                  Reject
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
