@@ -172,7 +172,7 @@ function NewListing() {
           </div>
         </div>
 
-        <Button size="lg" className="w-full" disabled={create.isPending || !title || !desc || needsAgreement} onClick={() => create.mutate()}>
+        <Button size="lg" className="w-full" disabled={create.isPending || !title || !desc} onClick={() => create.mutate()}>
           {create.isPending ? "Publishing…" : "Publish listing"}
         </Button>
       </div>
