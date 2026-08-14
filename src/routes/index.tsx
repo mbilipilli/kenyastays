@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { searchProperties } from "@/lib/api/properties.functions";
 import { listHotelDruidFeatured } from "@/lib/api/sync.functions";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
 import { HotelDruidCard } from "@/components/HotelDruidCard";
 
@@ -85,6 +86,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { data: properties } = useSuspenseQuery(featuredQO);
   const { data: hdRooms } = useSuspenseQuery(hotelDruidQO);
+  const { isAdmin } = useIsAdmin();
 
   return (
     <main>
@@ -144,6 +146,7 @@ function Index() {
       </section>
 
       {/* Featured */}
+      {!isAdmin && (
       <section className="mx-auto max-w-6xl px-4 pt-6 pb-10">
         <div className="mb-4 flex items-end justify-between">
           <h2 className="font-serif text-2xl md:text-3xl">Featured stays</h2>
@@ -157,9 +160,10 @@ function Index() {
           </div>
         )}
       </section>
+      )}
 
       {/* HotelDruid live inventory */}
-      {hdRooms.length > 0 && (
+      {!isAdmin && hdRooms.length > 0 && (
         <section className="bg-sand/40">
           <div className="mx-auto max-w-6xl px-4 py-10">
             <div className="mb-4 flex items-end justify-between gap-3">
@@ -177,6 +181,7 @@ function Index() {
           </div>
         </section>
       )}
+
 
 
 

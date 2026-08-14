@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs, locationAlerts, updateLocationAlertRule, addSuspiciousIp, removeSuspiciousIp, acknowledgeLocationAlert, listingsForReview, reviewListing, hostPayoutsOverview, hostEnquiries } from "@/lib/api/admin.functions";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X, Wallet, Inbox } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X, Wallet, Inbox, ExternalLink } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { AnalyticsPanels, BookingsOverviewPanel, CommissionsPanel, CompliancePanel, DocumentVerificationPanel, EscalationsPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
@@ -634,7 +634,14 @@ function ApprovalsPanel() {
                   <div className="text-xs text-muted-foreground">Host Name</div>
                   <div className="font-medium">{r.host_name}</div>
                   <div className="mt-2 text-xs text-muted-foreground">Property Title</div>
-                  <div className="font-medium">{r.title}</div>
+                  <Link
+                    to="/property/$id"
+                    params={{ id: r.id }}
+                    target="_blank"
+                    className="inline-flex items-center gap-1 font-medium text-admin underline-offset-4 hover:underline"
+                  >
+                    {r.title} <ExternalLink className="size-3.5" />
+                  </Link>
                   <div className="mt-1 text-xs text-muted-foreground">{r.city} • {kes(r.price_kes)}/night</div>
                 </div>
                 <div className="space-y-2 text-right">
@@ -646,8 +653,14 @@ function ApprovalsPanel() {
                     Agreement: {r.agreement_accepted_at ? new Date(r.agreement_accepted_at).toLocaleDateString() : "not signed"}
                   </div>
                   <StatusTracker status={r.approval_status} />
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/property/$id" params={{ id: r.id }} target="_blank">
+                      View listing
+                    </Link>
+                  </Button>
                 </div>
               </div>
+
               <Textarea
                 className="mt-3 bg-card"
                 rows={2}
