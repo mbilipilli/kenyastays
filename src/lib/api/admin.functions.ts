@@ -122,3 +122,91 @@ export const locationAccessLogs = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+export const locationAlerts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ limit: z.number().int().min(1).max(200).optional() }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: alerts }, { data: rule }, { data: ips }] = await Promise.all([
+      supabaseAdmin
+        .from("location_alerts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(data.limit ?? 100),
+      supabaseAdmin.from("location_alert_rules").select("*").order("created_at").limit(1).maybeSingle(),
+      supabaseAdmin.from("suspicious_ips").select("*").order("created_at", { ascending: false }),
+    ]);
+    return { alerts: alerts ?? [], rule, suspiciousIps: ips ?? [] };
+  });
+
+export const updateLocationAlertRule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        enabled: z.boolean(),
+        window_minutes: z.number().int().min(1).max(1440),
+        max_requests: z.number().int().min(1).max(10000),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing } = await supabaseAdmin
+      .from("location_alert_rules")
+      .select("id")
+      .order("created_at")
+      .limit(1)
+      .maybeSingle();
+    const { error } = existing
+      ? await supabaseAdmin.from("location_alert_rules").update(data).eq("id", existing.id)
+      : await supabaseAdmin.from("location_alert_rules").insert(data);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const addSuspiciousIp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ ip_prefix: z.string().min(1).max(45), note: z.string().max(200).optional() }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("suspicious_ips")
+      .upsert(
+        { ip_prefix: data.ip_prefix.trim(), note: data.note ?? null, is_active: true },
+        { onConflict: "ip_prefix" },
+      );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const removeSuspiciousIp = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("suspicious_ips").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const acknowledgeLocationAlert = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("location_alerts")
+      .update({ acknowledged_at: new Date().toISOString(), acknowledged_by: context.userId })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

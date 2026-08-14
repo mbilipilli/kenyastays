@@ -41,6 +41,10 @@ export async function logLocationAccess(args: LogArgs): Promise<void> {
       ip_address: ip,
       user_agent: ua ? ua.slice(0, 500) : null,
     });
+
+    const { evaluateLocationAlerts } = await import("./location-alerts.server");
+    await evaluateLocationAlerts({ userId: args.userId, action: args.action, ip });
+
   } catch (err) {
     console.error("[location-audit] failed to write audit row", err);
   }

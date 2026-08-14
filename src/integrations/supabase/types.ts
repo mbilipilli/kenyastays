@@ -526,6 +526,75 @@ export type Database = {
         }
         Relationships: []
       }
+      location_alert_rules: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          max_requests: number
+          updated_at: string
+          window_minutes: number
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          max_requests?: number
+          updated_at?: string
+          window_minutes?: number
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          max_requests?: number
+          updated_at?: string
+          window_minutes?: number
+        }
+        Relationships: []
+      }
+      location_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          action: string | null
+          created_at: string
+          details: string | null
+          id: string
+          ip_address: string | null
+          kind: string
+          request_count: number
+          user_id: string | null
+          window_minutes: number | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          action?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          ip_address?: string | null
+          kind: string
+          request_count?: number
+          user_id?: string | null
+          window_minutes?: number | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          action?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          ip_address?: string | null
+          kind?: string
+          request_count?: number
+          user_id?: string | null
+          window_minutes?: number | null
+        }
+        Relationships: []
+      }
       mpesa_transactions: {
         Row: {
           amount_kes: number
@@ -839,6 +908,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      suspicious_ips: {
+        Row: {
+          created_at: string
+          id: string
+          ip_prefix: string
+          is_active: boolean
+          note: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_prefix: string
+          is_active?: boolean
+          note?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_prefix?: string
+          is_active?: boolean
+          note?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       sync_runs: {
         Row: {

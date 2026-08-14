@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs } from "@/lib/api/admin.functions";
+import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs, locationAlerts, updateLocationAlertRule, addSuspiciousIp, removeSuspiciousIp, acknowledgeLocationAlert } from "@/lib/api/admin.functions";
 import { testStkPush } from "@/lib/api/mpesa.functions";
 import { runSync, getSyncStatus, listExternalListings } from "@/lib/api/sync.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -86,7 +86,8 @@ function AdminPage() {
           <TabsTrigger value="location">Location audit</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="location">
+        <TabsContent value="location" className="space-y-4">
+          <LocationAlertsPanel />
           <LocationAuditPanel />
         </TabsContent>
 
@@ -384,5 +385,151 @@ function LocationAuditPanel() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function LocationAlertsPanel() {
+  const load = useServerFn(locationAlerts);
+  const saveRule = useServerFn(updateLocationAlertRule);
+  const addIp = useServerFn(addSuspiciousIp);
+  const removeIp = useServerFn(removeSuspiciousIp);
+  const ack = useServerFn(acknowledgeLocationAlert);
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "location-alerts"],
+    queryFn: () => load({ data: { limit: 100 } }),
+  });
+
+  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [win, setWin] = useState("");
+  const [max, setMax] = useState("");
+  const [ip, setIp] = useState("");
+  const [note, setNote] = useState("");
+
+  const rule = data?.rule as any;
+  const isEnabled = enabled ?? rule?.enabled ?? true;
+  const winVal = win || String(rule?.window_minutes ?? 15);
+  const maxVal = max || String(rule?.max_requests ?? 20);
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "location-alerts"] });
+
+  const ruleMut = useMutation({
+    mutationFn: () =>
+      saveRule({
+        data: { enabled: isEnabled, window_minutes: Number(winVal), max_requests: Number(maxVal) },
+      }),
+    onSuccess: () => { toast.success("Alert rule saved"); invalidate(); },
+    onError: (e: any) => toast.error(e?.message ?? "Could not save rule"),
+  });
+  const addMut = useMutation({
+    mutationFn: () => addIp({ data: { ip_prefix: ip, note: note || undefined } }),
+    onSuccess: () => { toast.success("IP added to watchlist"); setIp(""); setNote(""); invalidate(); },
+    onError: (e: any) => toast.error(e?.message ?? "Could not add IP"),
+  });
+  const rmMut = useMutation({
+    mutationFn: (id: string) => removeIp({ data: { id } }),
+    onSuccess: invalidate,
+  });
+  const ackMut = useMutation({
+    mutationFn: (id: string) => ack({ data: { id } }),
+    onSuccess: invalidate,
+  });
+
+  const open = (data?.alerts ?? []).filter((a: any) => !a.acknowledged_at);
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <ShieldCheck className="size-4" /> Location alerts
+            {open.length > 0 && <Badge variant="destructive">{open.length} open</Badge>}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading && <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>}
+          {!isLoading && !data?.alerts?.length && (
+            <p className="py-6 text-center text-sm text-muted-foreground">No alerts raised — all clear</p>
+          )}
+          <div className="divide-y">
+            {(data?.alerts ?? []).map((a: any) => (
+              <div key={a.id} className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 font-medium">
+                    {a.kind === "threshold" ? "Request threshold exceeded" : "Suspicious IP"}
+                    {a.acknowledged_at ? (
+                      <Badge variant="secondary">Acknowledged</Badge>
+                    ) : (
+                      <Badge variant="destructive">Open</Badge>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground break-all">{a.details}</div>
+                  <div className="text-xs text-muted-foreground break-all">
+                    user {a.user_id ?? "anonymous"} · {a.ip_address ?? "no IP"} · {a.action ?? "—"} · {fmtDate(a.created_at)}
+                  </div>
+                </div>
+                {!a.acknowledged_at && (
+                  <Button size="sm" variant="outline" onClick={() => ackMut.mutate(a.id)} disabled={ackMut.isPending}>
+                    Acknowledge
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-4">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Threshold rule</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span>Alerting enabled</span>
+              <Button size="sm" variant={isEnabled ? "default" : "outline"} onClick={() => setEnabled(!isEnabled)}>
+                {isEnabled ? "On" : "Off"}
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-muted-foreground">Window (min)</label>
+                <Input value={winVal} onChange={(e) => setWin(e.target.value)} inputMode="numeric" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Max requests</label>
+                <Input value={maxVal} onChange={(e) => setMax(e.target.value)} inputMode="numeric" />
+              </div>
+            </div>
+            <Button className="w-full" onClick={() => ruleMut.mutate()} disabled={ruleMut.isPending}>
+              Save rule
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle className="text-base">Suspicious IP watchlist</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <Input placeholder="IP or prefix e.g. 41.90." value={ip} onChange={(e) => setIp(e.target.value)} />
+            <Input placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
+            <Button className="w-full" variant="outline" onClick={() => addMut.mutate()} disabled={!ip.trim() || addMut.isPending}>
+              Add to watchlist
+            </Button>
+            <div className="divide-y">
+              {(data?.suspiciousIps ?? []).map((r: any) => (
+                <div key={r.id} className="flex items-center justify-between gap-2 py-2 text-sm">
+                  <div className="min-w-0">
+                    <div className="font-medium break-all">{r.ip_prefix}</div>
+                    {r.note && <div className="text-xs text-muted-foreground break-all">{r.note}</div>}
+                  </div>
+                  <Button size="sm" variant="ghost" onClick={() => rmMut.mutate(r.id)}>Remove</Button>
+                </div>
+              ))}
+              {!data?.suspiciousIps?.length && (
+                <p className="py-2 text-xs text-muted-foreground">No IPs on the watchlist</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
