@@ -6,7 +6,6 @@ import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
 import { HotelDruidCard } from "@/components/HotelDruidCard";
 
-import { SearchBar } from "@/components/SearchBar";
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
