@@ -15,10 +15,6 @@ const featuredQO = queryOptions({
   queryFn: () => searchProperties({ data: {} }),
 });
 
-const hotelDruidQO = queryOptions({
-  queryKey: ["hoteldruid", "featured"],
-  queryFn: () => listHotelDruidFeatured(),
-});
 
 
 export const Route = createFileRoute("/")({
@@ -62,7 +58,6 @@ export const Route = createFileRoute("/")({
 
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredQO);
-    context.queryClient.prefetchQuery(hotelDruidQO);
   },
 
   component: Index,
@@ -73,7 +68,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data: properties } = useSuspenseQuery(featuredQO);
-  const { data: hdRooms } = useSuspenseQuery(hotelDruidQO);
   const { isAdmin } = useIsAdmin();
 
   return (
@@ -101,18 +95,12 @@ function Index() {
         </div>
       </section>
 
-      {/* Explore by city */}
-      <section className="mx-auto max-w-6xl px-4 pt-10">
-        <h2 className="font-serif text-2xl md:text-3xl">Explore by city</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Choose your destination and filter by price, amenities, and eco‑friendly options.</p>
-      </section>
-
       {/* Featured */}
       {!isAdmin && (
-      <section className="mx-auto max-w-6xl px-4 pt-6 pb-10">
-        <div className="mb-4 flex items-end justify-between">
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <div className="mb-4">
           <h2 className="font-serif text-2xl md:text-3xl">Featured stays</h2>
-          <Link to="/search" className="text-sm font-medium text-primary hover:underline">View all →</Link>
+          <p className="mt-1 text-sm text-muted-foreground">A hand-picked look at places around Kenya.</p>
         </div>
         {properties.length === 0 ? (
           <EmptyState />
@@ -122,26 +110,6 @@ function Index() {
           </div>
         )}
       </section>
-      )}
-
-      {/* HotelDruid live inventory */}
-      {!isAdmin && hdRooms.length > 0 && (
-        <section className="bg-sand/40">
-          <div className="mx-auto max-w-6xl px-4 py-10">
-            <div className="mb-4 flex items-end justify-between gap-3">
-              <div>
-                <h2 className="font-serif text-2xl md:text-3xl">Featured stays — live across Kenya</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Real-time rooms & rates synced securely from partner PMS.</p>
-              </div>
-              <span className="hidden shrink-0 rounded-full bg-acacia/15 px-3 py-1 text-xs font-medium text-accent sm:inline">
-                Live sync
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
-              {hdRooms.slice(0, 8).map((r) => <HotelDruidCard key={r.external_id} {...r} />)}
-            </div>
-          </div>
-        </section>
       )}
 
 
@@ -233,10 +201,7 @@ function Stat({ icon: Icon, label, value }: { icon: typeof Leaf; label: string; 
 function EmptyState() {
   return (
     <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
-      <p className="text-muted-foreground">No listings yet. Hosts — be the first to list your space.</p>
-      <Link to="/host/new" className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
-        Create the first listing →
-      </Link>
+      <p className="text-muted-foreground">No listings yet. New stays are added regularly.</p>
     </div>
   );
 }
