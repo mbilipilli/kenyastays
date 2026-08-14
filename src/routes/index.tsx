@@ -23,15 +23,6 @@ const hotelDruidQO = queryOptions({
 });
 
 
-const CITY_CHIPS = [
-  { name: "Nairobi", emoji: "🏙️" },
-  { name: "Mombasa", emoji: "🌊" },
-  { name: "Kisumu", emoji: "🌅" },
-  { name: "Maasai Mara", emoji: "🦁" },
-  { name: "Eldoret", emoji: "🌾" },
-  { name: "Nakuru", emoji: "🦩" },
-] as const;
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
