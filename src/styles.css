@@ -97,6 +97,15 @@
   --clay: oklch(0.45 0.12 40);
   --sand: oklch(0.93 0.05 85);
 
+  /* Admin console — professional blue / green-red action palette */
+  --admin: oklch(0.53 0.16 255);
+  --admin-foreground: oklch(0.99 0.005 250);
+  --admin-surface: oklch(0.995 0.003 250);
+  --admin-muted: oklch(0.96 0.012 250);
+  --success: oklch(0.56 0.14 150);
+  --success-foreground: oklch(0.99 0.01 150);
+
+
   --chart-1: oklch(0.62 0.16 45);
   --chart-2: oklch(0.52 0.12 140);
   --chart-3: oklch(0.7 0.13 80);
