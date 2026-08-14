@@ -1,14 +1,16 @@
 /** Aggregations powering the admin compliance & analytics dashboard. */
 export async function buildInsights(supabaseAdmin: any) {
-  const [{ data: props }, { data: bookings }, { data: reviews }, { data: profiles }, { data: roles }, { data: agreements }] =
+  const [{ data: props }, { data: bookings }, { data: reviews }, { data: profiles }, { data: roles }, { data: agreements }, { data: payments }] =
     await Promise.all([
       supabaseAdmin.from("properties").select("id,title,city,price_kes,host_id,approval_status,is_active,created_at"),
-      supabaseAdmin.from("bookings").select("id,property_id,host_id,guest_id,status,total_kes,commission_kes,service_fee_kes,cleaning_fee_kes,affiliate_commission_kes,host_payout_kes,created_at"),
+      supabaseAdmin.from("bookings").select("id,property_id,host_id,guest_id,status,total_kes,commission_kes,service_fee_kes,cleaning_fee_kes,affiliate_commission_kes,host_payout_kes,check_in,check_out,created_at"),
       supabaseAdmin.from("reviews").select("property_id,rating"),
       supabaseAdmin.from("profiles").select("id,full_name,phone,is_verified"),
       supabaseAdmin.from("user_roles").select("user_id,role").eq("role", "host"),
       supabaseAdmin.from("host_agreements").select("user_id,accepted_at,version"),
+      supabaseAdmin.from("payments").select("booking_id,method,status,amount_kes,created_at").eq("status", "success"),
     ]);
+
 
   const P: any[] = props ?? [];
   const B: any[] = bookings ?? [];
