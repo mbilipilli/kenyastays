@@ -115,8 +115,10 @@ function AdminPage() {
 
 
 
-        <TabsContent value="bookings">
+        <TabsContent value="bookings" className="space-y-4">
+          <BookingsOverviewPanel />
           <Card>
+
             <CardHeader><CardTitle className="text-base">Recent bookings</CardTitle></CardHeader>
             <CardContent>
               <div className="divide-y">
