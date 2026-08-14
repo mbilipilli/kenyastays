@@ -279,3 +279,14 @@ export const reviewListing = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, status: data.decision };
   });
+
+// ---------------- Compliance / insights dashboard ----------------
+
+export const adminInsights = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { buildInsights } = await import("@/lib/admin/insights.server");
+    return buildInsights(supabaseAdmin);
+  });
