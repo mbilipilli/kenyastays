@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
+import { AnalyticsPanels, CompliancePanel, DocumentVerificationPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
 
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -48,7 +49,7 @@ function AdminPage() {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
-          <p className="text-sm text-muted-foreground">Sirvoy Pro + HotelDruid data bridge</p>
+          <p className="text-sm text-muted-foreground">Oversee compliance, payouts and system health</p>
         </div>
         <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
           <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
@@ -140,10 +141,11 @@ function AdminPage() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+          <div className="mt-4"><AnalyticsPanels /></div>
         </TabsContent>
 
         <TabsContent value="approvals"><ApprovalsPanel /></TabsContent>
-        <TabsContent value="hosts"><HostsPanel /></TabsContent>
+        <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><HostsPanel /></TabsContent>
         <TabsContent value="payments"><PaymentsPanel /></TabsContent>
         <TabsContent value="external"><ExternalPanel /></TabsContent>
         <TabsContent value="sync"><SyncPanel /></TabsContent>
