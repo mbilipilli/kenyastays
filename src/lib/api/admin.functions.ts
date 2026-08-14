@@ -290,3 +290,78 @@ export const adminInsights = createServerFn({ method: "POST" })
     const { buildInsights } = await import("@/lib/admin/insights.server");
     return buildInsights(supabaseAdmin);
   });
+
+// ---------------- Host payouts ----------------
+
+export const hostPayoutsOverview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows } = await supabaseAdmin
+      .from("host_payouts")
+      .select("id,host_id,booking_id,amount_kes,phone,status,mpesa_receipt,result_desc,created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    const ids = [...new Set((rows ?? []).map((r: any) => r.host_id))];
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id,full_name").in("id", ids)
+      : { data: [] as any[] };
+    const nameById: Record<string, string> = {};
+    (profiles ?? []).forEach((p: any) => (nameById[p.id] = p.full_name ?? "Host"));
+    const list = (rows ?? []).map((r: any) => ({ ...r, host_name: nameById[r.host_id] ?? "Host" }));
+    const sum = (pred: (s: string) => boolean) =>
+      list.filter((r: any) => pred(String(r.status))).reduce((s: number, r: any) => s + (r.amount_kes ?? 0), 0);
+    return {
+      payouts: list,
+      totals: {
+        completed_kes: sum((s) => s === "success" || s === "completed"),
+        pending_kes: sum((s) => s === "pending" || s === "queued" || s === "processing"),
+        failed_kes: sum((s) => s === "failed" || s === "error"),
+      },
+    };
+  });
+
+// ---------------- Host enquiries / intended hosts ----------------
+
+export const hostEnquiries = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: roles }, { data: agreements }, { data: props }] = await Promise.all([
+      supabaseAdmin.from("user_roles").select("user_id,created_at").eq("role", "host"),
+      supabaseAdmin.from("host_agreements").select("user_id,accepted_at,version"),
+      supabaseAdmin.from("properties").select("host_id,approval_status"),
+    ]);
+    const listingCount: Record<string, number> = {};
+    const approvedCount: Record<string, number> = {};
+    (props ?? []).forEach((p: any) => {
+      listingCount[p.host_id] = (listingCount[p.host_id] ?? 0) + 1;
+      if (p.approval_status === "approved") approvedCount[p.host_id] = (approvedCount[p.host_id] ?? 0) + 1;
+    });
+    const agreedBy: Record<string, string> = {};
+    (agreements ?? []).forEach((a: any) => (agreedBy[a.user_id] = a.accepted_at));
+
+    const ids = [...new Set((roles ?? []).map((r: any) => r.user_id))].filter(
+      (id) => !approvedCount[id],
+    );
+    if (!ids.length) return [];
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id,full_name,phone,is_verified,created_at")
+      .in("id", ids);
+    return (profiles ?? [])
+      .map((p: any) => ({
+        id: p.id,
+        name: p.full_name ?? "Unnamed",
+        phone: p.phone ?? null,
+        verified: !!p.is_verified,
+        agreement_accepted_at: agreedBy[p.id] ?? null,
+        drafts: listingCount[p.id] ?? 0,
+        joined_at: p.created_at,
+        stage: (listingCount[p.id] ?? 0) > 0 ? "Listing submitted" : agreedBy[p.id] ? "Agreement signed" : "Enquiry only",
+      }))
+      .sort((a: any, b: any) => String(b.joined_at).localeCompare(String(a.joined_at)));
+  });
+
