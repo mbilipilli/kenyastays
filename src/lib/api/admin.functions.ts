@@ -210,3 +210,72 @@ export const acknowledgeLocationAlert = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// ---------------- Listing approval workflow ----------------
+
+export const listingsForReview = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ status: z.enum(["pending", "approved", "rejected"]).optional() }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let q = supabaseAdmin
+      .from("properties")
+      .select("id,title,city,price_kes,host_id,is_active,approval_status,admin_notes,reviewed_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(60);
+    if (data.status) q = q.eq("approval_status", data.status);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    const hostIds = [...new Set((rows ?? []).map((r: any) => r.host_id))];
+    const [{ data: profiles }, { data: agreements }] = await Promise.all([
+      hostIds.length
+        ? supabaseAdmin.from("profiles").select("id,full_name,phone,is_verified").in("id", hostIds)
+        : Promise.resolve({ data: [] as any[] }),
+      hostIds.length
+        ? supabaseAdmin.from("host_agreements").select("user_id,accepted_at,version").in("user_id", hostIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const byId: Record<string, any> = {};
+    (profiles ?? []).forEach((p: any) => (byId[p.id] = p));
+    const agreed: Record<string, string> = {};
+    (agreements ?? []).forEach((a: any) => (agreed[a.user_id] = a.accepted_at));
+
+    return (rows ?? []).map((r: any) => ({
+      ...r,
+      host_name: byId[r.host_id]?.full_name ?? "Host",
+      host_verified: !!byId[r.host_id]?.is_verified,
+      agreement_accepted_at: agreed[r.host_id] ?? null,
+    }));
+  });
+
+export const reviewListing = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        decision: z.enum(["approved", "rejected"]),
+        notes: z.string().max(1000).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("properties")
+      .update({
+        approval_status: data.decision,
+        admin_notes: data.notes ?? null,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: context.userId,
+        is_active: data.decision === "approved",
+      })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true, status: data.decision };
+  });
