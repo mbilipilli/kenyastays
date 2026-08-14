@@ -105,3 +105,20 @@ export const paymentsOverview = createServerFn({ method: "POST" })
     ]);
     return { payments: pays ?? [], mpesa: mpesa ?? [] };
   });
+
+export const locationAccessLogs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ limit: z.number().int().min(1).max(200).optional() }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("location_access_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(data.limit ?? 100);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
