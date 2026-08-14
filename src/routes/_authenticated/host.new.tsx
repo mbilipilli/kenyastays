@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { createProperty } from "@/lib/api/properties.functions";
 import { getUploadUrl } from "@/lib/api/storage.functions";
+import { myHostAgreement, acceptHostAgreement } from "@/lib/api/host-agreement.functions";
+import { HostAgreementModal } from "@/components/HostAgreementModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AMENITIES, CITIES, PROPERTY_TYPES } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, X, Loader2 } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/host/new")({
   head: () => ({ meta: [{ title: "Create a listing" }] }),
@@ -41,6 +44,23 @@ function NewListing() {
   const queryClient = useQueryClient();
   const uploadFn = useServerFn(getUploadUrl);
   const createFn = useServerFn(createProperty);
+  const agreementFn = useServerFn(myHostAgreement);
+  const acceptFn = useServerFn(acceptHostAgreement);
+
+  const agreement = useQuery({ queryKey: ["host-agreement"], queryFn: () => agreementFn({}) });
+  const accepted = agreement.data?.accepted ?? false;
+  const [showAgreement, setShowAgreement] = useState(false);
+
+  const accept = useMutation({
+    mutationFn: () => acceptFn({ data: { userAgent: navigator.userAgent.slice(0, 400) } }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["host-agreement"] });
+      setShowAgreement(false);
+      toast.success("Host agreement accepted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   async function onUpload(files: FileList | null) {
     if (!files?.length) return;
@@ -172,10 +192,34 @@ function NewListing() {
           </div>
         </div>
 
-        <Button size="lg" className="w-full" disabled={create.isPending || !title || !desc} onClick={() => create.mutate()}>
-          {create.isPending ? "Publishing…" : "Publish listing"}
+        {!accepted && !agreement.isLoading && (
+          <div className="rounded-xl border bg-muted/40 p-3 text-sm">
+            <p className="text-muted-foreground">
+              You must accept the Host Agreement checklist before publishing.
+            </p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => setShowAgreement(true)}>
+              Review Host Agreement
+            </Button>
+          </div>
+        )}
+
+        <Button
+          size="lg"
+          className="w-full"
+          disabled={create.isPending || !title || !desc || agreement.isLoading}
+          onClick={() => (accepted ? create.mutate() : setShowAgreement(true))}
+        >
+          {create.isPending ? "Publishing…" : accepted ? "Publish listing" : "Accept agreement to publish"}
         </Button>
       </div>
+
+      <HostAgreementModal
+        open={showAgreement}
+        pending={accept.isPending}
+        onAccept={() => accept.mutate()}
+        onDismiss={() => setShowAgreement(false)}
+      />
     </main>
   );
+
 }
