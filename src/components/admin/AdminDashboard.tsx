@@ -50,7 +50,6 @@ export function AdminDashboard() {
             <ShieldCheck className="size-3.5" /> Admin dashboard
           </div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
-          <p className="text-sm text-muted-foreground">Oversight and compliance only — this account has no hosting rights</p>
         </div>
         <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending} className="bg-admin text-admin-foreground hover:bg-admin/90">
           <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
@@ -610,7 +609,6 @@ function ApprovalsPanel() {
           <span className="grid size-8 place-items-center rounded-lg bg-admin/10 text-admin"><ClipboardCheck className="size-4" /></span>
           Host Approval Panel
         </CardTitle>
-        <p className="text-sm text-muted-foreground">Review host submissions before activation.</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
