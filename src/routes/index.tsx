@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { searchProperties } from "@/lib/api/properties.functions";
 import { listHotelDruidFeatured } from "@/lib/api/sync.functions";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
 import { HotelDruidCard } from "@/components/HotelDruidCard";
 
