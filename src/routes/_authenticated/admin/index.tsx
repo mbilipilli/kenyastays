@@ -595,10 +595,13 @@ function ApprovalsPanel() {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Admin Approval Panel</CardTitle>
-        <p className="text-sm text-muted-foreground">Review host agreement and listing before activation.</p>
+    <Card className="border-admin/15 shadow-sm">
+      <CardHeader className="gap-1">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <span className="grid size-8 place-items-center rounded-lg bg-admin/10 text-admin"><ClipboardCheck className="size-4" /></span>
+          Host Approval Panel
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">Review host submissions before activation.</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
@@ -612,7 +615,7 @@ function ApprovalsPanel() {
         {q.data?.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Nothing here.</p>}
         <div className="space-y-3">
           {(q.data ?? []).map((r: any) => (
-            <div key={r.id} className="rounded-xl border p-4">
+            <div key={r.id} className="rounded-xl border border-admin/15 bg-admin-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="text-sm">
                   <div className="text-xs text-muted-foreground">Host Name</div>
@@ -623,7 +626,9 @@ function ApprovalsPanel() {
                 </div>
                 <div className="space-y-2 text-right">
                   <div className="text-xs text-muted-foreground">Documents Verified</div>
-                  <Badge variant={r.host_verified ? "default" : "secondary"}>{r.host_verified ? "Verified" : "Pending"}</Badge>
+                  {r.host_verified
+                    ? <Badge className="bg-success text-success-foreground">Verified</Badge>
+                    : <Badge variant="outline">Pending</Badge>}
                   <div className="text-xs text-muted-foreground">
                     Agreement: {r.agreement_accepted_at ? new Date(r.agreement_accepted_at).toLocaleDateString() : "not signed"}
                   </div>
@@ -631,18 +636,28 @@ function ApprovalsPanel() {
                 </div>
               </div>
               <Textarea
-                className="mt-3"
+                className="mt-3 bg-card"
                 rows={2}
-                placeholder="Admin comments"
+                placeholder="Notes for the host (optional)"
                 value={notes[r.id] ?? r.admin_notes ?? ""}
                 onChange={(e) => setNotes((p) => ({ ...p, [r.id]: e.target.value }))}
               />
-              <div className="mt-3 flex gap-2">
-                <Button size="sm" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, decision: "approved" })}>
-                  Approve
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <Button
+                  size="lg"
+                  className="bg-success text-success-foreground hover:bg-success/90"
+                  disabled={review.isPending}
+                  onClick={() => review.mutate({ id: r.id, decision: "approved" })}
+                >
+                  <Check /> Approve
                 </Button>
-                <Button size="sm" variant="destructive" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, decision: "rejected" })}>
-                  Reject
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  disabled={review.isPending}
+                  onClick={() => review.mutate({ id: r.id, decision: "rejected" })}
+                >
+                  <X /> Reject
                 </Button>
               </div>
             </div>
@@ -652,3 +667,4 @@ function ApprovalsPanel() {
     </Card>
   );
 }
+
