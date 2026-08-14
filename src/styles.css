@@ -37,6 +37,13 @@
   --color-acacia: var(--acacia);
   --color-clay: var(--clay);
   --color-sand: var(--sand);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-admin: var(--admin);
+  --color-admin-foreground: var(--admin-foreground);
+  --color-admin-surface: var(--admin-surface);
+  --color-admin-muted: var(--admin-muted);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
