@@ -21,6 +21,18 @@ export const Route = createFileRoute("/_authenticated/host/new")({
 
 function NewListing() {
   const navigate = useNavigate();
+  const agreementFn = useServerFn(myHostAgreement);
+  const acceptFn = useServerFn(acceptHostAgreement);
+  const agreementQuery = useQuery({ queryKey: ["host-agreement"], queryFn: () => agreementFn({ data: {} }) });
+  const accept = useMutation({
+    mutationFn: () => acceptFn({ data: { userAgent: navigator.userAgent.slice(0, 400) } }),
+    onSuccess: () => {
+      toast.success("Agreement accepted");
+      agreementQuery.refetch();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const needsAgreement = agreementQuery.isSuccess && !agreementQuery.data.accepted;
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("apartment");
