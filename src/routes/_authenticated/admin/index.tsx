@@ -48,13 +48,17 @@ function AdminPage() {
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow">
+            <ShieldCheck className="size-3.5" /> Admin dashboard
+          </div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
-          <p className="text-sm text-muted-foreground">Oversee compliance, payouts and system health</p>
+          <p className="text-sm text-muted-foreground">Oversee compliance and system health — no hosting rights</p>
         </div>
         <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
           <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
         </Button>
       </div>
+
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
