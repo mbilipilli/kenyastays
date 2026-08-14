@@ -62,7 +62,11 @@ export const searchProperties = createServerFn({ method: "POST" })
   .inputValidator((d) => searchSchema.parse(d))
   .handler(async ({ data }): Promise<PropertyCard[]> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let q = supabaseAdmin.from("properties").select("*").eq("is_active", true);
+    let q = supabaseAdmin
+      .from("properties")
+      .select("*")
+      .eq("is_active", true)
+      .eq("approval_status", "approved");
     if (data.city) q = q.eq("city", data.city);
     if (data.q) q = q.or(`title.ilike.%${data.q}%,description.ilike.%${data.q}%,city.ilike.%${data.q}%`);
     if (data.minPrice != null) q = q.gte("price_kes", data.minPrice);
