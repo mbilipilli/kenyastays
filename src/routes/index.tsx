@@ -6,7 +6,6 @@ import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
 import { HotelDruidCard } from "@/components/HotelDruidCard";
 
-import { SearchBar } from "@/components/SearchBar";
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
 import { Logo } from "@/components/Logo";
@@ -23,15 +22,6 @@ const hotelDruidQO = queryOptions({
   queryFn: () => listHotelDruidFeatured(),
 });
 
-
-const CITY_CHIPS = [
-  { name: "Nairobi", emoji: "🏙️" },
-  { name: "Mombasa", emoji: "🌊" },
-  { name: "Kisumu", emoji: "🌅" },
-  { name: "Maasai Mara", emoji: "🦁" },
-  { name: "Eldoret", emoji: "🌾" },
-  { name: "Nakuru", emoji: "🦩" },
-] as const;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -109,33 +99,7 @@ function Index() {
             <p className="mt-3 max-w-xl text-base text-foreground/80 md:text-lg">
               Trusted local hosts, instant M-Pesa payments, and real-time availability across Kenya.
             </p>
-            <Link
-              to="/search"
-              className="mt-5 inline-flex h-12 items-center rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90"
-            >
-              Book Now
-            </Link>
-
           </div>
-
-          <div className="mt-8 max-w-3xl mx-auto">
-            <SearchBar />
-          </div>
-
-          {/* City chips */}
-          <ul className="mt-5 -mx-1 flex justify-start gap-2 overflow-x-auto pb-1 sm:justify-center scrollbar-none">
-            {CITY_CHIPS.map((c) => (
-              <li key={c.name} className="shrink-0">
-                <Link
-                  to="/search"
-                  search={{ city: c.name }}
-                  className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-card/95 px-4 text-sm font-medium text-foreground shadow-sm backdrop-blur hover:border-primary hover:text-primary"
-                >
-                  <span>{c.emoji}</span> {c.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 
