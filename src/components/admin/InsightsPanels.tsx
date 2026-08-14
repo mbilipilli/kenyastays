@@ -340,3 +340,63 @@ function Metric({ label, value, highlight }: { label: string; value: string; hig
 function Skeleton() {
   return <div className="h-full w-full animate-pulse rounded-xl bg-muted" />;
 }
+
+export function BookingsOverviewPanel() {
+  const { data, isLoading } = useInsights();
+  const t = data?.bookingTotals;
+  const rows = data?.bookingsByProperty ?? [];
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {[
+          ["Total bookings", t?.total],
+          ["Confirmed", t?.confirmed],
+          ["Completed", t?.completed],
+          ["Pending", t?.pending],
+          ["Cancelled", t?.cancelled],
+        ].map(([label, v]) => (
+          <Card key={label as string} className="border-admin/15 shadow-sm">
+            <CardContent className="p-4">
+              <div className="text-xs text-muted-foreground">{label as string}</div>
+              <div className="text-2xl font-semibold">{isLoading ? "—" : (v as number) ?? 0}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <SectionCard
+        icon={<MapPinned className="size-4" />}
+        title="Booking volume by property and location"
+        subtitle="All-time booking counts, nights sold and confirmed revenue"
+      >
+        {isLoading ? <Skeleton /> : rows.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">No bookings yet</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="py-2">Property</th>
+                  <th className="py-2">Location</th>
+                  <th className="py-2 text-right">Bookings</th>
+                  <th className="py-2 text-right">Nights</th>
+                  <th className="py-2 text-right">Revenue</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {rows.map((r: any) => (
+                  <tr key={r.property + r.city}>
+                    <td className="py-2 font-medium">{r.property}</td>
+                    <td className="py-2 text-muted-foreground">{r.city}</td>
+                    <td className="py-2 text-right">{r.bookings}</td>
+                    <td className="py-2 text-right">{r.nights}</td>
+                    <td className="py-2 text-right font-semibold">{kes(r.revenue_kes)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </SectionCard>
+    </div>
+  );
+}

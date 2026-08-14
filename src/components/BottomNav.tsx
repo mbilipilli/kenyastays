@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Search, Briefcase, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 const items = [
   { to: "/", label: "Home", icon: Home },
@@ -11,6 +12,8 @@ const items = [
 
 export function BottomNav() {
   const { pathname } = useLocation();
+  const { isAdmin } = useIsAdmin();
+  if (isAdmin) return null;
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card/95 backdrop-blur md:hidden">
       <ul className="grid grid-cols-4">

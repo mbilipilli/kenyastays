@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs, locationAlerts, updateLocationAlertRule, addSuspiciousIp, removeSuspiciousIp, acknowledgeLocationAlert, listingsForReview, reviewListing } from "@/lib/api/admin.functions";
+import { adminOverview, listAllHosts, setHostVerified, paymentsOverview, locationAccessLogs, locationAlerts, updateLocationAlertRule, addSuspiciousIp, removeSuspiciousIp, acknowledgeLocationAlert, listingsForReview, reviewListing, hostPayoutsOverview, hostEnquiries } from "@/lib/api/admin.functions";
 import { testStkPush } from "@/lib/api/mpesa.functions";
 import { runSync, getSyncStatus, listExternalListings } from "@/lib/api/sync.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X, Wallet, Inbox } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
-import { AnalyticsPanels, CommissionsPanel, CompliancePanel, DocumentVerificationPanel, EscalationsPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
+import { AnalyticsPanels, BookingsOverviewPanel, CommissionsPanel, CompliancePanel, DocumentVerificationPanel, EscalationsPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
+
 
 
 
@@ -94,9 +95,11 @@ function AdminPage() {
           <TabsTrigger value="guests">Guest insights</TabsTrigger>
           <TabsTrigger value="bookings">Bookings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
           <TabsTrigger value="sync">Sync status</TabsTrigger>
           <TabsTrigger value="location">Location audit</TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="verification"><DocumentVerificationPanel /></TabsContent>
@@ -112,8 +115,10 @@ function AdminPage() {
 
 
 
-        <TabsContent value="bookings">
+        <TabsContent value="bookings" className="space-y-4">
+          <BookingsOverviewPanel />
           <Card>
+
             <CardHeader><CardTitle className="text-base">Recent bookings</CardTitle></CardHeader>
             <CardContent>
               <div className="divide-y">
@@ -156,7 +161,9 @@ function AdminPage() {
         <TabsContent value="approvals"><ApprovalsPanel /></TabsContent>
         <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><EscalationsPanel /><HostsPanel /></TabsContent>
 
-        <TabsContent value="payments"><PaymentsPanel /></TabsContent>
+        <TabsContent value="payments" className="space-y-4"><PayoutsPanel /><PaymentsPanel /></TabsContent>
+        <TabsContent value="enquiries"><EnquiriesPanel /></TabsContent>
+
         <TabsContent value="external"><ExternalPanel /></TabsContent>
         <TabsContent value="sync"><SyncPanel /></TabsContent>
       </Tabs>
@@ -674,3 +681,81 @@ function ApprovalsPanel() {
   );
 }
 
+
+function PayoutsPanel() {
+  const fn = useServerFn(hostPayoutsOverview);
+  const { data, isLoading } = useQuery({ queryKey: ["admin", "payouts"], queryFn: () => fn({ data: undefined as any }) });
+  const badge = (s: string) =>
+    s === "success" || s === "completed" ? <Badge className="bg-success text-success-foreground">Completed</Badge>
+    : s === "failed" || s === "error" ? <Badge variant="destructive">Failed</Badge>
+    : <Badge variant="secondary">Pending</Badge>;
+  return (
+    <Card className="border-admin/15">
+      <CardHeader><CardTitle className="text-base flex items-center gap-2"><Wallet className="size-4" /> Payouts to hosts</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-admin/15 bg-admin-surface p-3">
+            <div className="text-xs text-muted-foreground">Completed</div>
+            <div className="text-lg font-semibold">{kes(data?.totals.completed_kes ?? 0)}</div>
+          </div>
+          <div className="rounded-xl border border-admin/15 bg-admin-surface p-3">
+            <div className="text-xs text-muted-foreground">Pending</div>
+            <div className="text-lg font-semibold">{kes(data?.totals.pending_kes ?? 0)}</div>
+          </div>
+          <div className="rounded-xl border border-admin/15 bg-admin-surface p-3">
+            <div className="text-xs text-muted-foreground">Failed</div>
+            <div className="text-lg font-semibold">{kes(data?.totals.failed_kes ?? 0)}</div>
+          </div>
+        </div>
+        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        <div className="divide-y">
+          {(data?.payouts ?? []).map((p: any) => (
+            <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
+              <div>
+                <div className="font-medium">{p.host_name} · {kes(p.amount_kes)}</div>
+                <div className="text-xs text-muted-foreground">
+                  {fmtDate(p.created_at)} · {p.phone ?? "no phone"} · {p.mpesa_receipt ?? p.result_desc ?? "—"}
+                </div>
+              </div>
+              {badge(String(p.status))}
+            </div>
+          ))}
+          {!isLoading && !data?.payouts?.length && <p className="py-6 text-center text-sm text-muted-foreground">No payouts yet</p>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function EnquiriesPanel() {
+  const fn = useServerFn(hostEnquiries);
+  const { data, isLoading } = useQuery({ queryKey: ["admin", "enquiries"], queryFn: () => fn({ data: undefined as any }) });
+  return (
+    <Card className="border-admin/15">
+      <CardHeader className="gap-1">
+        <CardTitle className="text-base flex items-center gap-2"><Inbox className="size-4" /> Clicked enquiries / intended hosts</CardTitle>
+        <p className="text-sm text-muted-foreground">People who started the hosting journey but have no approved listing yet.</p>
+      </CardHeader>
+      <CardContent>
+        {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+        <div className="divide-y">
+          {(data ?? []).map((h: any) => (
+            <div key={h.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+              <div>
+                <div className="font-medium">{h.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {h.phone ?? "no phone"} · joined {fmtDate(h.joined_at)} · {h.drafts} listing(s) submitted
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">{h.stage}</Badge>
+                {h.verified ? <Badge className="bg-success text-success-foreground">Verified</Badge> : <Badge variant="secondary">Unverified</Badge>}
+              </div>
+            </div>
+          ))}
+          {!isLoading && !data?.length && <p className="py-6 text-center text-sm text-muted-foreground">No pending enquiries</p>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

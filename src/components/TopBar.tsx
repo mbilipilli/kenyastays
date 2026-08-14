@@ -19,10 +19,14 @@ export function TopBar() {
           </div>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
-          <Button asChild variant="ghost" size="sm"><Link to="/search">Explore</Link></Button>
-          <Button asChild variant="ghost" size="sm"><Link to="/trips">Trips</Link></Button>
-          {/* Admins have oversight only — no hosting rights */}
-          {!isAdmin && <Button asChild variant="ghost" size="sm"><Link to="/host">Host</Link></Button>}
+          {/* Admins get oversight only — no guest or host browsing surfaces */}
+          {!isAdmin && (
+            <>
+              <Button asChild variant="ghost" size="sm"><Link to="/search">Explore</Link></Button>
+              <Button asChild variant="ghost" size="sm"><Link to="/trips">Trips</Link></Button>
+              <Button asChild variant="ghost" size="sm"><Link to="/host">Host</Link></Button>
+            </>
+          )}
           {isAdmin && (
             <Button asChild variant="ghost" size="sm">
               <Link to="/admin"><ShieldCheck /> Admin</Link>
