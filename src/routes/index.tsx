@@ -237,21 +237,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Host CTA */}
-      <section className="mx-auto max-w-6xl px-4 pb-14">
-        <div className="rounded-3xl bg-gradient-to-br from-primary to-clay px-6 py-10 text-primary-foreground md:px-10 md:py-14">
-          <h3 className="font-serif text-3xl md:text-4xl">Own a property? Earn with Kenya Stays.</h3>
-          <p className="mt-2 max-w-xl text-primary-foreground/90">
-            List your apartment, lodge or homestay in minutes. Reach travelers across East Africa.
-          </p>
-          <Link
-            to="/host/new"
-            className="mt-5 inline-flex h-11 items-center rounded-full bg-background px-6 text-sm font-semibold text-foreground hover:bg-background/90"
-          >
-            Become a host
-          </Link>
-        </div>
-      </section>
 
       <Footer />
     </main>

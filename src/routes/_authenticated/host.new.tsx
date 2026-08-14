@@ -96,12 +96,6 @@ function NewListing() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
-      <HostAgreementModal
-        open={needsAgreement}
-        pending={accept.isPending}
-        onAccept={() => accept.mutate()}
-        onDismiss={() => navigate({ to: "/host" })}
-      />
       <h1 className="font-serif text-3xl">List your place</h1>
       <p className="mt-1 text-sm text-muted-foreground">Share a few details and you'll be live in minutes.</p>
 
