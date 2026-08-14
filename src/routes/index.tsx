@@ -144,6 +144,7 @@ function Index() {
       </section>
 
       {/* Featured */}
+      {!isAdmin && (
       <section className="mx-auto max-w-6xl px-4 pt-6 pb-10">
         <div className="mb-4 flex items-end justify-between">
           <h2 className="font-serif text-2xl md:text-3xl">Featured stays</h2>
@@ -157,9 +158,10 @@ function Index() {
           </div>
         )}
       </section>
+      )}
 
       {/* HotelDruid live inventory */}
-      {hdRooms.length > 0 && (
+      {!isAdmin && hdRooms.length > 0 && (
         <section className="bg-sand/40">
           <div className="mx-auto max-w-6xl px-4 py-10">
             <div className="mb-4 flex items-end justify-between gap-3">
@@ -177,6 +179,7 @@ function Index() {
           </div>
         </section>
       )}
+
 
 
 
