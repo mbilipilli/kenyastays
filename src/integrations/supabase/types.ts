@@ -372,6 +372,36 @@ export type Database = {
         }
         Relationships: []
       }
+      host_agreements: {
+        Row: {
+          accepted_at: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+          version?: string
+        }
+        Update: {
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
       host_payouts: {
         Row: {
           amount_kes: number
@@ -743,7 +773,9 @@ export type Database = {
       properties: {
         Row: {
           address: string | null
+          admin_notes: string | null
           amenities: string[]
+          approval_status: Database["public"]["Enums"]["listing_approval"]
           bathrooms: number
           bedrooms: number
           city: string
@@ -766,12 +798,16 @@ export type Database = {
           price_kes: number
           profileId: string
           property_type: Database["public"]["Enums"]["property_type"]
+          reviewed_at: string | null
+          reviewed_by: string | null
           title: string
           updated_at: string
         }
         Insert: {
           address?: string | null
+          admin_notes?: string | null
           amenities?: string[]
+          approval_status?: Database["public"]["Enums"]["listing_approval"]
           bathrooms?: number
           bedrooms?: number
           city: string
@@ -794,12 +830,16 @@ export type Database = {
           price_kes: number
           profileId: string
           property_type?: Database["public"]["Enums"]["property_type"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           address?: string | null
+          admin_notes?: string | null
           amenities?: string[]
+          approval_status?: Database["public"]["Enums"]["listing_approval"]
           bathrooms?: number
           bedrooms?: number
           city?: string
@@ -822,6 +862,8 @@ export type Database = {
           price_kes?: number
           profileId?: string
           property_type?: Database["public"]["Enums"]["property_type"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           title?: string
           updated_at?: string
         }
@@ -1006,6 +1048,7 @@ export type Database = {
     Enums: {
       app_role: "guest" | "host" | "admin"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
+      listing_approval: "pending" | "approved" | "rejected"
       payment_method: "mpesa" | "card"
       payment_status: "initiated" | "pending" | "success" | "failed"
       property_type:
@@ -1146,6 +1189,7 @@ export const Constants = {
     Enums: {
       app_role: ["guest", "host", "admin"],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
+      listing_approval: ["pending", "approved", "rejected"],
       payment_method: ["mpesa", "card"],
       payment_status: ["initiated", "pending", "success", "failed"],
       property_type: [
