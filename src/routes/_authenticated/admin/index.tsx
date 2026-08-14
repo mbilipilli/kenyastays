@@ -47,18 +47,19 @@ function AdminPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-admin/15 bg-admin-surface p-6 shadow-sm">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-admin px-3 py-1 text-xs font-semibold uppercase tracking-wide text-admin-foreground shadow">
             <ShieldCheck className="size-3.5" /> Admin dashboard
           </div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
-          <p className="text-sm text-muted-foreground">Oversee compliance and system health — no hosting rights</p>
+          <p className="text-sm text-muted-foreground">Oversight and compliance only — this account has no hosting rights</p>
         </div>
-        <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+        <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending} className="bg-admin text-admin-foreground hover:bg-admin/90">
           <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
         </Button>
       </div>
+
 
 
       {/* KPIs */}
