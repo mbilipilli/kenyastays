@@ -1,11 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { createProperty } from "@/lib/api/properties.functions";
-import { myHostAgreement, acceptHostAgreement } from "@/lib/api/host-agreement.functions";
-import { HostAgreementModal } from "@/components/HostAgreementModal";
 import { getUploadUrl } from "@/lib/api/storage.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,18 +21,6 @@ export const Route = createFileRoute("/_authenticated/host/new")({
 
 function NewListing() {
   const navigate = useNavigate();
-  const agreementFn = useServerFn(myHostAgreement);
-  const acceptFn = useServerFn(acceptHostAgreement);
-  const agreementQuery = useQuery({ queryKey: ["host-agreement"], queryFn: () => agreementFn() });
-  const accept = useMutation({
-    mutationFn: () => acceptFn({ data: { userAgent: navigator.userAgent.slice(0, 400) } }),
-    onSuccess: () => {
-      toast.success("Agreement accepted");
-      agreementQuery.refetch();
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-  const needsAgreement = agreementQuery.isSuccess && !agreementQuery.data.accepted;
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("apartment");
