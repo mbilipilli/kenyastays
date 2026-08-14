@@ -81,17 +81,25 @@ function AdminPage() {
           <TabsTrigger value="bookings">Bookings</TabsTrigger>
           <TabsTrigger value="revenue">Analytics</TabsTrigger>
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
+          <TabsTrigger value="verification">Verification</TabsTrigger>
+          <TabsTrigger value="compliance">Compliance</TabsTrigger>
           <TabsTrigger value="hosts">Hosts</TabsTrigger>
+          <TabsTrigger value="guests">Guest insights</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
           <TabsTrigger value="sync">Sync status</TabsTrigger>
           <TabsTrigger value="location">Location audit</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="verification"><DocumentVerificationPanel /></TabsContent>
+        <TabsContent value="compliance"><CompliancePanel /></TabsContent>
+        <TabsContent value="guests"><GuestInsightsPanel /></TabsContent>
+
         <TabsContent value="location" className="space-y-4">
           <LocationAlertsPanel />
           <LocationAuditPanel />
         </TabsContent>
+
 
 
         <TabsContent value="bookings">
