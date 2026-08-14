@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Briefcase, Home, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import hostDashboardIcon from "@/assets/host-dashboard-icon.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Your account" }] }),
@@ -26,7 +27,7 @@ function AccountPage() {
 
       <ul className="mt-4 divide-y rounded-2xl border bg-card">
         <Row to="/trips" icon={Briefcase} label="My trips" />
-        <Row to="/host" icon={Home} label="Host dashboard" />
+        <ImageRow to="/host" src={hostDashboardIcon.url} label="Host dashboard" />
         <Row to="/host/new" icon={Sparkles} label="List a new stay" />
       </ul>
 
@@ -47,6 +48,18 @@ function Row({ to, icon: Icon, label }: { to: string; icon: typeof Home; label: 
     <li>
       <Link to={to} className="flex items-center gap-3 p-4 hover:bg-muted">
         <Icon className="size-5 text-primary" />
+        <span className="flex-1 font-medium">{label}</span>
+        <span className="text-muted-foreground">›</span>
+      </Link>
+    </li>
+  );
+}
+
+function ImageRow({ to, src, label }: { to: string; src: string; label: string }) {
+  return (
+    <li>
+      <Link to={to} className="flex items-center gap-3 p-4 hover:bg-muted">
+        <img src={src} alt={label} className="size-8 rounded-md object-contain" />
         <span className="flex-1 font-medium">{label}</span>
         <span className="text-muted-foreground">›</span>
       </Link>
