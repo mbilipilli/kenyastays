@@ -210,9 +210,38 @@ export async function buildInsights(supabaseAdmin: any) {
     }))
     .slice(0, 15);
 
+  // Bookings overview — volume + revenue per property/location
+  const perProp: Record<string, { property: string; city: string; bookings: number; nights: number; revenue_kes: number }> = {};
+  B.forEach((b) => {
+    const p = propById[b.property_id];
+    const row = (perProp[b.property_id] ??= {
+      property: p?.title ?? "Listing",
+      city: p?.city ?? "—",
+      bookings: 0,
+      nights: 0,
+      revenue_kes: 0,
+    });
+    row.bookings++;
+    if (b.status === "confirmed" || b.status === "completed") {
+      row.revenue_kes += b.total_kes ?? 0;
+      if (b.check_in && b.check_out)
+        row.nights += Math.max(0, Math.round((new Date(b.check_out).getTime() - new Date(b.check_in).getTime()) / 86400_000));
+    }
+  });
+  const bookingsByProperty = Object.values(perProp).sort((a, b) => b.bookings - a.bookings).slice(0, 25);
+  const bookingTotals = {
+    total: B.length,
+    confirmed: B.filter((b) => b.status === "confirmed").length,
+    completed: B.filter((b) => b.status === "completed").length,
+    cancelled: B.filter((b) => b.status === "cancelled").length,
+    pending: B.filter((b) => b.status === "pending").length,
+  };
+
   return {
     bookingsByCity,
     occupancyByCity,
+    bookingsByProperty,
+    bookingTotals,
     revenueTrend,
     commissionTrend,
     commissionByMethod,
@@ -224,4 +253,5 @@ export async function buildInsights(supabaseAdmin: any) {
     compliance: compliance.slice(0, 25),
   };
 }
+
 
