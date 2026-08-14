@@ -86,7 +86,8 @@ function AdminPage() {
           <TabsTrigger value="location">Location audit</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="location">
+        <TabsContent value="location" className="space-y-4">
+          <LocationAlertsPanel />
           <LocationAuditPanel />
         </TabsContent>
 
