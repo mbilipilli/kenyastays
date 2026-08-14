@@ -95,9 +95,11 @@ function AdminPage() {
           <TabsTrigger value="guests">Guest insights</TabsTrigger>
           <TabsTrigger value="bookings">Bookings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
           <TabsTrigger value="sync">Sync status</TabsTrigger>
           <TabsTrigger value="location">Location audit</TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="verification"><DocumentVerificationPanel /></TabsContent>
