@@ -70,6 +70,14 @@ function Index() {
   const { data: properties } = useSuspenseQuery(featuredQO);
   const { isAdmin } = useIsAdmin();
 
+  if (isAdmin) {
+    return (
+      <main>
+        <AdminDashboard />
+      </main>
+    );
+  }
+
   return (
     <main>
       {/* Hero */}
@@ -96,7 +104,6 @@ function Index() {
       </section>
 
       {/* Featured */}
-      {!isAdmin && (
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-4">
           <h2 className="font-serif text-2xl md:text-3xl">Featured stays</h2>
@@ -110,7 +117,8 @@ function Index() {
           </div>
         )}
       </section>
-      )}
+
+
 
 
 
