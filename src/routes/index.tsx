@@ -85,6 +85,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { data: properties } = useSuspenseQuery(featuredQO);
   const { data: hdRooms } = useSuspenseQuery(hotelDruidQO);
+  const { isAdmin } = useIsAdmin();
 
   return (
     <main>
