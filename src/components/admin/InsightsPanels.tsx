@@ -12,7 +12,7 @@ import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Cell,
 } from "recharts";
 import {
-  AlertTriangle, FileCheck2, LifeBuoy, PieChart, Star, Users, Wallet, MapPinned, TrendingUp,
+  AlertTriangle, FileCheck2, LifeBuoy, PieChart, Star, Users, Wallet, MapPinned, TrendingUp, Eye, FileText,
 } from "lucide-react";
 
 const kes = (n: number) => `KES ${new Intl.NumberFormat("en-KE").format(n ?? 0)}`;
