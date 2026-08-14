@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/host'
@@ -49,6 +50,11 @@ const SearchRoute = SearchRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/account': typeof AuthenticatedAccountRoute
   '/host': typeof AuthenticatedHostRouteWithChildren
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/host': typeof AuthenticatedHostRouteWithChildren
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/search'
     | '/sitemap.xml'
+    | '/terms'
     | '/admin'
     | '/account'
     | '/host'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/search'
     | '/sitemap.xml'
+    | '/terms'
     | '/account'
     | '/host'
     | '/trips'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/search'
     | '/sitemap.xml'
+    | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/account'
     | '/_authenticated/host'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   PropertyIdRoute: typeof PropertyIdRoute
   ApiPublicHooksIpayCallbackRoute: typeof ApiPublicHooksIpayCallbackRoute
   ApiPublicHooksMpesaB2cResultRoute: typeof ApiPublicHooksMpesaB2cResultRoute
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account': {
@@ -415,6 +435,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   PropertyIdRoute: PropertyIdRoute,
   ApiPublicHooksIpayCallbackRoute: ApiPublicHooksIpayCallbackRoute,
   ApiPublicHooksMpesaB2cResultRoute: ApiPublicHooksMpesaB2cResultRoute,
