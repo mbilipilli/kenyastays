@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { formatKES } from "@/lib/constants";
 import { FEATURED_PLANS } from "@/lib/monetization";
-import { Plus, Sparkles, Sparkle, Sprout, Tag, MessageCircle, CalendarDays, CheckCircle2 } from "lucide-react";
+import { Plus, Sparkles, Sparkle, Sprout, Tag, MessageCircle, CalendarDays, CheckCircle2, Home } from "lucide-react";
 import { HostCalendar } from "@/components/HostCalendar";
 import { PayoutSettingsCard } from "@/components/PayoutSettingsCard";
 
