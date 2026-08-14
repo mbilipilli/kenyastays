@@ -82,15 +82,16 @@ function AdminPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="bookings" className="mt-8">
+      <Tabs defaultValue="approvals" className="mt-8">
         <TabsList className="flex flex-wrap gap-1">
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
-          <TabsTrigger value="revenue">Analytics</TabsTrigger>
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>
+          <TabsTrigger value="revenue">Analytics</TabsTrigger>
+          <TabsTrigger value="commissions">Commissions</TabsTrigger>
           <TabsTrigger value="compliance">Compliance</TabsTrigger>
           <TabsTrigger value="hosts">Hosts</TabsTrigger>
           <TabsTrigger value="guests">Guest insights</TabsTrigger>
+          <TabsTrigger value="bookings">Bookings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
           <TabsTrigger value="sync">Sync status</TabsTrigger>
@@ -98,8 +99,10 @@ function AdminPage() {
         </TabsList>
 
         <TabsContent value="verification"><DocumentVerificationPanel /></TabsContent>
+        <TabsContent value="commissions"><CommissionsPanel /></TabsContent>
         <TabsContent value="compliance"><CompliancePanel /></TabsContent>
         <TabsContent value="guests"><GuestInsightsPanel /></TabsContent>
+
 
         <TabsContent value="location" className="space-y-4">
           <LocationAlertsPanel />
