@@ -171,6 +171,14 @@ function HostDashboard() {
                       {l.is_featured && <Badge className="gap-1 bg-primary/15 text-primary"><Sparkles className="size-3" /> Featured</Badge>}
                     </div>
                     <div className="text-sm text-muted-foreground">{l.city} · {formatKES(l.price_kes)}/night</div>
+                    {l.approval_status && l.approval_status !== "approved" && (
+                      <div className="mt-1">
+                        <Badge variant={l.approval_status === "rejected" ? "destructive" : "secondary"}>
+                          {l.approval_status === "rejected" ? "Rejected — review & resubmit" : "Pending admin approval"}
+                        </Badge>
+                        {l.admin_notes && <p className="mt-1 text-xs text-muted-foreground">Admin: {l.admin_notes}</p>}
+                      </div>
+                    )}
                     <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                       <label className="flex items-center gap-2 text-xs">
                         <Switch checked={l.is_active} onCheckedChange={(v) => toggleM.mutate({ id: l.id, is_active: v })} />
