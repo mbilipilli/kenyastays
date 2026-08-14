@@ -161,7 +161,9 @@ function AdminPage() {
         <TabsContent value="approvals"><ApprovalsPanel /></TabsContent>
         <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><EscalationsPanel /><HostsPanel /></TabsContent>
 
-        <TabsContent value="payments"><PaymentsPanel /></TabsContent>
+        <TabsContent value="payments" className="space-y-4"><PayoutsPanel /><PaymentsPanel /></TabsContent>
+        <TabsContent value="enquiries"><EnquiriesPanel /></TabsContent>
+
         <TabsContent value="external"><ExternalPanel /></TabsContent>
         <TabsContent value="sync"><SyncPanel /></TabsContent>
       </Tabs>
