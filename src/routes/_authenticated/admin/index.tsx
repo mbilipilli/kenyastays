@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
-import { AnalyticsPanels, CompliancePanel, DocumentVerificationPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
+import { AnalyticsPanels, CommissionsPanel, CompliancePanel, DocumentVerificationPanel, EscalationsPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin/")({
@@ -46,18 +47,19 @@ function AdminPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-admin/15 bg-admin-surface p-6 shadow-sm">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-foreground shadow">
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-admin px-3 py-1 text-xs font-semibold uppercase tracking-wide text-admin-foreground shadow">
             <ShieldCheck className="size-3.5" /> Admin dashboard
           </div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
-          <p className="text-sm text-muted-foreground">Oversee compliance and system health — no hosting rights</p>
+          <p className="text-sm text-muted-foreground">Oversight and compliance only — this account has no hosting rights</p>
         </div>
-        <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending}>
+        <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending} className="bg-admin text-admin-foreground hover:bg-admin/90">
           <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
         </Button>
       </div>
+
 
 
       {/* KPIs */}
@@ -81,15 +83,16 @@ function AdminPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="bookings" className="mt-8">
+      <Tabs defaultValue="approvals" className="mt-8">
         <TabsList className="flex flex-wrap gap-1">
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
-          <TabsTrigger value="revenue">Analytics</TabsTrigger>
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>
+          <TabsTrigger value="revenue">Analytics</TabsTrigger>
+          <TabsTrigger value="commissions">Commissions</TabsTrigger>
           <TabsTrigger value="compliance">Compliance</TabsTrigger>
           <TabsTrigger value="hosts">Hosts</TabsTrigger>
           <TabsTrigger value="guests">Guest insights</TabsTrigger>
+          <TabsTrigger value="bookings">Bookings</TabsTrigger>
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
           <TabsTrigger value="sync">Sync status</TabsTrigger>
@@ -97,8 +100,10 @@ function AdminPage() {
         </TabsList>
 
         <TabsContent value="verification"><DocumentVerificationPanel /></TabsContent>
+        <TabsContent value="commissions"><CommissionsPanel /></TabsContent>
         <TabsContent value="compliance"><CompliancePanel /></TabsContent>
         <TabsContent value="guests"><GuestInsightsPanel /></TabsContent>
+
 
         <TabsContent value="location" className="space-y-4">
           <LocationAlertsPanel />
@@ -140,7 +145,7 @@ function AdminPage() {
                   <XAxis dataKey="date" stroke="currentColor" fontSize={12} />
                   <YAxis stroke="currentColor" fontSize={12} />
                   <Tooltip formatter={(v: any) => kes(Number(v))} />
-                  <Line type="monotone" dataKey="kes" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="kes" stroke="var(--admin)" strokeWidth={2} dot={false} />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -149,7 +154,8 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="approvals"><ApprovalsPanel /></TabsContent>
-        <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><HostsPanel /></TabsContent>
+        <TabsContent value="hosts" className="space-y-4"><HostManagementPanel /><EscalationsPanel /><HostsPanel /></TabsContent>
+
         <TabsContent value="payments"><PaymentsPanel /></TabsContent>
         <TabsContent value="external"><ExternalPanel /></TabsContent>
         <TabsContent value="sync"><SyncPanel /></TabsContent>
@@ -595,10 +601,13 @@ function ApprovalsPanel() {
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Admin Approval Panel</CardTitle>
-        <p className="text-sm text-muted-foreground">Review host agreement and listing before activation.</p>
+    <Card className="border-admin/15 shadow-sm">
+      <CardHeader className="gap-1">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <span className="grid size-8 place-items-center rounded-lg bg-admin/10 text-admin"><ClipboardCheck className="size-4" /></span>
+          Host Approval Panel
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">Review host submissions before activation.</p>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
@@ -612,7 +621,7 @@ function ApprovalsPanel() {
         {q.data?.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">Nothing here.</p>}
         <div className="space-y-3">
           {(q.data ?? []).map((r: any) => (
-            <div key={r.id} className="rounded-xl border p-4">
+            <div key={r.id} className="rounded-xl border border-admin/15 bg-admin-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="text-sm">
                   <div className="text-xs text-muted-foreground">Host Name</div>
@@ -623,7 +632,9 @@ function ApprovalsPanel() {
                 </div>
                 <div className="space-y-2 text-right">
                   <div className="text-xs text-muted-foreground">Documents Verified</div>
-                  <Badge variant={r.host_verified ? "default" : "secondary"}>{r.host_verified ? "Verified" : "Pending"}</Badge>
+                  {r.host_verified
+                    ? <Badge className="bg-success text-success-foreground">Verified</Badge>
+                    : <Badge variant="outline">Pending</Badge>}
                   <div className="text-xs text-muted-foreground">
                     Agreement: {r.agreement_accepted_at ? new Date(r.agreement_accepted_at).toLocaleDateString() : "not signed"}
                   </div>
@@ -631,18 +642,28 @@ function ApprovalsPanel() {
                 </div>
               </div>
               <Textarea
-                className="mt-3"
+                className="mt-3 bg-card"
                 rows={2}
-                placeholder="Admin comments"
+                placeholder="Notes for the host (optional)"
                 value={notes[r.id] ?? r.admin_notes ?? ""}
                 onChange={(e) => setNotes((p) => ({ ...p, [r.id]: e.target.value }))}
               />
-              <div className="mt-3 flex gap-2">
-                <Button size="sm" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, decision: "approved" })}>
-                  Approve
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <Button
+                  size="lg"
+                  className="bg-success text-success-foreground hover:bg-success/90"
+                  disabled={review.isPending}
+                  onClick={() => review.mutate({ id: r.id, decision: "approved" })}
+                >
+                  <Check /> Approve
                 </Button>
-                <Button size="sm" variant="destructive" disabled={review.isPending} onClick={() => review.mutate({ id: r.id, decision: "rejected" })}>
-                  Reject
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  disabled={review.isPending}
+                  onClick={() => review.mutate({ id: r.id, decision: "rejected" })}
+                >
+                  <X /> Reject
                 </Button>
               </div>
             </div>
@@ -652,3 +673,4 @@ function ApprovalsPanel() {
     </Card>
   );
 }
+

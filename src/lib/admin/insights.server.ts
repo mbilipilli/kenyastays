@@ -1,14 +1,16 @@
 /** Aggregations powering the admin compliance & analytics dashboard. */
 export async function buildInsights(supabaseAdmin: any) {
-  const [{ data: props }, { data: bookings }, { data: reviews }, { data: profiles }, { data: roles }, { data: agreements }] =
+  const [{ data: props }, { data: bookings }, { data: reviews }, { data: profiles }, { data: roles }, { data: agreements }, { data: payments }] =
     await Promise.all([
       supabaseAdmin.from("properties").select("id,title,city,price_kes,host_id,approval_status,is_active,created_at"),
-      supabaseAdmin.from("bookings").select("id,property_id,host_id,guest_id,status,total_kes,commission_kes,service_fee_kes,cleaning_fee_kes,affiliate_commission_kes,host_payout_kes,created_at"),
+      supabaseAdmin.from("bookings").select("id,property_id,host_id,guest_id,status,total_kes,commission_kes,service_fee_kes,cleaning_fee_kes,affiliate_commission_kes,host_payout_kes,check_in,check_out,created_at"),
       supabaseAdmin.from("reviews").select("property_id,rating"),
       supabaseAdmin.from("profiles").select("id,full_name,phone,is_verified"),
       supabaseAdmin.from("user_roles").select("user_id,role").eq("role", "host"),
       supabaseAdmin.from("host_agreements").select("user_id,accepted_at,version"),
+      supabaseAdmin.from("payments").select("booking_id,method,status,amount_kes,created_at").eq("status", "success"),
     ]);
+
 
   const P: any[] = props ?? [];
   const B: any[] = bookings ?? [];
@@ -116,6 +118,60 @@ export async function buildInsights(supabaseAdmin: any) {
     gross_kes: paid.reduce((s, b) => s + (b.total_kes ?? 0), 0),
   };
 
+  // Occupancy by city — nights sold vs available nights over the last 30 days
+  const WINDOW_DAYS = 30;
+  const windowStart = Date.now() - WINDOW_DAYS * 86400_000;
+  const nightsByCity: Record<string, number> = {};
+  paid.forEach((b) => {
+    const city = propById[b.property_id]?.city;
+    if (!city || !b.check_in || !b.check_out) return;
+    const inMs = new Date(b.check_in).getTime();
+    const outMs = new Date(b.check_out).getTime();
+    if (outMs < windowStart) return;
+    const from = Math.max(inMs, windowStart);
+    const nights = Math.max(0, Math.round((outMs - from) / 86400_000));
+    nightsByCity[city] = (nightsByCity[city] ?? 0) + nights;
+  });
+  const listingsByCity: Record<string, number> = {};
+  P.forEach((p) => (listingsByCity[p.city] = (listingsByCity[p.city] ?? 0) + 1));
+  const occupancyByCity = Object.entries(listingsByCity)
+    .map(([city, n]) => ({
+      city,
+      occupancy: Math.min(100, Math.round(((nightsByCity[city] ?? 0) / (n * WINDOW_DAYS)) * 100)),
+      listings: n,
+    }))
+    .sort((a, b) => b.occupancy - a.occupancy)
+    .slice(0, 8);
+
+  // Commission earned per payment method
+  const bookingById: Record<string, any> = {};
+  B.forEach((b) => (bookingById[b.id] = b));
+  const methodTotals: Record<string, { commission_kes: number; volume_kes: number; count: number }> = {
+    mpesa: { commission_kes: 0, volume_kes: 0, count: 0 },
+    card: { commission_kes: 0, volume_kes: 0, count: 0 },
+    bank: { commission_kes: 0, volume_kes: 0, count: 0 },
+  };
+  (payments ?? []).forEach((p: any) => {
+    const key = methodTotals[p.method] ? p.method : "bank";
+    const bk = bookingById[p.booking_id];
+    methodTotals[key].commission_kes += (bk?.commission_kes ?? 0) + (bk?.service_fee_kes ?? 0);
+    methodTotals[key].volume_kes += p.amount_kes ?? 0;
+    methodTotals[key].count += 1;
+  });
+  const commissionByMethod = [
+    { method: "M-Pesa", ...methodTotals.mpesa },
+    { method: "Card", ...methodTotals.card },
+    { method: "Bank transfer", ...methodTotals.bank },
+  ];
+
+  // Monthly commission trend (same 6-month window as revenue)
+  const commissionTrend = months.map((m) => ({
+    label: m.label,
+    kes: paid
+      .filter((b) => String(b.created_at).slice(0, 7) === m.key)
+      .reduce((s, b) => s + (b.commission_kes ?? 0) + (b.service_fee_kes ?? 0), 0),
+  }));
+
   // Compliance monitoring — derived signals
   const cityAvg: Record<string, { sum: number; n: number }> = {};
   P.forEach((p) => {
@@ -123,18 +179,49 @@ export async function buildInsights(supabaseAdmin: any) {
     a.sum += p.price_kes;
     a.n++;
   });
-  const compliance: { property: string; city: string; issue: string; severity: "high" | "medium" }[] = [];
+  const compliance: { id: string | null; property: string; city: string; issue: string; severity: "high" | "medium" }[] = [];
   P.forEach((p) => {
     const a = cityAvg[p.city];
     const avg = a && a.n > 1 ? a.sum / a.n : null;
-    if (avg && p.price_kes > avg * 3) compliance.push({ property: p.title, city: p.city, issue: "Suspicious pricing (3× city average)", severity: "high" });
-    if (p.is_active && p.approval_status !== "approved") compliance.push({ property: p.title, city: p.city, issue: "Live without approval", severity: "high" });
+    if (avg && p.price_kes > avg * 3) compliance.push({ id: p.id, property: p.title, city: p.city, issue: "Suspicious pricing (3× city average)", severity: "high" });
+    if (p.is_active && p.approval_status !== "approved") compliance.push({ id: p.id, property: p.title, city: p.city, issue: "Live without approval", severity: "high" });
     if (p.approval_status === "pending" && Date.now() - new Date(p.created_at).getTime() > 7 * 86400_000)
-      compliance.push({ property: p.title, city: p.city, issue: "Pending review over 7 days", severity: "medium" });
+      compliance.push({ id: p.id, property: p.title, city: p.city, issue: "Pending review over 7 days", severity: "medium" });
   });
   hostManagement.forEach((h) => {
-    if (h.cancellations >= 3) compliance.push({ property: h.name, city: "Host", issue: `${h.cancellations} cancellations`, severity: "medium" });
+    if (h.cancellations >= 3) compliance.push({ id: null, property: h.name, city: "Host", issue: `${h.cancellations} cancellations`, severity: "medium" });
   });
 
-  return { bookingsByCity, revenueTrend, hostManagement, documentQueue, guestInsights, commissions, compliance: compliance.slice(0, 25) };
+  // Escalations — host disputes needing admin follow-up
+  const escalations = hostManagement
+    .filter((h) => h.cancellations >= 2 || (h.rating != null && h.rating < 3.5) || (!h.verified && h.listings > 0))
+    .map((h) => ({
+      id: h.id,
+      name: h.name,
+      reason:
+        h.cancellations >= 2
+          ? `${h.cancellations} cancellations — guest refund disputes`
+          : h.rating != null && h.rating < 3.5
+            ? `Low rating (${h.rating}) — quality complaints`
+            : "Unverified host with live listings",
+      severity: (h.cancellations >= 3 || (h.rating != null && h.rating < 3) ? "high" : "medium") as "high" | "medium",
+      listings: h.listings,
+      earnings_kes: h.earnings_kes,
+    }))
+    .slice(0, 15);
+
+  return {
+    bookingsByCity,
+    occupancyByCity,
+    revenueTrend,
+    commissionTrend,
+    commissionByMethod,
+    hostManagement,
+    escalations,
+    documentQueue,
+    guestInsights,
+    commissions,
+    compliance: compliance.slice(0, 25),
+  };
 }
+
