@@ -245,6 +245,18 @@ export const myListings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const covers = data.map((r) => r.cover_image).filter(Boolean) as string[];
     const signed = await signMany(covers);
+
+    // Audit: this response carries exact address + GPS for the caller's listings.
+    const { logLocationAccess } = await import("@/lib/audit/location-audit.server");
+    await logLocationAccess({
+      userId,
+      action: "myListings",
+      propertyIds: data.map((r) => r.id),
+      recordCount: data.length,
+      exposedAddress: data.some((r) => r.address != null),
+      exposedGps: data.some((r) => r.latitude != null || r.longitude != null),
+    });
+
     return data.map((r) => ({ ...r, cover_url: r.cover_image ? signed[r.cover_image] ?? null : null }));
   });
 

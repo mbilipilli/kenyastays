@@ -93,12 +93,22 @@ export async function createHotelDruidBooking(input: {
 }
 
 // ---- demo fallback ----
-function nextDates(days = 30) {
+// Deterministic pseudo-randomness: SSR and client must agree.
+function seededInt(key: string, max: number) {
+  let h = 2166136261;
+  for (let i = 0; i < key.length; i++) {
+    h ^= key.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return Math.abs(h) % max;
+}
+
+function nextDates(seed: string, days = 30) {
   const out: Record<string, number> = {};
   const now = new Date();
   for (let i = 0; i < days; i++) {
     const d = new Date(now.getTime() + i * 86400_000).toISOString().slice(0, 10);
-    out[d] = Math.floor(Math.random() * 4);
+    out[d] = seededInt(`${seed}:${d}`, 4);
   }
   return out;
 }
@@ -112,7 +122,7 @@ const SEED: Omit<HotelDruidRoom, "availability" | "booking_status">[] = [
 function demoRooms(): HotelDruidRoom[] {
   return SEED.map((s) => ({
     ...s,
-    availability: nextDates(),
-    booking_status: Math.random() > 0.2 ? "available" : "sold_out",
+    availability: nextDates(s.external_id),
+    booking_status: seededInt(`${s.external_id}:status`, 10) > 1 ? "available" : "sold_out",
   }));
 }
