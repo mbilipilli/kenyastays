@@ -17,7 +17,7 @@ export function Footer() {
           <p className="mt-3 text-sm text-muted-foreground">Authentic Kenyan stays — from Nairobi streets to Maasai Mara retreats.</p>
         </div>
         <FooterCol title="Company" links={[["About Us", "/"], ["Contact", "/"], ["FAQs", "/"]]} />
-        <FooterCol title="Hosts" links={[["Become a host", "/host/new"], ["Host dashboard", "/host"], ["Terms & Conditions", "/"]]} />
+        <FooterCol title="Hosts" links={[["Host dashboard", "/host"], ["Terms & Conditions", "/"]]} />
         <div>
           <h4 className="font-serif text-sm font-semibold">Follow</h4>
           <div className="mt-3 flex gap-3 text-muted-foreground">
