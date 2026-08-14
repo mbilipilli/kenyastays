@@ -105,6 +105,8 @@ function Index() {
         </div>
       </section>
 
+      <RotatingBanner />
+
       {/* Featured */}
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="mb-4">
