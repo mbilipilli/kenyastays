@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X, Wallet, Inbox } from "lucide-react";
+import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X, Wallet, Inbox, ExternalLink } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { AnalyticsPanels, BookingsOverviewPanel, CommissionsPanel, CompliancePanel, DocumentVerificationPanel, EscalationsPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
