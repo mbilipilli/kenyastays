@@ -4,6 +4,7 @@ import { searchProperties } from "@/lib/api/properties.functions";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { RotatingBanner } from "@/components/RotatingBanner";
 
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
