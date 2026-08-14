@@ -83,7 +83,13 @@ function AdminPage() {
           <TabsTrigger value="payments">Payments</TabsTrigger>
           <TabsTrigger value="external">External inventory</TabsTrigger>
           <TabsTrigger value="sync">Sync status</TabsTrigger>
+          <TabsTrigger value="location">Location audit</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="location">
+          <LocationAuditPanel />
+        </TabsContent>
+
 
         <TabsContent value="bookings">
           <Card>
