@@ -228,6 +228,8 @@ export function CompliancePanel() {
 export function DocumentVerificationPanel() {
   const { data } = useInsights();
   const rows = data?.documentQueue ?? [];
+  const [active, setActive] = useState<any | null>(null);
+
   return (
     <SectionCard
       icon={<FileCheck2 className="size-4" />}
@@ -237,7 +239,7 @@ export function DocumentVerificationPanel() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <tr><th className="py-2">Host</th><th>ID</th><th>KRA PIN</th><th>Proof of ownership</th></tr>
+            <tr><th className="py-2">Host</th><th>ID</th><th>KRA PIN</th><th>Proof of ownership</th><th className="text-right">Documents</th></tr>
           </thead>
           <tbody className="divide-y">
             {rows.map((r: any) => (
@@ -246,13 +248,89 @@ export function DocumentVerificationPanel() {
                 <td><StatusPill value={r.id_status} /></td>
                 <td><StatusPill value={r.kra_status} /></td>
                 <td><StatusPill value={r.ownership_status} /></td>
+                <td className="text-right">
+                  <Button size="sm" variant="outline" onClick={() => setActive(r)}>
+                    <Eye className="mr-1 size-3.5" /> Preview
+                  </Button>
+                </td>
               </tr>
             ))}
-            {!rows.length && <tr><td colSpan={4} className="py-6 text-center text-muted-foreground">All host documents verified</td></tr>}
+            {!rows.length && <tr><td colSpan={5} className="py-6 text-center text-muted-foreground">All host documents verified</td></tr>}
           </tbody>
         </table>
       </div>
+
+      <DocumentPreviewDialog row={active} onClose={() => setActive(null)} />
     </SectionCard>
+  );
+}
+
+function DocumentPreviewDialog({ row, onClose }: { row: any | null; onClose: () => void }) {
+  const docs = row
+    ? [
+        { key: "id", label: "National ID", status: row.id_status, url: row.id_url as string | undefined },
+        { key: "kra", label: "KRA PIN certificate", status: row.kra_status, url: row.kra_url as string | undefined },
+        { key: "own", label: "Proof of ownership", status: row.ownership_status, url: row.ownership_url as string | undefined },
+      ]
+    : [];
+  const [selected, setSelected] = useState(0);
+  const doc = docs[selected];
+
+  return (
+    <Dialog open={!!row} onOpenChange={(o) => { if (!o) { onClose(); setSelected(0); } }}>
+      <DialogContent className="max-h-[90dvh] max-w-3xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Documents — {row?.name}</DialogTitle>
+          <DialogDescription>Review submitted verification documents without leaving the dashboard.</DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-wrap gap-2">
+          {docs.map((d, i) => (
+            <Button
+              key={d.key}
+              size="sm"
+              variant={i === selected ? "default" : "outline"}
+              onClick={() => setSelected(i)}
+            >
+              {d.label}
+            </Button>
+          ))}
+        </div>
+
+        {doc && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-medium">{doc.label}</div>
+              <StatusPill value={doc.status} />
+            </div>
+
+            <div className="grid min-h-64 place-items-center overflow-hidden rounded-xl border bg-muted/30 p-4">
+              {doc.url ? (
+                /\.pdf($|\?)/i.test(doc.url) ? (
+                  <iframe src={doc.url} title={doc.label} className="h-[60vh] w-full rounded-lg bg-background" />
+                ) : (
+                  <img src={doc.url} alt={`${doc.label} submitted by ${row?.name}`} className="max-h-[60vh] w-auto rounded-lg" />
+                )
+              ) : (
+                <div className="space-y-2 text-center">
+                  <FileText className="mx-auto size-8 text-muted-foreground" />
+                  <p className="text-sm font-medium">No file uploaded yet</p>
+                  <p className="text-xs text-muted-foreground">
+                    This host has not submitted a {doc.label.toLowerCase()}. Status is tracked as “{doc.status}”.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {doc.url && (
+              <Button asChild size="sm" variant="outline">
+                <a href={doc.url} target="_blank" rel="noreferrer">Open in new tab</a>
+              </Button>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
