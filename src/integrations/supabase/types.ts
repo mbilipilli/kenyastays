@@ -487,6 +487,45 @@ export type Database = {
           },
         ]
       }
+      location_access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          exposed_address: boolean
+          exposed_gps: boolean
+          id: string
+          ip_address: string | null
+          property_ids: string[]
+          record_count: number
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          exposed_address?: boolean
+          exposed_gps?: boolean
+          id?: string
+          ip_address?: string | null
+          property_ids?: string[]
+          record_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          exposed_address?: boolean
+          exposed_gps?: boolean
+          id?: string
+          ip_address?: string | null
+          property_ids?: string[]
+          record_count?: number
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       mpesa_transactions: {
         Row: {
           amount_kes: number
