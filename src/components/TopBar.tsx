@@ -51,8 +51,3 @@ export function TopBar() {
     </header>
   );
 }
-
-      </div>
-    </header>
-  );
-}
