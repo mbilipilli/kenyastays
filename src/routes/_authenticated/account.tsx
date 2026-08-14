@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Briefcase, Home, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import { Briefcase, LogOut, ShieldCheck, Sparkles } from "lucide-react";
+import hostDashboardIcon from "@/assets/host-dashboard-icon.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "Your account" }] }),
@@ -26,7 +27,7 @@ function AccountPage() {
 
       <ul className="mt-4 divide-y rounded-2xl border bg-card">
         <Row to="/trips" icon={Briefcase} label="My trips" />
-        <Row to="/host" icon={Home} label="Host dashboard" />
+        <ImageRow to="/host" src={hostDashboardIcon.url} label="Host dashboard" />
         <Row to="/host/new" icon={Sparkles} label="List a new stay" />
       </ul>
 

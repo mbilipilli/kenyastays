@@ -36,13 +36,9 @@ export function TopBar() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              {isAdmin ? (
+              {isAdmin && (
                 <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
                   <Link to="/admin">Admin console</Link>
-                </Button>
-              ) : (
-                <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
-                  <Link to="/host">Host dashboard</Link>
                 </Button>
               )}
               <Button size="sm" variant="ghost" onClick={() => signOut()}>Sign out</Button>
