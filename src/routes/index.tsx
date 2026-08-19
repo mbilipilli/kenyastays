@@ -182,7 +182,7 @@ function Index() {
         </div>
       </section>
 
-
+      <FaqSection />
       <Footer />
     </main>
   );

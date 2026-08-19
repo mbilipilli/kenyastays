@@ -26,7 +26,7 @@ export function Footer() {
           links={[
             { label: "About Us", onClick: () => setAboutOpen(true) },
             { label: "Contact", to: "/" },
-            { label: "FAQs", to: "/" },
+            { label: "FAQs", to: "/#faqs" },
           ]}
         />
         <FooterCol title="Hosts" links={[{ label: "Host dashboard", to: "/host" }, { label: "Terms & Conditions", to: "/terms" }]} />
