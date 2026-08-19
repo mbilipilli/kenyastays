@@ -5,6 +5,7 @@ import { useIsAdmin } from "@/hooks/use-is-admin";
 import { PropertyCard } from "@/components/PropertyCard";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { RotatingBanner } from "@/components/RotatingBanner";
+import { FaqSection } from "@/components/FaqSection";
 
 import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
