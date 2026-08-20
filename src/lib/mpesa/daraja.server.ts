@@ -1,17 +1,48 @@
 // Safaricom Daraja M-Pesa STK Push client
+
+/** MPESA_ENV has been set to odd values (URLs, blanks) — normalise it. */
+export function mpesaEnv(): "sandbox" | "production" {
+  const raw = (process.env["MPESA_ENV"] ?? process.env["DARAJA_ENV"] ?? "").trim().toLowerCase();
+  return raw === "production" || raw === "live" || raw === "prod" ? "production" : "sandbox";
+}
+
 const BASE = () =>
-  (process.env.MPESA_ENV ?? "sandbox") === "production"
+  mpesaEnv() === "production"
     ? "https://api.safaricom.co.ke"
     : "https://sandbox.safaricom.co.ke";
 
-// Accept both MPESA_* and DARAJA_* naming for the same credential.
-function requireEnv(name: string): string {
+// Public Safaricom sandbox test till + passkey. Used only when the project has
+// no usable sandbox shortcode configured, so test pushes still work.
+const SANDBOX_SHORTCODE = "174379";
+const SANDBOX_PASSKEY =
+  "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+
+function readEnv(name: string): string {
   const alt = name.startsWith("MPESA_") ? name.replace("MPESA_", "DARAJA_") : name.replace("DARAJA_", "MPESA_");
   // Trim: pasted credentials often carry trailing spaces/newlines, which make
   // Daraja reject the Basic auth header with a 400.
   const v = (process.env[name] ?? process.env[alt] ?? "").trim();
+  return v === "N/A" || v === "-" ? "" : v;
+}
+
+// Accept both MPESA_* and DARAJA_* naming for the same credential.
+function requireEnv(name: string): string {
+  const v = readEnv(name);
   if (!v) throw new Error(`Missing env ${name}. Add M-Pesa Daraja credentials to enable payments.`);
   return v;
+}
+
+/** Shortcode + passkey, falling back to Safaricom's sandbox test pair. */
+export function stkCredentials(): { shortcode: string; passkey: string; usingSandboxDefaults: boolean } {
+  const shortcode = readEnv("MPESA_SHORTCODE");
+  const passkey = readEnv("MPESA_PASSKEY");
+  const usable = shortcode.length >= 5 && passkey.length >= 20;
+  if (usable) return { shortcode, passkey, usingSandboxDefaults: false };
+  if (mpesaEnv() === "production")
+    throw new Error(
+      "Missing or invalid MPESA_SHORTCODE / MPESA_PASSKEY for production. Add your Lipa Na M-Pesa Online shortcode and passkey.",
+    );
+  return { shortcode: SANDBOX_SHORTCODE, passkey: SANDBOX_PASSKEY, usingSandboxDefaults: true };
 }
 
 export async function getToken(): Promise<string> {
