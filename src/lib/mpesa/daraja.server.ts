@@ -45,7 +45,12 @@ export function stkCredentials(): { shortcode: string; passkey: string; usingSan
   return { shortcode: SANDBOX_SHORTCODE, passkey: SANDBOX_PASSKEY, usingSandboxDefaults: true };
 }
 
+// Safaricom throttles repeated OAuth calls (403 from their WAF), so cache the
+// token for its lifetime instead of minting one per request.
+let tokenCache: { token: string; expiresAt: number } | null = null;
+
 export async function getToken(): Promise<string> {
+  if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) return tokenCache.token;
   const key = requireEnv("MPESA_CONSUMER_KEY");
   const secret = requireEnv("MPESA_CONSUMER_SECRET");
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
@@ -68,6 +73,8 @@ export async function getToken(): Promise<string> {
     throw new Error(`Daraja auth returned non-JSON: ${text.slice(0, 200)}`);
   }
   if (!json.access_token) throw new Error(`Daraja auth returned no access_token: ${text.slice(0, 200)}`);
+  const ttl = (Number(json.expires_in) || 3599) * 1000;
+  tokenCache = { token: json.access_token, expiresAt: Date.now() + ttl };
   return json.access_token;
 }
 
