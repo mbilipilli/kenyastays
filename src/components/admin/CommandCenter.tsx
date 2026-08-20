@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   BadgeCheck,
   CalendarPlus,
+  CalendarRange,
   CheckCircle2,
   FileWarning,
   MapPin,
@@ -235,6 +236,7 @@ export function CommandCenter() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <MapPin className="size-4 text-kenya-green" /> Booking heatmap
+                <span className="ml-auto text-xs font-normal text-muted-foreground">{rangeLabel}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -384,7 +386,10 @@ export function CommandCenter() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Revenue trends</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              Revenue trends
+              <span className="ml-auto text-xs font-normal text-muted-foreground">{rangeLabel}</span>
+            </CardTitle>
           </CardHeader>
           <CardContent style={{ height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
