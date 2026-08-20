@@ -3,7 +3,7 @@
 export function appOrigin(): string {
   return (
     process.env["PUBLIC_APP_URL"] ??
-    "https://project--4775c4eb-263c-4831-a768-038a33a5e678.lovable.app"
+    "https://kenyastayz.lovable.app"
   );
 }
 
