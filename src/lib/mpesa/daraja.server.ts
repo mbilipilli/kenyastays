@@ -143,7 +143,7 @@ export async function stkPush(params: {
     PartyA: params.phone,
     PartyB: shortcode,
     PhoneNumber: params.phone,
-    CallBackURL: params.callbackUrl,
+    CallBackURL: sanitizeCallbackUrl(params.callbackUrl),
     AccountReference: params.accountRef.slice(0, 12),
     TransactionDesc: params.description.slice(0, 20),
   };
