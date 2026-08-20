@@ -115,8 +115,13 @@ export function sanitizeCallbackUrl(input: string): string {
   }
   const localhost = /^(localhost|127\.|0\.0\.0\.0|\[?::1)/i.test(url.hostname);
   const blocked = /(mpesa|m-pesa|safaricom|exe|sql|cmd)/i.test(url.pathname);
-  if (url.protocol !== "https:" || localhost || blocked) {
-    const base = localhost || url.protocol !== "https:" ? fallbackHost : url.origin;
+  // Safaricom's validator rejects long preview hostnames such as
+  // "project--<uuid>.lovable.app" (double hyphen / id-preview hosts).
+  const previewHost =
+    url.hostname.includes("--") || /^id-preview/i.test(url.hostname) || url.hostname.length > 60;
+  if (url.protocol !== "https:" || localhost || blocked || previewHost) {
+    const base =
+      localhost || previewHost || url.protocol !== "https:" ? fallbackHost : url.origin;
     return `${base}/api/public/hooks/pay-callback`;
   }
   return url.origin + url.pathname;
