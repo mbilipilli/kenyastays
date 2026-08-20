@@ -4,8 +4,10 @@ const BASE = () =>
     ? "https://api.safaricom.co.ke"
     : "https://sandbox.safaricom.co.ke";
 
+// Accept both MPESA_* and DARAJA_* naming for the same credential.
 function requireEnv(name: string): string {
-  const v = process.env[name];
+  const alt = name.startsWith("MPESA_") ? name.replace("MPESA_", "DARAJA_") : name.replace("DARAJA_", "MPESA_");
+  const v = process.env[name] ?? process.env[alt];
   if (!v) throw new Error(`Missing env ${name}. Add M-Pesa B2C credentials to enable host payouts.`);
   return v;
 }
