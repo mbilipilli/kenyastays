@@ -144,29 +144,77 @@ export function CommandCenter() {
 
   const loading = insights.isLoading || overview.isLoading;
 
+  const rangeLabel = PRESETS.find((x) => x.id === preset)?.label ?? `${range.from} → ${range.to}`;
+  const statsLoading = stats.isLoading;
+
   return (
     <div className="space-y-6">
+      {/* Date range filter */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border bg-card p-3 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
+          <CalendarRange className="size-4 shrink-0 text-kenya-green" />
+          <span className="truncate text-sm font-medium">Date range</span>
+          <span className="hidden truncate text-xs text-muted-foreground sm:inline">{rangeLabel}</span>
+        </div>
+        <div className="col-span-2 flex flex-wrap items-center gap-2">
+          {PRESETS.map((pr) => (
+            <Button
+              key={pr.id}
+              size="sm"
+              variant={preset === pr.id ? "default" : "outline"}
+              onClick={() => setPreset(pr.id)}
+            >
+              {pr.label}
+            </Button>
+          ))}
+          <Button size="sm" variant={preset === "custom" ? "default" : "outline"} onClick={() => setPreset("custom")}>
+            Custom
+          </Button>
+          {preset === "custom" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                type="date"
+                value={customFrom}
+                max={customTo}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                className="h-9 w-[9.5rem]"
+                aria-label="From date"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <Input
+                type="date"
+                value={customTo}
+                min={customFrom}
+                onChange={(e) => setCustomTo(e.target.value)}
+                className="h-9 w-[9.5rem]"
+                aria-label="To date"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Top analytics cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric
           icon={<TrendingUp className="size-5" />}
-          label="Revenue this month"
-          value={loading ? "—" : kes(revenueThisMonth)}
-          sub={delta == null ? "No prior month" : `${delta >= 0 ? "+" : ""}${delta}% vs last month`}
+          label="Revenue in range"
+          value={statsLoading ? "—" : kes(rangeRevenue)}
+          sub={delta == null ? "No prior period data" : `${delta >= 0 ? "+" : ""}${delta}% vs previous period`}
           tone="green"
         />
         <Metric
           icon={<Wallet className="size-5" />}
           label="Pending payouts"
-          value={payouts.isLoading ? "—" : kes(p?.totals?.pending_kes ?? 0)}
-          sub={`${(p?.payouts ?? []).filter((r: any) => ["pending", "queued", "processing"].includes(String(r.status))).length} in queue`}
+          value={statsLoading ? "—" : kes(s?.pendingPayouts_kes ?? 0)}
+          sub={`${s?.pendingPayoutsCount ?? 0} in queue`}
           tone="gold"
         />
         <Metric
           icon={<CalendarPlus className="size-5" />}
           label="New bookings"
-          value={loading ? "—" : (o?.bookingsToday ?? 0)}
-          sub={`${d?.bookingTotals?.pending ?? 0} pending confirmation`}
+          value={statsLoading ? "—" : (s?.newBookings ?? 0)}
+          sub={`${s?.pendingBookings ?? 0} pending confirmation`}
           tone="green"
         />
         <Metric
@@ -177,6 +225,7 @@ export function CommandCenter() {
           tone={complianceAlerts ? "alert" : "neutral"}
         />
       </div>
+
 
       {/* Three-panel workspace */}
       <div className="grid gap-4 lg:grid-cols-12">
