@@ -58,27 +58,43 @@ export function CommandCenter() {
   const overviewFn = useServerFn(adminOverview);
   const payoutsFn = useServerFn(hostPayoutsOverview);
   const enquiriesFn = useServerFn(hostEnquiries);
+  const rangeFn = useServerFn(adminRangeStats);
+
+  const [preset, setPreset] = useState<string>("30d");
+  const [customFrom, setCustomFrom] = useState(daysAgo(30));
+  const [customTo, setCustomTo] = useState(iso(new Date()));
+
+  const range = useMemo(() => {
+    const p = PRESETS.find((x) => x.id === preset);
+    if (!p) return { from: customFrom, to: customTo };
+    return { from: daysAgo(p.days), to: iso(new Date()) };
+  }, [preset, customFrom, customTo]);
 
   const insights = useQuery({ queryKey: ["admin", "insights"], queryFn: () => insightsFn({ data: undefined as any }) });
   const overview = useQuery({ queryKey: ["admin", "overview"], queryFn: () => overviewFn({ data: undefined as any }) });
   const payouts = useQuery({ queryKey: ["admin", "payouts"], queryFn: () => payoutsFn({ data: undefined as any }) });
   const enquiries = useQuery({ queryKey: ["admin", "enquiries"], queryFn: () => enquiriesFn({ data: undefined as any }) });
+  const stats = useQuery({
+    queryKey: ["admin", "range-stats", range.from, range.to],
+    enabled: range.from <= range.to,
+    queryFn: () => rangeFn({ data: range }),
+  });
 
   const d: any = insights.data;
   const o: any = overview.data;
   const p: any = payouts.data;
+  const s: any = stats.data;
 
-  const revenueTrend: { label: string; kes: number }[] = d?.revenueTrend ?? [];
-  const revenueThisMonth = revenueTrend.length ? revenueTrend[revenueTrend.length - 1].kes : 0;
-  const prevMonth = revenueTrend.length > 1 ? revenueTrend[revenueTrend.length - 2].kes : 0;
-  const delta = prevMonth ? Math.round(((revenueThisMonth - prevMonth) / prevMonth) * 100) : null;
+  const revenueTrend: { label: string; kes: number }[] = s?.revenueTrend ?? [];
+  const rangeRevenue = s?.revenue_kes ?? 0;
+  const delta = s?.revenueDeltaPct ?? null;
 
   const complianceAlerts = (d?.compliance?.length ?? 0) + (d?.escalations?.length ?? 0);
 
-  // Region heat from bookings by city
-  const byRegion: Record<string, number> = { Coast: 0, Nairobi: 0, Highlands: 0 };
-  (d?.bookingsByCity ?? []).forEach((c: any) => (byRegion[regionOf(c.city)] += c.count));
+  // Region heat for the selected range
+  const byRegion: Record<string, number> = s?.byRegion ?? { Coast: 0, Nairobi: 0, Highlands: 0 };
   const maxRegion = Math.max(1, ...Object.values(byRegion));
+
 
   // Messaging hub — conversations derived from live activity
   const conversations = [
