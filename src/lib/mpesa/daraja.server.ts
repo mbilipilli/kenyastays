@@ -99,6 +99,29 @@ export function normalizePhone(raw: string): string {
   return digits;
 }
 
+/**
+ * Daraja rejects callback URLs that are not plain https, carry a query string,
+ * point at localhost, or whose path contains blocked words like "mpesa" or
+ * "safaricom" — the failure surfaces as "Invalid CallBackURL".
+ */
+export function sanitizeCallbackUrl(input: string): string {
+  const fallbackHost =
+    (process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app").replace(/\/+$/, "");
+  let url: URL;
+  try {
+    url = new URL(input);
+  } catch {
+    return `${fallbackHost}/api/public/hooks/pay-callback`;
+  }
+  const localhost = /^(localhost|127\.|0\.0\.0\.0|\[?::1)/i.test(url.hostname);
+  const blocked = /(mpesa|m-pesa|safaricom|exe|sql|cmd)/i.test(url.pathname);
+  if (url.protocol !== "https:" || localhost || blocked) {
+    const base = localhost || url.protocol !== "https:" ? fallbackHost : url.origin;
+    return `${base}/api/public/hooks/pay-callback`;
+  }
+  return url.origin + url.pathname;
+}
+
 export async function stkPush(params: {
   phone: string;
   amount: number;
@@ -106,6 +129,7 @@ export async function stkPush(params: {
   description: string;
   callbackUrl: string;
 }) {
+
   const { shortcode, passkey } = stkCredentials();
   const ts = timestamp();
   const password = Buffer.from(`${shortcode}${passkey}${ts}`).toString("base64");
@@ -119,7 +143,7 @@ export async function stkPush(params: {
     PartyA: params.phone,
     PartyB: shortcode,
     PhoneNumber: params.phone,
-    CallBackURL: params.callbackUrl,
+    CallBackURL: sanitizeCallbackUrl(params.callbackUrl),
     AccountReference: params.accountRef.slice(0, 12),
     TransactionDesc: params.description.slice(0, 20),
   };
