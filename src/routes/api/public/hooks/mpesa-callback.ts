@@ -18,12 +18,65 @@ export const Route = createFileRoute("/api/public/hooks/mpesa-callback")({
         const receipt = get("MpesaReceiptNumber") as string | undefined;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+        const logRow = {
+          checkout_request_id: checkoutRequestId ?? null,
+          merchant_request_id: (stk.MerchantRequestID as string) ?? null,
+          result_code: resultCode ?? null,
+          result_desc: resultDesc ?? null,
+          mpesa_receipt: receipt ?? null,
+          amount_kes: Number(get("Amount") ?? 0) || null,
+          phone: get("PhoneNumber") ? String(get("PhoneNumber")) : null,
+          raw: body,
+        };
+        const logCallback = async (
+          matched_kind: string,
+          matched_id: string | null,
+          outcome: string,
+          note?: string,
+        ) => {
+          await supabaseAdmin
+            .from("mpesa_callback_logs")
+            .insert({ ...logRow, matched_kind, matched_id, outcome, note: note ?? null });
+        };
+
         const { data: tx } = await supabaseAdmin
           .from("mpesa_transactions")
           .select("*")
           .eq("checkout_request_id", checkoutRequestId)
           .maybeSingle();
-        if (!tx) return Response.json({ ResultCode: 0, ResultDesc: "Unknown ref" });
+
+        if (!tx) {
+          // Might be an admin test push rather than a real booking payment.
+          const { data: test } = await supabaseAdmin
+            .from("mpesa_test_pushes")
+            .select("id")
+            .eq("checkout_request_id", checkoutRequestId)
+            .maybeSingle();
+          if (test) {
+            await supabaseAdmin
+              .from("mpesa_test_pushes")
+              .update({
+                status: resultCode === 0 ? "confirmed" : "failed",
+                result_code: resultCode,
+                result_desc: resultDesc,
+                mpesa_receipt: receipt ?? null,
+                confirmed_at: new Date().toISOString(),
+              })
+              .eq("id", test.id);
+            await logCallback("test_push", test.id, resultCode === 0 ? "confirmed" : "failed");
+            return Response.json({ ResultCode: 0, ResultDesc: "OK" });
+          }
+          await logCallback(
+            "unmatched",
+            null,
+            "unmatched",
+            "No payment or test push matches this CheckoutRequestID",
+          );
+          return Response.json({ ResultCode: 0, ResultDesc: "Unknown ref" });
+        }
+
+        await logCallback("transaction", tx.id, resultCode === 0 ? "confirmed" : "failed");
 
         const status = resultCode === 0 ? "success" : "failed";
         await supabaseAdmin
