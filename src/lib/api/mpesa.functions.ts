@@ -204,7 +204,7 @@ export const mpesaConfigStatus = createServerFn({ method: "POST" })
     const has = (n: string) =>
       Boolean(process.env[n] ?? process.env[n.replace("MPESA_", "DARAJA_")]);
     return {
-      env: process.env["MPESA_ENV"] ?? "sandbox",
+      env: (await import("@/lib/mpesa/daraja.server")).mpesaEnv(),
       callbackUrl: `${process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app"}/api/public/hooks/mpesa-callback`,
       stk: {
         MPESA_CONSUMER_KEY: has("MPESA_CONSUMER_KEY"),

@@ -121,8 +121,17 @@ export async function stkPush(params: {
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const json: any = await res.json();
-  if (!res.ok || json.errorCode) throw new Error(json.errorMessage || `STK push failed (${res.status})`);
+  const text = await res.text();
+  let json: any = {};
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`STK push failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+  if (!res.ok || json.errorCode || !json.CheckoutRequestID) {
+    const detail = json.errorMessage ?? json?.fault?.faultstring ?? text.slice(0, 200);
+    throw new Error(`STK push failed (${res.status}): ${detail}`);
+  }
   return {
     checkoutRequestId: json.CheckoutRequestID as string,
     merchantRequestId: json.MerchantRequestID as string,
