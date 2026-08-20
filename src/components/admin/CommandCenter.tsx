@@ -1,14 +1,19 @@
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import {
   adminInsights,
   adminOverview,
+  adminRangeStats,
   hostPayoutsOverview,
   hostEnquiries,
 } from "@/lib/api/admin.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 import {
   ResponsiveContainer,
   AreaChart,
@@ -22,6 +27,7 @@ import {
   AlertTriangle,
   BadgeCheck,
   CalendarPlus,
+  CalendarRange,
   CheckCircle2,
   FileWarning,
   MapPin,
@@ -37,41 +43,59 @@ const kes = (n: number) => `KES ${new Intl.NumberFormat("en-KE").format(Math.rou
 const when = (s?: string | null) =>
   s ? new Date(s).toLocaleString("en-KE", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
 
-const COAST = ["Mombasa", "Diani", "Lamu", "Malindi", "Watamu", "Kilifi"];
-const NAIROBI = ["Nairobi", "Kiambu", "Machakos", "Athi River"];
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const daysAgo = (n: number) => iso(new Date(Date.now() - n * 86_400_000));
 
-function regionOf(city: string) {
-  if (COAST.includes(city)) return "Coast";
-  if (NAIROBI.includes(city)) return "Nairobi";
-  return "Highlands";
-}
+const PRESETS = [
+  { id: "7d", label: "Last 7 days", days: 7 },
+  { id: "30d", label: "Last 30 days", days: 30 },
+  { id: "90d", label: "Last 90 days", days: 90 },
+  { id: "12m", label: "Last 12 months", days: 365 },
+] as const;
+
 
 export function CommandCenter() {
   const insightsFn = useServerFn(adminInsights);
   const overviewFn = useServerFn(adminOverview);
   const payoutsFn = useServerFn(hostPayoutsOverview);
   const enquiriesFn = useServerFn(hostEnquiries);
+  const rangeFn = useServerFn(adminRangeStats);
+
+  const [preset, setPreset] = useState<string>("30d");
+  const [customFrom, setCustomFrom] = useState(daysAgo(30));
+  const [customTo, setCustomTo] = useState(iso(new Date()));
+
+  const range = useMemo(() => {
+    const p = PRESETS.find((x) => x.id === preset);
+    if (!p) return { from: customFrom, to: customTo };
+    return { from: daysAgo(p.days), to: iso(new Date()) };
+  }, [preset, customFrom, customTo]);
 
   const insights = useQuery({ queryKey: ["admin", "insights"], queryFn: () => insightsFn({ data: undefined as any }) });
   const overview = useQuery({ queryKey: ["admin", "overview"], queryFn: () => overviewFn({ data: undefined as any }) });
   const payouts = useQuery({ queryKey: ["admin", "payouts"], queryFn: () => payoutsFn({ data: undefined as any }) });
   const enquiries = useQuery({ queryKey: ["admin", "enquiries"], queryFn: () => enquiriesFn({ data: undefined as any }) });
+  const stats = useQuery({
+    queryKey: ["admin", "range-stats", range.from, range.to],
+    enabled: range.from <= range.to,
+    queryFn: () => rangeFn({ data: range }),
+  });
 
   const d: any = insights.data;
   const o: any = overview.data;
   const p: any = payouts.data;
+  const s: any = stats.data;
 
-  const revenueTrend: { label: string; kes: number }[] = d?.revenueTrend ?? [];
-  const revenueThisMonth = revenueTrend.length ? revenueTrend[revenueTrend.length - 1].kes : 0;
-  const prevMonth = revenueTrend.length > 1 ? revenueTrend[revenueTrend.length - 2].kes : 0;
-  const delta = prevMonth ? Math.round(((revenueThisMonth - prevMonth) / prevMonth) * 100) : null;
+  const revenueTrend: { label: string; kes: number }[] = s?.revenueTrend ?? [];
+  const rangeRevenue = s?.revenue_kes ?? 0;
+  const delta = s?.revenueDeltaPct ?? null;
 
   const complianceAlerts = (d?.compliance?.length ?? 0) + (d?.escalations?.length ?? 0);
 
-  // Region heat from bookings by city
-  const byRegion: Record<string, number> = { Coast: 0, Nairobi: 0, Highlands: 0 };
-  (d?.bookingsByCity ?? []).forEach((c: any) => (byRegion[regionOf(c.city)] += c.count));
+  // Region heat for the selected range
+  const byRegion: Record<string, number> = s?.byRegion ?? { Coast: 0, Nairobi: 0, Highlands: 0 };
   const maxRegion = Math.max(1, ...Object.values(byRegion));
+
 
   // Messaging hub — conversations derived from live activity
   const conversations = [
@@ -121,29 +145,77 @@ export function CommandCenter() {
 
   const loading = insights.isLoading || overview.isLoading;
 
+  const rangeLabel = PRESETS.find((x) => x.id === preset)?.label ?? `${range.from} → ${range.to}`;
+  const statsLoading = stats.isLoading;
+
   return (
     <div className="space-y-6">
+      {/* Date range filter */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border bg-card p-3 sm:flex sm:flex-wrap sm:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
+          <CalendarRange className="size-4 shrink-0 text-kenya-green" />
+          <span className="truncate text-sm font-medium">Date range</span>
+          <span className="hidden truncate text-xs text-muted-foreground sm:inline">{rangeLabel}</span>
+        </div>
+        <div className="col-span-2 flex flex-wrap items-center gap-2">
+          {PRESETS.map((pr) => (
+            <Button
+              key={pr.id}
+              size="sm"
+              variant={preset === pr.id ? "default" : "outline"}
+              onClick={() => setPreset(pr.id)}
+            >
+              {pr.label}
+            </Button>
+          ))}
+          <Button size="sm" variant={preset === "custom" ? "default" : "outline"} onClick={() => setPreset("custom")}>
+            Custom
+          </Button>
+          {preset === "custom" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                type="date"
+                value={customFrom}
+                max={customTo}
+                onChange={(e) => setCustomFrom(e.target.value)}
+                className="h-9 w-[9.5rem]"
+                aria-label="From date"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <Input
+                type="date"
+                value={customTo}
+                min={customFrom}
+                onChange={(e) => setCustomTo(e.target.value)}
+                className="h-9 w-[9.5rem]"
+                aria-label="To date"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Top analytics cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Metric
           icon={<TrendingUp className="size-5" />}
-          label="Revenue this month"
-          value={loading ? "—" : kes(revenueThisMonth)}
-          sub={delta == null ? "No prior month" : `${delta >= 0 ? "+" : ""}${delta}% vs last month`}
+          label="Revenue in range"
+          value={statsLoading ? "—" : kes(rangeRevenue)}
+          sub={delta == null ? "No prior period data" : `${delta >= 0 ? "+" : ""}${delta}% vs previous period`}
           tone="green"
         />
         <Metric
           icon={<Wallet className="size-5" />}
           label="Pending payouts"
-          value={payouts.isLoading ? "—" : kes(p?.totals?.pending_kes ?? 0)}
-          sub={`${(p?.payouts ?? []).filter((r: any) => ["pending", "queued", "processing"].includes(String(r.status))).length} in queue`}
+          value={statsLoading ? "—" : kes(s?.pendingPayouts_kes ?? 0)}
+          sub={`${s?.pendingPayoutsCount ?? 0} in queue`}
           tone="gold"
         />
         <Metric
           icon={<CalendarPlus className="size-5" />}
           label="New bookings"
-          value={loading ? "—" : (o?.bookingsToday ?? 0)}
-          sub={`${d?.bookingTotals?.pending ?? 0} pending confirmation`}
+          value={statsLoading ? "—" : (s?.newBookings ?? 0)}
+          sub={`${s?.pendingBookings ?? 0} pending confirmation`}
           tone="green"
         />
         <Metric
@@ -155,6 +227,7 @@ export function CommandCenter() {
         />
       </div>
 
+
       {/* Three-panel workspace */}
       <div className="grid gap-4 lg:grid-cols-12">
         {/* Left */}
@@ -163,6 +236,7 @@ export function CommandCenter() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <MapPin className="size-4 text-kenya-green" /> Booking heatmap
+                <span className="ml-auto text-xs font-normal text-muted-foreground">{rangeLabel}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -312,7 +386,10 @@ export function CommandCenter() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Revenue trends</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              Revenue trends
+              <span className="ml-auto text-xs font-normal text-muted-foreground">{rangeLabel}</span>
+            </CardTitle>
           </CardHeader>
           <CardContent style={{ height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">

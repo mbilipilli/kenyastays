@@ -81,7 +81,7 @@ export function AdminDashboard() {
       </Card>
 
       <Tabs defaultValue="overview" className="mt-8">
-        <TabsList className="flex flex-wrap gap-1">
+        <TabsList className="flex h-auto flex-wrap gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>
