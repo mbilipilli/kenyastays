@@ -19,7 +19,7 @@ export const initiateMpesaPayment = createServerFn({ method: "POST" })
 
     const { normalizePhone, stkPush } = await import("@/lib/mpesa/daraja.server");
     const phone = normalizePhone(data.phone);
-    const origin = process.env.PUBLIC_APP_URL ?? "https://project--4775c4eb-263c-4831-a768-038a33a5e678.lovable.app";
+    const origin = process.env.PUBLIC_APP_URL ?? "https://kenyastayz.lovable.app";
     const callbackUrl = `${origin}/api/public/hooks/pay-callback`;
 
     try {
@@ -83,7 +83,7 @@ async function runTestPush(opts: { phone: string; amount: number; adminId: strin
   const env = process.env["MPESA_ENV"] ?? "sandbox";
   const origin =
     process.env["PUBLIC_APP_URL"] ??
-    "https://project--4775c4eb-263c-4831-a768-038a33a5e678.lovable.app";
+    "https://kenyastayz.lovable.app";
   const accountRef = `TEST-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
   const { data: row } = await supabaseAdmin
