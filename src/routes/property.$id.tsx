@@ -128,8 +128,16 @@ function PropertyPage() {
   const pay = useServerFn(initiateMpesaPayment);
 
   const bookM = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!range?.from || !range?.to) throw new Error("Pick check-in and check-out dates");
+      // Guard: the server fn requires a bearer token, so bail out early when
+      // there is no session instead of letting it throw "Unauthorized".
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        toast.error("Please sign in to book");
+        navigate({ to: "/auth", search: { redirect: window.location.pathname } });
+        throw new Error("NOT_SIGNED_IN");
+      }
       return book({
         data: {
           property_id: id,
@@ -145,13 +153,16 @@ function PropertyPage() {
       toast.success("Booking created. Now pay with M-Pesa to confirm.");
     },
     onError: async (e: Error) => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
-        toast.error("Please sign in to book");
+      if (e.message === "NOT_SIGNED_IN") return;
+      if (/unauthorized/i.test(e.message)) {
+        toast.error("Your session expired — please sign in again");
         navigate({ to: "/auth", search: { redirect: window.location.pathname } });
-      } else toast.error(e.message);
+        return;
+      }
+      toast.error(e.message);
     },
   });
+
 
   const payM = useMutation({
     mutationFn: () => pay({ data: { booking_id: bookingId!, phone } }),
