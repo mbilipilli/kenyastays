@@ -43,6 +43,10 @@
   --color-admin-foreground: var(--admin-foreground);
   --color-admin-surface: var(--admin-surface);
   --color-admin-muted: var(--admin-muted);
+  --color-kenya-green: var(--kenya-green);
+  --color-kenya-green-soft: var(--kenya-green-soft);
+  --color-kenya-gold: var(--kenya-gold);
+  --color-kenya-gold-soft: var(--kenya-gold-soft);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
