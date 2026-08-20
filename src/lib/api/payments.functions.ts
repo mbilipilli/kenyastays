@@ -103,7 +103,7 @@ export const initiateMpesa = createServerFn({ method: "POST" })
         PartyA: phone,
         PartyB: shortcode,
         PhoneNumber: phone,
-        CallBackURL: callback,
+        CallBackURL: (await import("@/lib/mpesa/daraja.server")).sanitizeCallbackUrl(callback ?? ""),
         AccountReference: `BK-${booking.id.slice(0, 8)}`,
         TransactionDesc: `Booking ${booking.id.slice(0, 8)}`,
       }),
