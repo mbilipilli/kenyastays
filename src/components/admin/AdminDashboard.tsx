@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Bed, CreditCard, TrendingUp, Users, RefreshCw, ShieldCheck, Home, Globe2, Smartphone, MapPin, ClipboardCheck, Check, X, Wallet, Inbox, ExternalLink } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
+import { CommandCenter } from "@/components/admin/CommandCenter";
 import { AnalyticsPanels, BookingsOverviewPanel, CommissionsPanel, CompliancePanel, DocumentVerificationPanel, EscalationsPanel, GuestInsightsPanel, HostManagementPanel } from "@/components/admin/InsightsPanels";
 
 
@@ -79,8 +80,9 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="approvals" className="mt-8">
+      <Tabs defaultValue="overview" className="mt-8">
         <TabsList className="flex flex-wrap gap-1">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="approvals">Approvals</TabsTrigger>
           <TabsTrigger value="verification">Verification</TabsTrigger>
           <TabsTrigger value="revenue">Analytics</TabsTrigger>
@@ -97,6 +99,7 @@ export function AdminDashboard() {
 
         </TabsList>
 
+        <TabsContent value="overview"><CommandCenter /></TabsContent>
         <TabsContent value="verification"><DocumentVerificationPanel /></TabsContent>
         <TabsContent value="commissions"><CommissionsPanel /></TabsContent>
         <TabsContent value="compliance"><CompliancePanel /></TabsContent>
