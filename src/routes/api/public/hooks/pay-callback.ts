@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Legacy callback path, kept so pushes queued with the old URL still confirm.
-// New pushes use /api/public/hooks/pay-callback.
-export const Route = createFileRoute("/api/public/hooks/mpesa-callback")({
+// Primary Daraja STK callback endpoint. Safaricom's validator rejects callback
+// URLs containing blocked words such as "mpesa", hence the neutral path.
+export const Route = createFileRoute("/api/public/hooks/pay-callback")({
   server: {
     handlers: {
       POST: async ({ request }) => {
