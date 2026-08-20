@@ -22,6 +22,7 @@ import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/h
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
 import { Route as ApiPublicHooksIpayCallbackRouteImport } from './routes/api/public/hooks/ipay-callback'
 import { Route as ApiPublicHooksMpesaB2cResultRouteImport } from './routes/api/public/hooks/mpesa-b2c-result'
@@ -93,6 +94,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedHostNewRoute = AuthenticatedHostNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/ipay-callback': typeof ApiPublicHooksIpayCallbackRoute
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/ipay-callback': typeof ApiPublicHooksIpayCallbackRoute
@@ -182,6 +191,7 @@ export interface FileRoutesById {
   '/_authenticated/host': typeof AuthenticatedHostRouteWithChildren
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/api/public/hooks/ipay-callback': typeof ApiPublicHooksIpayCallbackRoute
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/trips'
     | '/property/$id'
+    | '/admin/settings'
     | '/host/new'
     | '/admin/'
     | '/api/public/hooks/ipay-callback'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/trips'
     | '/property/$id'
+    | '/admin/settings'
     | '/host/new'
     | '/admin'
     | '/api/public/hooks/ipay-callback'
@@ -244,6 +256,7 @@ export interface FileRouteTypes {
     | '/_authenticated/host'
     | '/_authenticated/trips'
     | '/property/$id'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/host/new'
     | '/_authenticated/admin/'
     | '/api/public/hooks/ipay-callback'
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/host/new': {
       id: '/_authenticated/host/new'
       path: '/new'
@@ -408,11 +428,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
 

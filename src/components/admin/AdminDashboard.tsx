@@ -52,9 +52,15 @@ export function AdminDashboard() {
           </div>
           <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
         </div>
-        <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending} className="bg-admin text-admin-foreground hover:bg-admin/90">
-          <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline">
+            <Link to="/admin/settings"><CreditCard /> Payment settings</Link>
+          </Button>
+          <Button onClick={() => syncMut.mutate()} disabled={syncMut.isPending} className="bg-admin text-admin-foreground hover:bg-admin/90">
+            <RefreshCw className={syncMut.isPending ? "animate-spin" : ""} /> Sync now
+          </Button>
+        </div>
+
       </div>
 
 

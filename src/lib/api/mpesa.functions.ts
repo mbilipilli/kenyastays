@@ -100,3 +100,32 @@ export const testStkPush = createServerFn({ method: "POST" })
       return { ok: false as const, env, phone, error: String(e?.message ?? e) };
     }
   });
+
+export const mpesaConfigStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+
+    // Never return values — only whether each credential is present.
+    const has = (n: string) =>
+      Boolean(process.env[n] ?? process.env[n.replace("MPESA_", "DARAJA_")]);
+    return {
+      env: process.env["MPESA_ENV"] ?? "sandbox",
+      callbackUrl: `${process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app"}/api/public/hooks/mpesa-callback`,
+      stk: {
+        MPESA_CONSUMER_KEY: has("MPESA_CONSUMER_KEY"),
+        MPESA_CONSUMER_SECRET: has("MPESA_CONSUMER_SECRET"),
+        MPESA_SHORTCODE: has("MPESA_SHORTCODE"),
+        MPESA_PASSKEY: has("MPESA_PASSKEY"),
+      },
+      payouts: {
+        MPESA_B2C_SHORTCODE: has("MPESA_B2C_SHORTCODE"),
+        MPESA_INITIATOR_NAME: has("MPESA_INITIATOR_NAME"),
+        MPESA_SECURITY_CREDENTIAL: has("MPESA_SECURITY_CREDENTIAL"),
+      },
+    };
+  });
