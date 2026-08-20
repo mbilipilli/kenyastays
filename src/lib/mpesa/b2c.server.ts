@@ -7,21 +7,14 @@ const BASE = () =>
 // Accept both MPESA_* and DARAJA_* naming for the same credential.
 function requireEnv(name: string): string {
   const alt = name.startsWith("MPESA_") ? name.replace("MPESA_", "DARAJA_") : name.replace("DARAJA_", "MPESA_");
-  const v = process.env[name] ?? process.env[alt];
+  const v = (process.env[name] ?? process.env[alt] ?? "").trim();
   if (!v) throw new Error(`Missing env ${name}. Add M-Pesa B2C credentials to enable host payouts.`);
   return v;
 }
 
 async function getToken(): Promise<string> {
-  const key = requireEnv("MPESA_CONSUMER_KEY");
-  const secret = requireEnv("MPESA_CONSUMER_SECRET");
-  const auth = Buffer.from(`${key}:${secret}`).toString("base64");
-  const res = await fetch(`${BASE()}/oauth/v1/generate?grant_type=client_credentials`, {
-    headers: { Authorization: `Basic ${auth}` },
-  });
-  if (!res.ok) throw new Error(`Daraja auth ${res.status}`);
-  const json: any = await res.json();
-  return json.access_token as string;
+  const { getToken: stkToken } = await import("./daraja.server");
+  return stkToken();
 }
 
 const has = (n: string) =>
