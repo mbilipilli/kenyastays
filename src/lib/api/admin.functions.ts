@@ -291,6 +291,25 @@ export const adminInsights = createServerFn({ method: "POST" })
     return buildInsights(supabaseAdmin);
   });
 
+/** Date-range scoped KPIs, revenue trend and heatmap counts. */
+export const adminRangeStats = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { buildRangeStats } = await import("@/lib/admin/range-stats.server");
+    return buildRangeStats(supabaseAdmin, data.from, data.to);
+  });
+
+
 // ---------------- Host payouts ----------------
 
 export const hostPayoutsOverview = createServerFn({ method: "POST" })
