@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * To go live, set these runtime secrets:
  *   MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET, MPESA_SHORTCODE,
  *   MPESA_PASSKEY, MPESA_ENV ("sandbox" | "production"),
- *   MPESA_CALLBACK_URL (https://<your-domain>/api/public/hooks/mpesa-callback)
+ *   MPESA_CALLBACK_URL (https://<your-domain>/api/public/hooks/pay-callback)
  *
  * Without these the function records the payment as 'initiated' and
  * returns a friendly stub response so the UI flow stays intact.
