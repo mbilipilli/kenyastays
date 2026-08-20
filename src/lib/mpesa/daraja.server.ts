@@ -7,20 +7,36 @@ const BASE = () =>
 // Accept both MPESA_* and DARAJA_* naming for the same credential.
 function requireEnv(name: string): string {
   const alt = name.startsWith("MPESA_") ? name.replace("MPESA_", "DARAJA_") : name.replace("DARAJA_", "MPESA_");
-  const v = process.env[name] ?? process.env[alt];
+  // Trim: pasted credentials often carry trailing spaces/newlines, which make
+  // Daraja reject the Basic auth header with a 400.
+  const v = (process.env[name] ?? process.env[alt] ?? "").trim();
   if (!v) throw new Error(`Missing env ${name}. Add M-Pesa Daraja credentials to enable payments.`);
   return v;
 }
 
-async function getToken(): Promise<string> {
+export async function getToken(): Promise<string> {
   const key = requireEnv("MPESA_CONSUMER_KEY");
   const secret = requireEnv("MPESA_CONSUMER_SECRET");
   const auth = Buffer.from(`${key}:${secret}`).toString("base64");
-  const res = await fetch(`${BASE()}/oauth/v1/generate?grant_type=client_credentials`, {
-    headers: { Authorization: `Basic ${auth}` },
+  const url = `${BASE()}/oauth/v1/generate?grant_type=client_credentials`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Basic ${auth}`, Accept: "application/json" },
   });
-  if (!res.ok) throw new Error(`Daraja auth ${res.status}`);
-  const json: any = await res.json();
+  const text = await res.text();
+  if (!res.ok) {
+    const hint =
+      res.status === 400 || res.status === 401
+        ? ` — the Consumer Key/Secret are not valid for the "${process.env["MPESA_ENV"] ?? "sandbox"}" environment. Sandbox keys only work on sandbox, production keys only on production; re-copy them from your Daraja app with no extra spaces.`
+        : "";
+    throw new Error(`Daraja auth ${res.status}: ${text.slice(0, 200)}${hint}`);
+  }
+  let json: any;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`Daraja auth returned non-JSON: ${text.slice(0, 200)}`);
+  }
+  if (!json.access_token) throw new Error(`Daraja auth returned no access_token: ${text.slice(0, 200)}`);
   return json.access_token;
 }
 
