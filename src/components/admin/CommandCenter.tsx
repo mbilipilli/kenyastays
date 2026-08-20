@@ -42,14 +42,16 @@ const kes = (n: number) => `KES ${new Intl.NumberFormat("en-KE").format(Math.rou
 const when = (s?: string | null) =>
   s ? new Date(s).toLocaleString("en-KE", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
 
-const COAST = ["Mombasa", "Diani", "Lamu", "Malindi", "Watamu", "Kilifi"];
-const NAIROBI = ["Nairobi", "Kiambu", "Machakos", "Athi River"];
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const daysAgo = (n: number) => iso(new Date(Date.now() - n * 86_400_000));
 
-function regionOf(city: string) {
-  if (COAST.includes(city)) return "Coast";
-  if (NAIROBI.includes(city)) return "Nairobi";
-  return "Highlands";
-}
+const PRESETS = [
+  { id: "7d", label: "Last 7 days", days: 7 },
+  { id: "30d", label: "Last 30 days", days: 30 },
+  { id: "90d", label: "Last 90 days", days: 90 },
+  { id: "12m", label: "Last 12 months", days: 365 },
+] as const;
+
 
 export function CommandCenter() {
   const insightsFn = useServerFn(adminInsights);
