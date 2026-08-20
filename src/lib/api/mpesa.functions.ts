@@ -219,3 +219,18 @@ export const mpesaConfigStatus = createServerFn({ method: "POST" })
       },
     };
   });
+
+/** Verify the Daraja Consumer Key/Secret by requesting an OAuth token. */
+export const darajaAuthCheck = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const env = process.env["MPESA_ENV"] ?? "sandbox";
+    try {
+      const { getToken } = await import("@/lib/mpesa/daraja.server");
+      const token = await getToken();
+      return { ok: true as const, env, tokenPreview: `${token.slice(0, 6)}…` };
+    } catch (e: any) {
+      return { ok: false as const, env, error: String(e?.message ?? e) };
+    }
+  });
