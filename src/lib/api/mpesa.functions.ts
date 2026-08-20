@@ -68,37 +68,127 @@ export const getMpesaStatus = createServerFn({ method: "POST" })
     return row;
   });
 
+async function assertAdmin(context: any) {
+  const { data: isAdmin } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
+  if (!isAdmin) throw new Error("Forbidden");
+}
+
+async function runTestPush(opts: { phone: string; amount: number; adminId: string }) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { normalizePhone, stkPush } = await import("@/lib/mpesa/daraja.server");
+  const phone = normalizePhone(opts.phone);
+  const env = process.env["MPESA_ENV"] ?? "sandbox";
+  const origin =
+    process.env["PUBLIC_APP_URL"] ??
+    "https://project--4775c4eb-263c-4831-a768-038a33a5e678.lovable.app";
+  const accountRef = `TEST-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+
+  const { data: row } = await supabaseAdmin
+    .from("mpesa_test_pushes")
+    .insert({
+      admin_id: opts.adminId,
+      phone,
+      amount_kes: opts.amount,
+      env,
+      account_ref: accountRef,
+      status: "queued",
+    })
+    .select("id")
+    .maybeSingle();
+
+  try {
+    const res = await stkPush({
+      phone,
+      amount: opts.amount,
+      accountRef,
+      description: "Test STK Push",
+      callbackUrl: `${origin}/api/public/hooks/mpesa-callback`,
+    });
+    if (row)
+      await supabaseAdmin
+        .from("mpesa_test_pushes")
+        .update({
+          status: "sent",
+          sent_at: new Date().toISOString(),
+          checkout_request_id: res.checkoutRequestId,
+          merchant_request_id: res.merchantRequestId,
+        })
+        .eq("id", row.id);
+    return { ok: true as const, id: row?.id ?? null, env, phone, accountRef, ...res };
+  } catch (e: any) {
+    const error = String(e?.message ?? e);
+    if (row)
+      await supabaseAdmin
+        .from("mpesa_test_pushes")
+        .update({ status: "failed", error })
+        .eq("id", row.id);
+    return { ok: false as const, id: row?.id ?? null, env, phone, accountRef, error };
+  }
+}
+
 export const testStkPush = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({ phone: z.string().min(9).max(15), amount: z.number().int().min(1).max(1000).default(1) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
+    await assertAdmin(context);
+    return runTestPush({ phone: data.phone, amount: data.amount, adminId: context.userId });
+  });
 
-    const { normalizePhone, stkPush } = await import("@/lib/mpesa/daraja.server");
-    const phone = normalizePhone(data.phone);
-    const env = process.env["MPESA_ENV"] ?? "sandbox";
-    const origin =
-      process.env["PUBLIC_APP_URL"] ??
-      "https://project--4775c4eb-263c-4831-a768-038a33a5e678.lovable.app";
+/** Re-send the most recent test push when it failed or never got a callback. */
+export const retryLastTestPush = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: last } = await supabaseAdmin
+      .from("mpesa_test_pushes")
+      .select("phone,amount_kes,status")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!last) throw new Error("No previous test push to retry");
+    if (last.status === "confirmed")
+      throw new Error("The last test push already succeeded — nothing to retry");
+    return runTestPush({ phone: last.phone, amount: last.amount_kes, adminId: context.userId });
+  });
 
-    try {
-      const res = await stkPush({
-        phone,
-        amount: data.amount,
-        accountRef: "TEST",
-        description: "Test STK Push",
-        callbackUrl: `${origin}/api/public/hooks/mpesa-callback`,
-      });
-      return { ok: true as const, env, phone, ...res };
-    } catch (e: any) {
-      return { ok: false as const, env, phone, error: String(e?.message ?? e) };
-    }
+/** History of test pushes; stale 'sent' rows are flipped to 'timeout'. */
+export const listTestPushes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const cutoff = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+    await supabaseAdmin
+      .from("mpesa_test_pushes")
+      .update({ status: "timeout" })
+      .eq("status", "sent")
+      .lt("sent_at", cutoff);
+    const { data } = await supabaseAdmin
+      .from("mpesa_test_pushes")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(25);
+    return data ?? [];
+  });
+
+/** Raw incoming Daraja callbacks, newest first, for troubleshooting refs. */
+export const listCallbackLogs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("mpesa_callback_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(25);
+    return data ?? [];
   });
 
 export const mpesaConfigStatus = createServerFn({ method: "POST" })
@@ -128,4 +218,19 @@ export const mpesaConfigStatus = createServerFn({ method: "POST" })
         MPESA_SECURITY_CREDENTIAL: has("MPESA_SECURITY_CREDENTIAL"),
       },
     };
+  });
+
+/** Verify the Daraja Consumer Key/Secret by requesting an OAuth token. */
+export const darajaAuthCheck = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const env = process.env["MPESA_ENV"] ?? "sandbox";
+    try {
+      const { getToken } = await import("@/lib/mpesa/daraja.server");
+      const token = await getToken();
+      return { ok: true as const, env, tokenPreview: `${token.slice(0, 6)}…` };
+    } catch (e: any) {
+      return { ok: false as const, env, error: String(e?.message ?? e) };
+    }
   });

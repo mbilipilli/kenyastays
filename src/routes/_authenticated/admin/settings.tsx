@@ -2,12 +2,13 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { mpesaConfigStatus, testStkPush } from "@/lib/api/mpesa.functions";
+import { darajaAuthCheck, mpesaConfigStatus, testStkPush } from "@/lib/api/mpesa.functions";
+import { CallbackLogPanel, StkPushHistory } from "@/components/admin/MpesaDiagnostics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Check, KeyRound, Smartphone, X } from "lucide-react";
+import { ArrowLeft, Check, KeyRound, PlugZap, Smartphone, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
@@ -77,7 +78,10 @@ function PaymentSettingsPage() {
         </CardContent>
       </Card>
 
+      <AuthCheck />
       <StkTester />
+      <StkPushHistory />
+      <CallbackLogPanel />
 
       <Card className="mt-4 border-dashed">
         <CardContent className="pt-6 text-sm text-muted-foreground">
@@ -104,6 +108,44 @@ function StatusRow({ name, ok }: { name: string; ok: boolean }) {
         <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive"><X className="size-3.5" /> Missing</span>
       )}
     </div>
+  );
+}
+
+function AuthCheck() {
+  const fn = useServerFn(darajaAuthCheck);
+  const [res, setRes] = useState<any>(null);
+  const m = useMutation({
+    mutationFn: () => fn({ data: undefined as never }),
+    onSuccess: (r: any) => {
+      setRes(r);
+      r.ok ? toast.success("Daraja credentials are valid") : toast.error("Daraja auth failed");
+    },
+    onError: (e: any) => setRes({ ok: false, error: e?.message ?? "Request failed" }),
+  });
+  return (
+    <Card className="mt-4">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <PlugZap className="size-4" /> Credential check
+        </CardTitle>
+        <Button size="sm" variant="outline" disabled={m.isPending} onClick={() => m.mutate()}>
+          {m.isPending ? "Checking…" : "Verify Daraja auth"}
+        </Button>
+      </CardHeader>
+      <CardContent className="text-sm">
+        {!res ? (
+          <p className="text-muted-foreground">
+            Requests an OAuth token from Safaricom to confirm the Consumer Key/Secret work for the
+            current environment. A 400 here means the keys belong to the other environment or were
+            pasted with stray characters.
+          </p>
+        ) : res.ok ? (
+          <p className="text-primary">Token issued ({res.env}) — credentials are valid.</p>
+        ) : (
+          <p className="text-destructive break-words">{res.error}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
