@@ -99,8 +99,7 @@ export async function stkPush(params: {
   description: string;
   callbackUrl: string;
 }) {
-  const shortcode = requireEnv("MPESA_SHORTCODE");
-  const passkey = requireEnv("MPESA_PASSKEY");
+  const { shortcode, passkey } = stkCredentials();
   const ts = timestamp();
   const password = Buffer.from(`${shortcode}${passkey}${ts}`).toString("base64");
   const token = await getToken();
