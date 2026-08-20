@@ -625,6 +625,117 @@ export type Database = {
         }
         Relationships: []
       }
+      mpesa_callback_logs: {
+        Row: {
+          amount_kes: number | null
+          checkout_request_id: string | null
+          created_at: string
+          id: string
+          matched_id: string | null
+          matched_kind: string
+          merchant_request_id: string | null
+          mpesa_receipt: string | null
+          note: string | null
+          outcome: string
+          phone: string | null
+          raw: Json | null
+          result_code: number | null
+          result_desc: string | null
+        }
+        Insert: {
+          amount_kes?: number | null
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          matched_id?: string | null
+          matched_kind?: string
+          merchant_request_id?: string | null
+          mpesa_receipt?: string | null
+          note?: string | null
+          outcome?: string
+          phone?: string | null
+          raw?: Json | null
+          result_code?: number | null
+          result_desc?: string | null
+        }
+        Update: {
+          amount_kes?: number | null
+          checkout_request_id?: string | null
+          created_at?: string
+          id?: string
+          matched_id?: string | null
+          matched_kind?: string
+          merchant_request_id?: string | null
+          mpesa_receipt?: string | null
+          note?: string | null
+          outcome?: string
+          phone?: string | null
+          raw?: Json | null
+          result_code?: number | null
+          result_desc?: string | null
+        }
+        Relationships: []
+      }
+      mpesa_test_pushes: {
+        Row: {
+          account_ref: string | null
+          admin_id: string
+          amount_kes: number
+          checkout_request_id: string | null
+          confirmed_at: string | null
+          created_at: string
+          env: string
+          error: string | null
+          id: string
+          merchant_request_id: string | null
+          mpesa_receipt: string | null
+          phone: string
+          result_code: number | null
+          result_desc: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_ref?: string | null
+          admin_id: string
+          amount_kes?: number
+          checkout_request_id?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          env?: string
+          error?: string | null
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt?: string | null
+          phone: string
+          result_code?: number | null
+          result_desc?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_ref?: string | null
+          admin_id?: string
+          amount_kes?: number
+          checkout_request_id?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          env?: string
+          error?: string | null
+          id?: string
+          merchant_request_id?: string | null
+          mpesa_receipt?: string | null
+          phone?: string
+          result_code?: number | null
+          result_desc?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mpesa_transactions: {
         Row: {
           amount_kes: number
