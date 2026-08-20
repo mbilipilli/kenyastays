@@ -201,8 +201,13 @@ export const mpesaConfigStatus = createServerFn({ method: "POST" })
     if (!isAdmin) throw new Error("Forbidden");
 
     // Never return values — only whether each credential is present.
-    const has = (n: string) =>
-      Boolean(process.env[n] ?? process.env[n.replace("MPESA_", "DARAJA_")]);
+    const has = (n: string) => {
+      const v = (process.env[n] ?? process.env[n.replace("MPESA_", "DARAJA_")] ?? "").trim();
+      if (!v || v === "N/A" || v === "-") return false;
+      if (n === "MPESA_SHORTCODE") return v.length >= 5;
+      if (n === "MPESA_PASSKEY") return v.length >= 20;
+      return true;
+    };
     return {
       env: (await import("@/lib/mpesa/daraja.server")).mpesaEnv(),
       callbackUrl: `${process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app"}/api/public/hooks/mpesa-callback`,
