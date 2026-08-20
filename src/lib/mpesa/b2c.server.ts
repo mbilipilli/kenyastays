@@ -4,8 +4,10 @@ const BASE = () =>
     ? "https://api.safaricom.co.ke"
     : "https://sandbox.safaricom.co.ke";
 
+// Accept both MPESA_* and DARAJA_* naming for the same credential.
 function requireEnv(name: string): string {
-  const v = process.env[name];
+  const alt = name.startsWith("MPESA_") ? name.replace("MPESA_", "DARAJA_") : name.replace("DARAJA_", "MPESA_");
+  const v = process.env[name] ?? process.env[alt];
   if (!v) throw new Error(`Missing env ${name}. Add M-Pesa B2C credentials to enable host payouts.`);
   return v;
 }
@@ -22,13 +24,16 @@ async function getToken(): Promise<string> {
   return json.access_token as string;
 }
 
+const has = (n: string) =>
+  Boolean(process.env[n] ?? process.env[n.replace("MPESA_", "DARAJA_")]);
+
 export function b2cConfigured(): boolean {
-  return Boolean(
-    process.env["MPESA_CONSUMER_KEY"] &&
-      process.env["MPESA_CONSUMER_SECRET"] &&
-      process.env["MPESA_B2C_SHORTCODE"] &&
-      process.env["MPESA_INITIATOR_NAME"] &&
-      process.env["MPESA_SECURITY_CREDENTIAL"],
+  return (
+    has("MPESA_CONSUMER_KEY") &&
+    has("MPESA_CONSUMER_SECRET") &&
+    has("MPESA_B2C_SHORTCODE") &&
+    has("MPESA_INITIATOR_NAME") &&
+    has("MPESA_SECURITY_CREDENTIAL")
   );
 }
 
