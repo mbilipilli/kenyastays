@@ -22,6 +22,7 @@ import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/h
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminMpesaLogsRouteImport } from './routes/_authenticated/admin/mpesa-logs'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin/settings'
 import { Route as AuthenticatedHostNewRouteImport } from './routes/_authenticated/host.new'
 import { Route as ApiPublicHooksIpayCallbackRouteImport } from './routes/api/public/hooks/ipay-callback'
@@ -95,6 +96,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminMpesaLogsRoute =
+  AuthenticatedAdminMpesaLogsRouteImport.update({
+    id: '/mpesa-logs',
+    path: '/mpesa-logs',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin/mpesa-logs': typeof AuthenticatedAdminMpesaLogsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesByTo {
   '/host': typeof AuthenticatedHostRouteWithChildren
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
+  '/admin/mpesa-logs': typeof AuthenticatedAdminMpesaLogsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/host/new': typeof AuthenticatedHostNewRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -200,6 +209,7 @@ export interface FileRoutesById {
   '/_authenticated/host': typeof AuthenticatedHostRouteWithChildren
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
+  '/_authenticated/admin/mpesa-logs': typeof AuthenticatedAdminMpesaLogsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/host/new': typeof AuthenticatedHostNewRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/trips'
     | '/property/$id'
+    | '/admin/mpesa-logs'
     | '/admin/settings'
     | '/host/new'
     | '/admin/'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/host'
     | '/trips'
     | '/property/$id'
+    | '/admin/mpesa-logs'
     | '/admin/settings'
     | '/host/new'
     | '/admin'
@@ -268,6 +280,7 @@ export interface FileRouteTypes {
     | '/_authenticated/host'
     | '/_authenticated/trips'
     | '/property/$id'
+    | '/_authenticated/admin/mpesa-logs'
     | '/_authenticated/admin/settings'
     | '/_authenticated/host/new'
     | '/_authenticated/admin/'
@@ -389,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/mpesa-logs': {
+      id: '/_authenticated/admin/mpesa-logs'
+      path: '/mpesa-logs'
+      fullPath: '/admin/mpesa-logs'
+      preLoaderRoute: typeof AuthenticatedAdminMpesaLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
       path: '/settings'
@@ -449,12 +469,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminMpesaLogsRoute: typeof AuthenticatedAdminMpesaLogsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminMpesaLogsRoute: AuthenticatedAdminMpesaLogsRoute,
     AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
