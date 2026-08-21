@@ -12,7 +12,7 @@ export type LedgerCallback = {
   outcome: string;
   matched_kind: string;
   note: string | null;
-  raw: unknown;
+  raw: any;
 };
 
 export type LedgerEntry = {
