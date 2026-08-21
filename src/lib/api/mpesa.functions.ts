@@ -191,6 +191,17 @@ export const listCallbackLogs = createServerFn({ method: "POST" })
     return data ?? [];
   });
 
+/** Unified ledger: every STK push with its callback events, codes and timestamps. */
+export const listStkLedger = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { buildStkLedger } = await import("@/lib/mpesa/ledger.server");
+    return buildStkLedger(50);
+  });
+
+
+
 export const mpesaConfigStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

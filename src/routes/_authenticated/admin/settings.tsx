@@ -78,10 +78,17 @@ function PaymentSettingsPage() {
         </CardContent>
       </Card>
 
+      <div className="mt-4">
+        <Button asChild variant="outline" size="sm">
+          <Link to="/admin/mpesa-logs">Open full STK push log</Link>
+        </Button>
+      </div>
+
       <AuthCheck />
       <StkTester />
       <StkPushHistory />
       <CallbackLogPanel />
+
 
       <Card className="mt-4 border-dashed">
         <CardContent className="pt-6 text-sm text-muted-foreground">
