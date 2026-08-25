@@ -40,6 +40,7 @@ export async function b2cPayout(params: {
   originatorConversationId: string;
 }) {
   const token = await getToken();
+  const { sanitizeCallbackUrl } = await import("./daraja.server");
   const body = {
     OriginatorConversationID: params.originatorConversationId,
     InitiatorName: requireEnv("MPESA_INITIATOR_NAME"),
