@@ -81,6 +81,10 @@ export function PayoutSettingsCard() {
           ))}
         </ul>
       )}
+
+      <Button asChild variant="outline" size="sm" className="mt-4">
+        <Link to="/payouts">View payout status &amp; errors</Link>
+      </Button>
     </section>
   );
 }
