@@ -19,6 +19,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedHostRouteImport } from './routes/_authenticated/host'
+import { Route as AuthenticatedPayoutsRouteImport } from './routes/_authenticated/payouts'
 import { Route as AuthenticatedTripsRouteImport } from './routes/_authenticated/trips'
 import { Route as PropertyIdRouteImport } from './routes/property.$id'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
@@ -30,6 +31,8 @@ import { Route as ApiPublicHooksMpesaB2cResultRouteImport } from './routes/api/p
 import { Route as ApiPublicHooksMpesaB2cTimeoutRouteImport } from './routes/api/public/hooks/mpesa-b2c-timeout'
 import { Route as ApiPublicHooksMpesaCallbackRouteImport } from './routes/api/public/hooks/mpesa-callback'
 import { Route as ApiPublicHooksPayCallbackRouteImport } from './routes/api/public/hooks/pay-callback'
+import { Route as ApiPublicHooksPayoutResultRouteImport } from './routes/api/public/hooks/payout-result'
+import { Route as ApiPublicHooksPayoutTimeoutRouteImport } from './routes/api/public/hooks/payout-timeout'
 import { Route as ApiPublicHooksSyncListingsRouteImport } from './routes/api/public/hooks/sync-listings'
 
 const IndexRoute = IndexRouteImport.update({
@@ -79,6 +82,11 @@ const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
 const AuthenticatedHostRoute = AuthenticatedHostRouteImport.update({
   id: '/host',
   path: '/host',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPayoutsRoute = AuthenticatedPayoutsRouteImport.update({
+  id: '/payouts',
+  path: '/payouts',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTripsRoute = AuthenticatedTripsRouteImport.update({
@@ -143,6 +151,18 @@ const ApiPublicHooksPayCallbackRoute =
     path: '/api/public/hooks/pay-callback',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksPayoutResultRoute =
+  ApiPublicHooksPayoutResultRouteImport.update({
+    id: '/api/public/hooks/payout-result',
+    path: '/api/public/hooks/payout-result',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPayoutTimeoutRoute =
+  ApiPublicHooksPayoutTimeoutRouteImport.update({
+    id: '/api/public/hooks/payout-timeout',
+    path: '/api/public/hooks/payout-timeout',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksSyncListingsRoute =
   ApiPublicHooksSyncListingsRouteImport.update({
     id: '/api/public/hooks/sync-listings',
@@ -160,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/account': typeof AuthenticatedAccountRoute
   '/host': typeof AuthenticatedHostRouteWithChildren
+  '/payouts': typeof AuthenticatedPayoutsRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/admin/mpesa-logs': typeof AuthenticatedAdminMpesaLogsRoute
@@ -171,6 +192,8 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
   '/api/public/hooks/pay-callback': typeof ApiPublicHooksPayCallbackRoute
+  '/api/public/hooks/payout-result': typeof ApiPublicHooksPayoutResultRoute
+  '/api/public/hooks/payout-timeout': typeof ApiPublicHooksPayoutTimeoutRoute
   '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRoutesByTo {
@@ -182,6 +205,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
   '/host': typeof AuthenticatedHostRouteWithChildren
+  '/payouts': typeof AuthenticatedPayoutsRoute
   '/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/admin/mpesa-logs': typeof AuthenticatedAdminMpesaLogsRoute
@@ -193,6 +217,8 @@ export interface FileRoutesByTo {
   '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
   '/api/public/hooks/pay-callback': typeof ApiPublicHooksPayCallbackRoute
+  '/api/public/hooks/payout-result': typeof ApiPublicHooksPayoutResultRoute
+  '/api/public/hooks/payout-timeout': typeof ApiPublicHooksPayoutTimeoutRoute
   '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRoutesById {
@@ -207,6 +233,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/host': typeof AuthenticatedHostRouteWithChildren
+  '/_authenticated/payouts': typeof AuthenticatedPayoutsRoute
   '/_authenticated/trips': typeof AuthenticatedTripsRoute
   '/property/$id': typeof PropertyIdRoute
   '/_authenticated/admin/mpesa-logs': typeof AuthenticatedAdminMpesaLogsRoute
@@ -218,6 +245,8 @@ export interface FileRoutesById {
   '/api/public/hooks/mpesa-b2c-timeout': typeof ApiPublicHooksMpesaB2cTimeoutRoute
   '/api/public/hooks/mpesa-callback': typeof ApiPublicHooksMpesaCallbackRoute
   '/api/public/hooks/pay-callback': typeof ApiPublicHooksPayCallbackRoute
+  '/api/public/hooks/payout-result': typeof ApiPublicHooksPayoutResultRoute
+  '/api/public/hooks/payout-timeout': typeof ApiPublicHooksPayoutTimeoutRoute
   '/api/public/hooks/sync-listings': typeof ApiPublicHooksSyncListingsRoute
 }
 export interface FileRouteTypes {
@@ -232,6 +261,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/account'
     | '/host'
+    | '/payouts'
     | '/trips'
     | '/property/$id'
     | '/admin/mpesa-logs'
@@ -243,6 +273,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
     | '/api/public/hooks/pay-callback'
+    | '/api/public/hooks/payout-result'
+    | '/api/public/hooks/payout-timeout'
     | '/api/public/hooks/sync-listings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -254,6 +286,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/account'
     | '/host'
+    | '/payouts'
     | '/trips'
     | '/property/$id'
     | '/admin/mpesa-logs'
@@ -265,6 +298,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
     | '/api/public/hooks/pay-callback'
+    | '/api/public/hooks/payout-result'
+    | '/api/public/hooks/payout-timeout'
     | '/api/public/hooks/sync-listings'
   id:
     | '__root__'
@@ -278,6 +313,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/account'
     | '/_authenticated/host'
+    | '/_authenticated/payouts'
     | '/_authenticated/trips'
     | '/property/$id'
     | '/_authenticated/admin/mpesa-logs'
@@ -289,6 +325,8 @@ export interface FileRouteTypes {
     | '/api/public/hooks/mpesa-b2c-timeout'
     | '/api/public/hooks/mpesa-callback'
     | '/api/public/hooks/pay-callback'
+    | '/api/public/hooks/payout-result'
+    | '/api/public/hooks/payout-timeout'
     | '/api/public/hooks/sync-listings'
   fileRoutesById: FileRoutesById
 }
@@ -306,6 +344,8 @@ export interface RootRouteChildren {
   ApiPublicHooksMpesaB2cTimeoutRoute: typeof ApiPublicHooksMpesaB2cTimeoutRoute
   ApiPublicHooksMpesaCallbackRoute: typeof ApiPublicHooksMpesaCallbackRoute
   ApiPublicHooksPayCallbackRoute: typeof ApiPublicHooksPayCallbackRoute
+  ApiPublicHooksPayoutResultRoute: typeof ApiPublicHooksPayoutResultRoute
+  ApiPublicHooksPayoutTimeoutRoute: typeof ApiPublicHooksPayoutTimeoutRoute
   ApiPublicHooksSyncListingsRoute: typeof ApiPublicHooksSyncListingsRoute
 }
 
@@ -379,6 +419,13 @@ declare module '@tanstack/react-router' {
       path: '/host'
       fullPath: '/host'
       preLoaderRoute: typeof AuthenticatedHostRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/payouts': {
+      id: '/_authenticated/payouts'
+      path: '/payouts'
+      fullPath: '/payouts'
+      preLoaderRoute: typeof AuthenticatedPayoutsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/trips': {
@@ -458,6 +505,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPayCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/payout-result': {
+      id: '/api/public/hooks/payout-result'
+      path: '/api/public/hooks/payout-result'
+      fullPath: '/api/public/hooks/payout-result'
+      preLoaderRoute: typeof ApiPublicHooksPayoutResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/payout-timeout': {
+      id: '/api/public/hooks/payout-timeout'
+      path: '/api/public/hooks/payout-timeout'
+      fullPath: '/api/public/hooks/payout-timeout'
+      preLoaderRoute: typeof ApiPublicHooksPayoutTimeoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/sync-listings': {
       id: '/api/public/hooks/sync-listings'
       path: '/api/public/hooks/sync-listings'
@@ -501,6 +562,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedHostRoute: typeof AuthenticatedHostRouteWithChildren
+  AuthenticatedPayoutsRoute: typeof AuthenticatedPayoutsRoute
   AuthenticatedTripsRoute: typeof AuthenticatedTripsRoute
 }
 
@@ -508,6 +570,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedHostRoute: AuthenticatedHostRouteWithChildren,
+  AuthenticatedPayoutsRoute: AuthenticatedPayoutsRoute,
   AuthenticatedTripsRoute: AuthenticatedTripsRoute,
 }
 
@@ -528,6 +591,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksMpesaB2cTimeoutRoute: ApiPublicHooksMpesaB2cTimeoutRoute,
   ApiPublicHooksMpesaCallbackRoute: ApiPublicHooksMpesaCallbackRoute,
   ApiPublicHooksPayCallbackRoute: ApiPublicHooksPayCallbackRoute,
+  ApiPublicHooksPayoutResultRoute: ApiPublicHooksPayoutResultRoute,
+  ApiPublicHooksPayoutTimeoutRoute: ApiPublicHooksPayoutTimeoutRoute,
   ApiPublicHooksSyncListingsRoute: ApiPublicHooksSyncListingsRoute,
 }
 export const routeTree = rootRouteImport

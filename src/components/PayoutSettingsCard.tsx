@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -81,6 +82,10 @@ export function PayoutSettingsCard() {
           ))}
         </ul>
       )}
+
+      <Button asChild variant="outline" size="sm" className="mt-4">
+        <Link to="/payouts">View payout status &amp; errors</Link>
+      </Button>
     </section>
   );
 }
