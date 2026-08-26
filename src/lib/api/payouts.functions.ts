@@ -34,7 +34,9 @@ export const listMyPayouts = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("host_payouts")
-      .select("id,booking_id,amount_kes,status,mpesa_receipt,result_desc,created_at")
+      .select(
+        "id,booking_id,amount_kes,phone,status,mpesa_receipt,result_code,result_desc,conversation_id,originator_conversation_id,created_at",
+      )
       .eq("host_id", context.userId)
       .order("created_at", { ascending: false })
       .limit(50);
