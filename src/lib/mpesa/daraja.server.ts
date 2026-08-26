@@ -154,11 +154,17 @@ export function callbackUrlRejection(input: string): string | null {
  * Returns a callback URL Daraja will accept: the input when it passes the
  * allowlist and format checks, otherwise the canonical published endpoint.
  */
-export function sanitizeCallbackUrl(input: string): string {
+export function sanitizeCallbackUrl(
+  input: string,
+  fallbackPath = "/api/public/hooks/pay-callback",
+): string {
   const reason = callbackUrlRejection(input);
-  if (!reason) return new URL(input).origin + new URL(input).pathname;
+  if (!reason) {
+    const url = new URL(input);
+    return url.origin + url.pathname;
+  }
   console.warn(`[mpesa] rejected callback URL (${reason}) — using canonical endpoint`);
-  return `${callbackFallbackOrigin()}/api/public/hooks/pay-callback`;
+  return `${callbackFallbackOrigin()}${fallbackPath}`;
 }
 
 export async function stkPush(params: {
