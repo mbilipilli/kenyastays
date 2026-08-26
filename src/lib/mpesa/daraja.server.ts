@@ -104,27 +104,61 @@ export function normalizePhone(raw: string): string {
  * point at localhost, or whose path contains blocked words like "mpesa" or
  * "safaricom" — the failure surfaces as "Invalid CallBackURL".
  */
-export function sanitizeCallbackUrl(input: string): string {
-  const fallbackHost =
-    (process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app").replace(/\/+$/, "");
+export function callbackFallbackOrigin(): string {
+  return (process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app").replace(/\/+$/, "");
+}
+
+/**
+ * Hostnames Daraja is allowed to call back. Anything else is rejected and
+ * rewritten to the canonical published host. Extra hosts (e.g. a custom
+ * domain) can be added via MPESA_CALLBACK_HOSTS as a comma-separated list.
+ */
+export function allowedCallbackHosts(): string[] {
+  const hosts = new Set<string>(["kenyastayz.lovable.app"]);
+  try {
+    hosts.add(new URL(callbackFallbackOrigin()).hostname.toLowerCase());
+  } catch {
+    /* ignore malformed PUBLIC_APP_URL */
+  }
+  for (const h of (process.env["MPESA_CALLBACK_HOSTS"] ?? "").split(",")) {
+    const clean = h.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+    if (clean) hosts.add(clean);
+  }
+  return [...hosts];
+}
+
+/** Why a callback URL is unusable, or null when it passes every check. */
+export function callbackUrlRejection(input: string): string | null {
   let url: URL;
   try {
     url = new URL(input);
   } catch {
-    return `${fallbackHost}/api/public/hooks/pay-callback`;
+    return "Not a valid absolute URL";
   }
-  const localhost = /^(localhost|127\.|0\.0\.0\.0|\[?::1)/i.test(url.hostname);
-  const blocked = /(mpesa|m-pesa|safaricom|exe|sql|cmd)/i.test(url.pathname);
-  // Safaricom's validator rejects long preview hostnames such as
-  // "project--<uuid>.lovable.app" (double hyphen / id-preview hosts).
-  const previewHost =
-    url.hostname.includes("--") || /^id-preview/i.test(url.hostname) || url.hostname.length > 60;
-  if (url.protocol !== "https:" || localhost || blocked || previewHost) {
-    const base =
-      localhost || previewHost || url.protocol !== "https:" ? fallbackHost : url.origin;
-    return `${base}/api/public/hooks/pay-callback`;
-  }
-  return url.origin + url.pathname;
+  if (url.protocol !== "https:") return "Callback must use https";
+  if (url.username || url.password) return "Credentials are not allowed in the callback URL";
+  if (url.search || url.hash) return "Query strings and fragments are not allowed";
+  if (url.port && url.port !== "443") return "Only the default https port is allowed";
+  const host = url.hostname.toLowerCase();
+  if (/^(localhost|127\.|0\.0\.0\.0|\[?::1)/i.test(host)) return "Local hostnames are not reachable by Daraja";
+  if (host.includes("--") || /^id-preview/i.test(host) || host.length > 60)
+    return "Preview hostnames are rejected by Safaricom";
+  if (!allowedCallbackHosts().includes(host))
+    return `Host "${host}" is not on the callback allowlist`;
+  if (/(mpesa|m-pesa|safaricom|exe|sql|cmd)/i.test(url.pathname))
+    return "Path contains a word Safaricom blocks";
+  return null;
+}
+
+/**
+ * Returns a callback URL Daraja will accept: the input when it passes the
+ * allowlist and format checks, otherwise the canonical published endpoint.
+ */
+export function sanitizeCallbackUrl(input: string): string {
+  const reason = callbackUrlRejection(input);
+  if (!reason) return new URL(input).origin + new URL(input).pathname;
+  console.warn(`[mpesa] rejected callback URL (${reason}) — using canonical endpoint`);
+  return `${callbackFallbackOrigin()}/api/public/hooks/pay-callback`;
 }
 
 export async function stkPush(params: {
