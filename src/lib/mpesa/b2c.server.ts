@@ -50,8 +50,8 @@ export async function b2cPayout(params: {
     PartyA: requireEnv("MPESA_B2C_SHORTCODE"),
     PartyB: params.phone,
     Remarks: params.remarks.slice(0, 100),
-    QueueTimeOutURL: sanitizeCallbackUrl(params.timeoutUrl),
-    ResultURL: sanitizeCallbackUrl(params.resultUrl),
+    QueueTimeOutURL: sanitizeCallbackUrl(params.timeoutUrl, "/api/public/hooks/payout-timeout"),
+    ResultURL: sanitizeCallbackUrl(params.resultUrl, "/api/public/hooks/payout-result"),
     Occasion: (params.occasion ?? "").slice(0, 100),
   };
   const res = await fetch(`${BASE()}/mpesa/b2c/v3/paymentrequest`, {
