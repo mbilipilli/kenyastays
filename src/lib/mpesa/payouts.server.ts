@@ -67,8 +67,8 @@ export async function payoutHostForBooking(bookingId: string) {
       remarks: `Kenya Stays payout ${booking.id.slice(0, 8)}`,
       occasion: "Host payout",
       originatorConversationId: originator,
-      resultUrl: `${appOrigin()}/api/public/hooks/mpesa-b2c-result`,
-      timeoutUrl: `${appOrigin()}/api/public/hooks/mpesa-b2c-timeout`,
+      resultUrl: `${appOrigin()}/api/public/hooks/payout-result`,
+      timeoutUrl: `${appOrigin()}/api/public/hooks/payout-timeout`,
     });
     await supabaseAdmin.from("host_payouts").upsert(
       {
