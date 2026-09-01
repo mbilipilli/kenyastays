@@ -516,3 +516,36 @@ function AffiliatePanel({ data }: { data: { affiliate: any; referrals: any[] } }
     </section>
   );
 }
+
+function PayoutButton({
+  booking,
+  payout,
+  onPay,
+  pending,
+}: {
+  booking: any;
+  payout?: { status?: string | null; mpesa_receipt?: string | null; result_desc?: string | null } | undefined;
+  onPay: () => void;
+  pending: boolean;
+}) {
+  const status = payout?.status ?? null;
+  if (status && status !== "failed") {
+    return (
+      <span className="inline-flex items-center gap-2 self-center text-xs">
+        <Badge variant={status === "paid" ? "default" : "secondary"}>
+          Payout {status.replace("_", " ")}
+        </Badge>
+        {payout?.mpesa_receipt && <span className="font-mono text-muted-foreground">{payout.mpesa_receipt}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Button size="sm" variant="secondary" disabled={pending} onClick={onPay} className="gap-1.5">
+        <Sprout className="size-3.5" />
+        {status === "failed" ? "Retry payout" : `Send payout ${formatKES(booking.host_payout_kes ?? 0)}`}
+      </Button>
+      {payout?.result_desc && <span className="text-xs text-destructive">{payout.result_desc}</span>}
+    </span>
+  );
+}
