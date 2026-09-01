@@ -85,6 +85,19 @@ function HostDashboard() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["host-bookings"] }); toast.success("Updated"); },
   });
 
+  // Payouts for this host, keyed by booking
+  const { data: payouts = [] } = useQuery(payoutsQO);
+  const payoutByBooking = Object.fromEntries((payouts as any[]).map((p) => [p.booking_id, p]));
+  const payoutFn = useServerFn(requestPayout);
+  const payoutM = useMutation({
+    mutationFn: (booking_id: string) => payoutFn({ data: { booking_id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-payouts"] });
+      toast.success("Payout sent to M-Pesa");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Payout failed"),
+  });
+
   // Revenue totals from confirmed/completed bookings
   const revenueRows = bookings.filter((b: any) => ["confirmed", "completed"].includes(b.status));
   const grossRevenue = revenueRows.reduce((s: number, b: any) => s + (b.subtotal_kes ?? 0), 0);
@@ -92,7 +105,10 @@ function HostDashboard() {
   const netPayout = revenueRows.reduce((s: number, b: any) => s + (b.host_payout_kes ?? 0), 0);
   const todayISO = new Date().toISOString().slice(0, 10);
   const upcoming = bookings.filter((b: any) => b.check_in >= todayISO && b.status !== "cancelled");
-  const pendingCount = bookings.filter((b: any) => b.status === "pending").length;
+  const pendingBookings = bookings.filter((b: any) => b.status === "pending");
+  const pendingCount = pendingBookings.length;
+
+
 
   return (
     <div className="min-h-screen bg-secondary/40">
