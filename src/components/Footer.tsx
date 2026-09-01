@@ -12,14 +12,16 @@ export function Footer() {
       <AboutUsModal open={aboutOpen} onOpenChange={setAboutOpen} />
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <Logo className="size-9" />
+          <Link to="/" className="group inline-flex items-center gap-2">
+            <Logo className="size-9 transition-transform group-hover:scale-105" />
             <div>
-              <div className="font-serif text-lg font-semibold">Kenya Stays</div>
+              <div className="font-serif text-lg font-semibold group-hover:text-primary">Kenya Stays</div>
               <div className="text-xs text-muted-foreground">Stay Local. Stay Kenyan.</div>
             </div>
-          </div>
-          <p className="mt-3 text-sm text-muted-foreground">Authentic Kenyan stays — from Nairobi streets to Maasai Mara retreats.</p>
+          </Link>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Authentic Kenyan stays — from Nairobi streets to Maasai Mara retreats. Discover verified local hosts, secure M-Pesa payments, and real-time availability across Kenya.
+          </p>
         </div>
         <FooterCol
           title="Company"
