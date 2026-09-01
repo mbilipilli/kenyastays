@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { darajaAuthCheck, mpesaConfigStatus, testStkPush } from "@/lib/api/mpesa.functions";
+import { darajaAuthCheck, generateSecurityCredential, mpesaConfigStatus, testStkPush } from "@/lib/api/mpesa.functions";
 import { CallbackLogPanel, StkPushHistory } from "@/components/admin/MpesaDiagnostics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -212,6 +212,67 @@ function StkTester() {
           >
 {JSON.stringify(result, null, 2)}
           </pre>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function SecurityCredentialTool() {
+  const [cert, setCert] = useState("");
+  const [password, setPassword] = useState("");
+  const [credential, setCredential] = useState("");
+  const genFn = useServerFn(generateSecurityCredential);
+  const m = useMutation({
+    mutationFn: () => genFn({ data: { certificate: cert, initiator_password: password } }),
+    onSuccess: (r: any) => {
+      setCredential(r.credential);
+      setPassword("");
+      toast.success("Security credential generated");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Could not generate credential"),
+  });
+
+  return (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <KeyRound className="size-4" /> Generate B2C security credential
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3 text-sm">
+        <p className="text-muted-foreground">
+          Paste the Daraja certificate (sandbox or production <code>.cer</code> from the portal) and your
+          initiator password. The password is encrypted here and never stored.
+        </p>
+        <textarea
+          value={cert}
+          onChange={(e) => setCert(e.target.value)}
+          rows={4}
+          placeholder="-----BEGIN CERTIFICATE----- ..."
+          className="w-full rounded-md border bg-background p-2 font-mono text-xs"
+        />
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Initiator password"
+        />
+        <Button size="sm" disabled={!cert || !password || m.isPending} onClick={() => m.mutate()}>
+          {m.isPending ? "Encrypting…" : "Generate credential"}
+        </Button>
+        {credential && (
+          <div className="space-y-2">
+            <textarea
+              readOnly
+              rows={4}
+              value={credential}
+              className="w-full rounded-md border bg-muted/40 p-2 font-mono text-xs"
+            />
+            <p className="text-xs text-muted-foreground">
+              Copy this value and ask me in chat to save it as your payout security credential.
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>

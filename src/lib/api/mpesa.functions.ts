@@ -279,7 +279,7 @@ export const generateSecurityCredential = createServerFn({ method: "POST" })
       const body = pem.replace(/\s+/g, "").match(/.{1,64}/g)?.join("\n") ?? "";
       pem = `-----BEGIN CERTIFICATE-----\n${body}\n-----END CERTIFICATE-----`;
     }
-    let key: crypto.KeyObject;
+    let key: import("node:crypto").KeyObject;
     try {
       key = new crypto.X509Certificate(pem).publicKey;
     } catch {
