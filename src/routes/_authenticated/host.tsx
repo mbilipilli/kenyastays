@@ -5,6 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { myListings, toggleListingActive } from "@/lib/api/properties.functions";
 import { hostBookings, updateBookingStatus } from "@/lib/api/bookings.functions";
+import { listMyPayouts, requestPayout } from "@/lib/api/payouts.functions";
+
 import {
   subscribeFeatured,
   cancelFeatured,
@@ -36,6 +38,8 @@ import { PayoutSettingsCard } from "@/components/PayoutSettingsCard";
 
 const listingsQO = queryOptions({ queryKey: ["my-listings"], queryFn: () => myListings() });
 const bookingsQO = queryOptions({ queryKey: ["host-bookings"], queryFn: () => hostBookings() });
+const payoutsQO = queryOptions({ queryKey: ["my-payouts"], queryFn: () => listMyPayouts() });
+
 const subsQO = queryOptions({ queryKey: ["my-subscriptions"], queryFn: () => mySubscriptions() });
 const partnersQO = queryOptions({ queryKey: ["cleaning-partners"], queryFn: () => listCleaningPartners() });
 const affiliateQO = queryOptions({ queryKey: ["my-affiliate"], queryFn: () => myAffiliateStats() });
