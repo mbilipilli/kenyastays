@@ -127,6 +127,34 @@ function HostDashboard() {
         <Button asChild><Link to="/host/new" className="gap-1"><Plus className="size-4" /> New listing</Link></Button>
       </div>
 
+      {/* Pending bookings — approve, then pay yourself out */}
+      <section className="mt-6 rounded-2xl border bg-card p-5">
+        <h2 className="font-serif text-xl">Pending bookings ({pendingBookings.length})</h2>
+        <p className="text-sm text-muted-foreground">Approve a stay, then send your M-Pesa payout when the guest has paid.</p>
+        {pendingBookings.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Nothing waiting on you right now.</p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {pendingBookings.map((b: any) => (
+              <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background p-3">
+                <div>
+                  <div className="font-medium">{b.properties?.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {b.profile?.full_name ?? "Guest"} · {new Date(b.check_in).toLocaleDateString()} → {new Date(b.check_out).toLocaleDateString()}
+                  </div>
+                  <div className="text-sm">Your payout {formatKES(b.host_payout_kes ?? 0)}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => statusM.mutate({ id: b.id, status: "confirmed" })}>Approve</Button>
+                  <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "cancelled" })}>Decline</Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+
 
       {/* Analytics */}
       <section className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-4">
