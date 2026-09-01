@@ -86,8 +86,10 @@ function PaymentSettingsPage() {
 
       <AuthCheck />
       <StkTester />
+      <SecurityCredentialTool />
       <StkPushHistory />
       <CallbackLogPanel />
+
 
 
       <Card className="mt-4 border-dashed">
