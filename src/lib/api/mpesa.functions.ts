@@ -250,3 +250,46 @@ export const darajaAuthCheck = createServerFn({ method: "POST" })
       return { ok: false as const, env, error: String(e?.message ?? e) };
     }
   });
+
+/**
+ * Admin-only: encrypt the Daraja initiator password with Safaricom's public
+ * certificate to produce the SecurityCredential used by B2C payouts.
+ * Paste the .cer contents from the Daraja portal; nothing is stored server-side.
+ */
+export const generateSecurityCredential = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        certificate: z.string().min(100).max(20000),
+        initiator_password: z.string().min(1).max(200),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+
+    const crypto = await import("node:crypto");
+    let pem = data.certificate.trim();
+    if (!pem.includes("BEGIN CERTIFICATE")) {
+      const body = pem.replace(/\s+/g, "").match(/.{1,64}/g)?.join("\n") ?? "";
+      pem = `-----BEGIN CERTIFICATE-----\n${body}\n-----END CERTIFICATE-----`;
+    }
+    let key: crypto.KeyObject;
+    try {
+      key = new crypto.X509Certificate(pem).publicKey;
+    } catch {
+      throw new Error("That does not look like a valid Daraja .cer certificate");
+    }
+    const credential = crypto
+      .publicEncrypt(
+        { key, padding: crypto.constants.RSA_PKCS1_PADDING },
+        Buffer.from(data.initiator_password, "utf8"),
+      )
+      .toString("base64");
+    return { credential };
+  });
