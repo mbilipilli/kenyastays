@@ -5,6 +5,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { myListings, toggleListingActive } from "@/lib/api/properties.functions";
 import { hostBookings, updateBookingStatus } from "@/lib/api/bookings.functions";
+import { listMyPayouts, requestPayout } from "@/lib/api/payouts.functions";
+
 import {
   subscribeFeatured,
   cancelFeatured,
@@ -36,6 +38,8 @@ import { PayoutSettingsCard } from "@/components/PayoutSettingsCard";
 
 const listingsQO = queryOptions({ queryKey: ["my-listings"], queryFn: () => myListings() });
 const bookingsQO = queryOptions({ queryKey: ["host-bookings"], queryFn: () => hostBookings() });
+const payoutsQO = queryOptions({ queryKey: ["my-payouts"], queryFn: () => listMyPayouts() });
+
 const subsQO = queryOptions({ queryKey: ["my-subscriptions"], queryFn: () => mySubscriptions() });
 const partnersQO = queryOptions({ queryKey: ["cleaning-partners"], queryFn: () => listCleaningPartners() });
 const affiliateQO = queryOptions({ queryKey: ["my-affiliate"], queryFn: () => myAffiliateStats() });
@@ -85,6 +89,19 @@ function HostDashboard() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["host-bookings"] }); toast.success("Updated"); },
   });
 
+  // Payouts for this host, keyed by booking
+  const { data: payouts = [] } = useQuery(payoutsQO);
+  const payoutByBooking = Object.fromEntries((payouts as any[]).map((p) => [p.booking_id, p]));
+  const payoutFn = useServerFn(requestPayout);
+  const payoutM = useMutation({
+    mutationFn: (booking_id: string) => payoutFn({ data: { booking_id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-payouts"] });
+      toast.success("Payout sent to M-Pesa");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Payout failed"),
+  });
+
   // Revenue totals from confirmed/completed bookings
   const revenueRows = bookings.filter((b: any) => ["confirmed", "completed"].includes(b.status));
   const grossRevenue = revenueRows.reduce((s: number, b: any) => s + (b.subtotal_kes ?? 0), 0);
@@ -92,7 +109,10 @@ function HostDashboard() {
   const netPayout = revenueRows.reduce((s: number, b: any) => s + (b.host_payout_kes ?? 0), 0);
   const todayISO = new Date().toISOString().slice(0, 10);
   const upcoming = bookings.filter((b: any) => b.check_in >= todayISO && b.status !== "cancelled");
-  const pendingCount = bookings.filter((b: any) => b.status === "pending").length;
+  const pendingBookings = bookings.filter((b: any) => b.status === "pending");
+  const pendingCount = pendingBookings.length;
+
+
 
   return (
     <div className="min-h-screen bg-secondary/40">
@@ -106,6 +126,34 @@ function HostDashboard() {
         </div>
         <Button asChild><Link to="/host/new" className="gap-1"><Plus className="size-4" /> New listing</Link></Button>
       </div>
+
+      {/* Pending bookings — approve, then pay yourself out */}
+      <section className="mt-6 rounded-2xl border bg-card p-5">
+        <h2 className="font-serif text-xl">Pending bookings ({pendingBookings.length})</h2>
+        <p className="text-sm text-muted-foreground">Approve a stay, then send your M-Pesa payout when the guest has paid.</p>
+        {pendingBookings.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Nothing waiting on you right now.</p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {pendingBookings.map((b: any) => (
+              <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background p-3">
+                <div>
+                  <div className="font-medium">{b.properties?.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {b.profile?.full_name ?? "Guest"} · {new Date(b.check_in).toLocaleDateString()} → {new Date(b.check_out).toLocaleDateString()}
+                  </div>
+                  <div className="text-sm">Your payout {formatKES(b.host_payout_kes ?? 0)}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => statusM.mutate({ id: b.id, status: "confirmed" })}>Approve</Button>
+                  <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "cancelled" })}>Decline</Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
 
 
       {/* Analytics */}
@@ -261,9 +309,13 @@ function HostDashboard() {
                       <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "cancelled" })}>Decline</Button>
                     </>
                   )}
+                  {["confirmed", "completed"].includes(b.status) && (b.host_payout_kes ?? 0) > 0 && (
+                    <PayoutButton booking={b} payout={payoutByBooking[b.id]} onPay={() => payoutM.mutate(b.id)} pending={payoutM.isPending} />
+                  )}
                   {b.status === "confirmed" && new Date(b.check_out) < new Date() && (
                     <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "completed" })}>Mark completed</Button>
                   )}
+
                   {b.profile?.phone ? (
                     <Button asChild size="sm" variant="outline" className="gap-1.5 border-acacia/40 text-acacia">
                       <a
@@ -462,5 +514,38 @@ function AffiliatePanel({ data }: { data: { affiliate: any; referrals: any[] } }
         Share: <span className="font-mono">{typeof window !== "undefined" ? window.location.origin : ""}/?ref={data.affiliate.code}</span>
       </p>
     </section>
+  );
+}
+
+function PayoutButton({
+  booking,
+  payout,
+  onPay,
+  pending,
+}: {
+  booking: any;
+  payout?: { status?: string | null; mpesa_receipt?: string | null; result_desc?: string | null } | undefined;
+  onPay: () => void;
+  pending: boolean;
+}) {
+  const status = payout?.status ?? null;
+  if (status && status !== "failed") {
+    return (
+      <span className="inline-flex items-center gap-2 self-center text-xs">
+        <Badge variant={status === "paid" ? "default" : "secondary"}>
+          Payout {status.replace("_", " ")}
+        </Badge>
+        {payout?.mpesa_receipt && <span className="font-mono text-muted-foreground">{payout.mpesa_receipt}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Button size="sm" variant="secondary" disabled={pending} onClick={onPay} className="gap-1.5">
+        <Sprout className="size-3.5" />
+        {status === "failed" ? "Retry payout" : `Send payout ${formatKES(booking.host_payout_kes ?? 0)}`}
+      </Button>
+      {payout?.result_desc && <span className="text-xs text-destructive">{payout.result_desc}</span>}
+    </span>
   );
 }

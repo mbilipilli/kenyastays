@@ -75,3 +75,24 @@ export const listAllPayouts = createServerFn({ method: "POST" })
       .limit(100);
     return data ?? [];
   });
+
+/** Host-triggered payout for one of their own confirmed bookings. */
+export const requestPayout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ booking_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: booking, error } = await context.supabase
+      .from("bookings")
+      .select("id,host_id,status,host_payout_kes")
+      .eq("id", data.booking_id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!booking || booking.host_id !== context.userId) throw new Error("Booking not found");
+    if (!["confirmed", "completed"].includes(String(booking.status)))
+      throw new Error("Confirm the booking before sending a payout");
+
+    const { payoutHostForBooking } = await import("@/lib/mpesa/payouts.server");
+    const res = await payoutHostForBooking(booking.id);
+    if (!res.ok) throw new Error(res.reason ?? "Payout failed");
+    return res;
+  });
