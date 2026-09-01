@@ -261,9 +261,13 @@ function HostDashboard() {
                       <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "cancelled" })}>Decline</Button>
                     </>
                   )}
+                  {["confirmed", "completed"].includes(b.status) && (b.host_payout_kes ?? 0) > 0 && (
+                    <PayoutButton booking={b} payout={payoutByBooking[b.id]} onPay={() => payoutM.mutate(b.id)} pending={payoutM.isPending} />
+                  )}
                   {b.status === "confirmed" && new Date(b.check_out) < new Date() && (
                     <Button size="sm" variant="outline" onClick={() => statusM.mutate({ id: b.id, status: "completed" })}>Mark completed</Button>
                   )}
+
                   {b.profile?.phone ? (
                     <Button asChild size="sm" variant="outline" className="gap-1.5 border-acacia/40 text-acacia">
                       <a
