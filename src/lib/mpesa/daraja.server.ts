@@ -105,7 +105,7 @@ export function normalizePhone(raw: string): string {
  * "safaricom" — the failure surfaces as "Invalid CallBackURL".
  */
 export function callbackFallbackOrigin(): string {
-  return (process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app").replace(/\/+$/, "");
+  return (process.env["PUBLIC_APP_URL"] ?? "https://kenyastays.co.ke").replace(/\/+$/, "");
 }
 
 /**
@@ -114,7 +114,7 @@ export function callbackFallbackOrigin(): string {
  * domain) can be added via MPESA_CALLBACK_HOSTS as a comma-separated list.
  */
 export function allowedCallbackHosts(): string[] {
-  const hosts = new Set<string>(["kenyastayz.lovable.app"]);
+  const hosts = new Set<string>(["kenyastays.co.ke", "www.kenyastays.co.ke", "kenyastays-co-ke.lovable.app"]);
   try {
     hosts.add(new URL(callbackFallbackOrigin()).hostname.toLowerCase());
   } catch {

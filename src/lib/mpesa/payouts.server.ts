@@ -3,7 +3,7 @@
 export function appOrigin(): string {
   return (
     process.env["PUBLIC_APP_URL"] ??
-    "https://kenyastayz.lovable.app"
+    "https://kenyastays.co.ke"
   );
 }
 
