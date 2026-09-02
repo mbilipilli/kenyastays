@@ -19,7 +19,7 @@ export const initiateMpesaPayment = createServerFn({ method: "POST" })
 
     const { normalizePhone, stkPush } = await import("@/lib/mpesa/daraja.server");
     const phone = normalizePhone(data.phone);
-    const origin = process.env.PUBLIC_APP_URL ?? "https://kenyastayz.lovable.app";
+    const origin = process.env.PUBLIC_APP_URL ?? "https://kenyastays.co.ke";
     const callbackUrl = `${origin}/api/public/hooks/pay-callback`;
 
     try {
@@ -83,7 +83,7 @@ async function runTestPush(opts: { phone: string; amount: number; adminId: strin
   const env = process.env["MPESA_ENV"] ?? "sandbox";
   const origin =
     process.env["PUBLIC_APP_URL"] ??
-    "https://kenyastayz.lovable.app";
+    "https://kenyastays.co.ke";
   const accountRef = `TEST-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
   const { data: row } = await supabaseAdmin
@@ -221,7 +221,7 @@ export const mpesaConfigStatus = createServerFn({ method: "POST" })
     };
     return {
       env: (await import("@/lib/mpesa/daraja.server")).mpesaEnv(),
-      callbackUrl: `${process.env["PUBLIC_APP_URL"] ?? "https://kenyastayz.lovable.app"}/api/public/hooks/pay-callback`,
+      callbackUrl: `${process.env["PUBLIC_APP_URL"] ?? "https://kenyastays.co.ke"}/api/public/hooks/pay-callback`,
       stk: {
         MPESA_CONSUMER_KEY: has("MPESA_CONSUMER_KEY"),
         MPESA_CONSUMER_SECRET: has("MPESA_CONSUMER_SECRET"),
