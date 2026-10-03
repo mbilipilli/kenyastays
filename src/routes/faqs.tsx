@@ -4,10 +4,10 @@ import { FaqSection } from "@/components/FaqSection";
 export const Route = createFileRoute("/faqs")({
   head: () => ({
     meta: [
-      { title: "Frequently Asked Questions — Kenya Stays" },
-      { name: "description", content: "Find answers to common questions about booking and listing stays on Kenya Stays." },
-      { property: "og:title", content: "Frequently Asked Questions — Kenya Stays" },
-      { property: "og:description", content: "Quick answers about booking, hosting, and staying with Kenya Stays." },
+      { title: "Frequently Asked Questions — Black Coma Ventures" },
+      { name: "description", content: "Find answers to common questions about booking and listing stays on Black Coma Ventures." },
+      { property: "og:title", content: "Frequently Asked Questions — Black Coma Ventures" },
+      { property: "og:description", content: "Quick answers about booking, hosting, and staying with Black Coma Ventures." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

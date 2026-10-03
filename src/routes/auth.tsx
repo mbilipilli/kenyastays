@@ -16,10 +16,10 @@ export const Route = createFileRoute("/auth")({
   validateSearch: zodValidator(z.object({ redirect: z.string().optional() })),
   head: () => ({
     meta: [
-      { title: "Sign in — Kenya Stays" },
-      { name: "description", content: "Sign in or create your Kenya Stays account to book verified Kenyan stays and manage your trips and listings." },
-      { property: "og:title", content: "Sign in to Kenya Stays" },
-      { property: "og:description", content: "Access your bookings, trips and host dashboard on Kenya Stays." },
+      { title: "Sign in — Black Coma Ventures" },
+      { name: "description", content: "Sign in or create your Black Coma Ventures account to book verified Kenyan stays and manage your trips and listings." },
+      { property: "og:title", content: "Sign in to Black Coma Ventures" },
+      { property: "og:description", content: "Access your bookings, trips and host dashboard on Black Coma Ventures." },
       { property: "og:url", content: "https://kenyastayske.lovable.app/auth" },
       { name: "robots", content: "noindex" },
     ],

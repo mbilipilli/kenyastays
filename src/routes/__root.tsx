@@ -67,17 +67,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Kenya Stays — Book Kenyan apartments & lodges" },
+      { title: "Black Coma Ventures — Book Kenyan apartments & lodges" },
       { name: "description", content: "Discover short-term rentals across Kenya — Nairobi, Mombasa, Maasai Mara and beyond. Book with M-Pesa, real reviews, eco & community stays." },
       { name: "theme-color", content: "#c4651f" },
-      { property: "og:site_name", content: "Kenya Stays" },
-      { property: "og:title", content: "Kenya Stays — Kenya's stays, your way" },
+      { property: "og:site_name", content: "Black Coma Ventures" },
+      { property: "og:title", content: "Black Coma Ventures — Kenya's stays, your way" },
       { property: "og:description", content: "Short-term rentals across Kenya. M-Pesa ready." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
 
     links: [
+      { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },

@@ -36,7 +36,7 @@ export function AboutUsModal({
         <div className="bg-primary/5 px-6 py-8 sm:px-8">
           <DialogHeader className="space-y-2 text-left">
             <DialogTitle className="font-serif text-2xl text-foreground sm:text-3xl">
-              About Kenya Stays
+              About Black Coma Ventures
             </DialogTitle>
             <DialogDescription className="text-base text-muted-foreground">
               Your trusted gateway to authentic Kenyan stays.
@@ -46,7 +46,7 @@ export function AboutUsModal({
 
         <div className="space-y-6 px-6 pb-8 sm:px-8">
           <p className="text-foreground/90 leading-relaxed">
-            Kenya Stays is a property rental and hosting platform built for Kenya. We connect guests with verified local hosts, offering secure stays and seamless mobile payments.
+            Black Coma Ventures is a property rental and hosting platform built for Kenya. We connect guests with verified local hosts, offering secure stays and seamless mobile payments.
           </p>
 
           <div>

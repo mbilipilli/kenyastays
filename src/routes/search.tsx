@@ -40,12 +40,12 @@ export const Route = createFileRoute("/search")({
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(qo(deps)),
   head: ({ loaderData }) => ({
     meta: [
-      { title: "Explore Kenyan stays — Kenya Stays" },
+      { title: "Explore Kenyan stays — Black Coma Ventures" },
       {
         name: "description",
         content: `Browse ${loaderData?.length ?? 0} verified Kenyan stays — filter by city, price, guests, amenities and eco-friendly options, then book with M-Pesa.`,
       },
-      { property: "og:title", content: "Search stays across Kenya — Kenya Stays" },
+      { property: "og:title", content: "Search stays across Kenya — Black Coma Ventures" },
       { property: "og:description", content: "Filter Kenyan apartments, lodges, cottages and homestays by city, price and amenities, and book securely." },
       { property: "og:url", content: "https://kenyastayske.lovable.app/search" },
     ],

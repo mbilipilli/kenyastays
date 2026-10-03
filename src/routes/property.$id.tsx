@@ -37,10 +37,10 @@ export const Route = createFileRoute("/property/$id")({
     const url = `https://kenyastayske.lovable.app/property/${params.id}`;
     const desc = loaderData
       ? `${loaderData.title} in ${loaderData.city} — ${loaderData.bedrooms} bed, ${loaderData.bathrooms} bath, sleeps ${loaderData.max_guests}. From KES ${loaderData.price_kes.toLocaleString()} per night, book with M-Pesa.`
-      : "Book a verified Kenyan stay with M-Pesa on Kenya Stays.";
+      : "Book a verified Kenyan stay with M-Pesa on Black Coma Ventures.";
     return {
       meta: [
-        { title: loaderData ? `${loaderData.title} — Kenya Stays` : "Stay" },
+        { title: loaderData ? `${loaderData.title} — Black Coma Ventures` : "Stay" },
         { name: "description", content: desc },
         { property: "og:title", content: loaderData?.title ?? "Stay" },
         { property: "og:description", content: desc },

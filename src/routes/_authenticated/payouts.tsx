@@ -10,13 +10,13 @@ import { listMyPayouts, getPayoutSettings } from "@/lib/api/payouts.functions";
 export const Route = createFileRoute("/_authenticated/payouts")({
   head: () => ({
     meta: [
-      { title: "Payout status — Kenya Stays" },
+      { title: "Payout status — Black Coma Ventures" },
       {
         name: "description",
         content:
-          "Track every M-Pesa payout for your Kenya Stays bookings: payment reference, amount, status and any error details.",
+          "Track every M-Pesa payout for your Black Coma Ventures bookings: payment reference, amount, status and any error details.",
       },
-      { property: "og:title", content: "Payout status — Kenya Stays" },
+      { property: "og:title", content: "Payout status — Black Coma Ventures" },
       {
         property: "og:description",
         content: "See the latest M-Pesa payout reference, amount, status and error details for your listings.",

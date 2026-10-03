@@ -40,7 +40,7 @@ export function PayoutSettingsCard() {
         <h2 className="font-serif text-xl">Payouts</h2>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Your earnings are sent straight to your M-Pesa the moment a guest pays. Kenya Stays only keeps
+        Your earnings are sent straight to your M-Pesa the moment a guest pays. Black Coma Ventures only keeps
         the platform commission and guest service fee.
       </p>
 

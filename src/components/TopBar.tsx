@@ -14,7 +14,7 @@ export function TopBar() {
         <Link to="/" className="flex items-center gap-2.5">
           <Logo className="size-9" />
           <div className="leading-tight">
-            <div className="font-serif text-lg font-semibold tracking-tight">Kenya Stays</div>
+            <div className="font-serif text-lg font-semibold tracking-tight">Black Coma Ventures</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Stay Local. Stay Kenyan.</div>
           </div>
         </Link>
