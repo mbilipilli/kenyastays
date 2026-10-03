@@ -35,7 +35,7 @@ export function RotatingBanner() {
 
   return (
     <section
-      className="w-full border-y border-border bg-white"
+      className="w-full border-y border-border bg-card"
       aria-label="Kenya Stays trust banner"
       aria-live="polite"
     >
