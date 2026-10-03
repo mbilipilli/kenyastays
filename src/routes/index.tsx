@@ -63,8 +63,10 @@ export const Route = createFileRoute("/")({
   },
 
   component: Index,
-  errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-muted-foreground">Couldn't load listings: {error.message}</div>
+  errorComponent: ({ error }: { error: unknown }) => (
+    <div className="p-6 text-sm text-muted-foreground">
+      Couldn't load listings: {error instanceof Error ? error.message : String(error)}
+    </div>
   ),
 });
 

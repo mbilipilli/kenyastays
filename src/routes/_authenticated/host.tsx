@@ -52,11 +52,11 @@ export const Route = createFileRoute("/_authenticated/host")({
     ]),
   head: () => ({ meta: [{ title: "Host dashboard" }] }),
   component: HostShell,
-  errorComponent: ({ error, reset }) => {
+  errorComponent: ({ error }: { error: unknown }) => {
     const router = useRouter();
     return (
       <div className="p-6">
-        <p>{error.message}</p>
+        <p>{error instanceof Error ? error.message : String(error)}</p>
         <Button className="mt-3" onClick={() => { router.invalidate(); reset(); }}>Try again</Button>
       </div>
     );

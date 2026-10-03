@@ -88,7 +88,9 @@ export const Route = createFileRoute("/property/$id")({
   },
 
   component: PropertyPage,
-  errorComponent: ({ error }) => <div className="p-6">Couldn't load: {error.message}</div>,
+  errorComponent: ({ error }: { error: unknown }) => (
+    <div className="p-6">{error instanceof Error ? error.message : String(error)}</div>
+  ),
   notFoundComponent: () => <div className="p-6">Listing not found.</div>,
 });
 
