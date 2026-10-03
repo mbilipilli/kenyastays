@@ -65,7 +65,9 @@ export const Route = createFileRoute("/search")({
   }),
 
   component: SearchPage,
-  errorComponent: ({ error }) => <div className="p-6 text-sm">Error: {error.message}</div>,
+  errorComponent: ({ error }: { error: unknown }) => (
+    <div className="p-6 text-sm">Error: {error instanceof Error ? error.message : String(error)}</div>
+  ),
 });
 
 function SearchPage() {

@@ -11,7 +11,9 @@ export const Route = createFileRoute("/_authenticated/trips")({
   loader: ({ context }) => context.queryClient.ensureQueryData(qo),
   head: () => ({ meta: [{ title: "My trips" }] }),
   component: TripsPage,
-  errorComponent: ({ error }) => <div className="p-6">{error.message}</div>,
+  errorComponent: ({ error }: { error: unknown }) => (
+    <div className="p-6">{error instanceof Error ? error.message : String(error)}</div>
+  ),
 });
 
 const statusColor: Record<string, string> = {
