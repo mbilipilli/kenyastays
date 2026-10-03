@@ -52,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/host")({
     ]),
   head: () => ({ meta: [{ title: "Host dashboard" }] }),
   component: HostShell,
-  errorComponent: ({ error }: { error: unknown }) => {
+  errorComponent: ({ error, reset }: { error: unknown; reset: () => void }) => {
     const router = useRouter();
     return (
       <div className="p-6">
