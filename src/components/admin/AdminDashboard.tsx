@@ -50,7 +50,7 @@ export function AdminDashboard() {
           <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-admin px-3 py-1 text-xs font-semibold uppercase tracking-wide text-admin-foreground shadow">
             <ShieldCheck className="size-3.5" /> Admin dashboard
           </div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">Kenya Stays Admin</h1>
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">Black Coma Ventures Admin</h1>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
@@ -194,7 +194,7 @@ function DataBridge({ sirvoy, hoteldruid }: { sirvoy?: { count: number; last: st
     <div className="grid items-center gap-4 md:grid-cols-3">
       <SourceBox name="Sirvoy Pro" tag="Channel Manager" count={sirvoy?.count ?? 0} last={sirvoy?.last ?? null} tint="from-primary/20 to-primary/5" />
       <div className="rounded-2xl border bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-4 text-center">
-        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Kenya Stays Bridge</div>
+        <div className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Black Coma Ventures Bridge</div>
         <div className="flex flex-col gap-1 text-xs text-foreground/80">
           <span>← Booking Data →</span>
           <span>← Payments →</span>

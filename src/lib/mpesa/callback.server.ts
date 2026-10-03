@@ -129,7 +129,7 @@ export async function handleDarajaCallback(request: Request): Promise<Response> 
         const { createHotelDruidBooking } = await import("@/lib/sync/hoteldruid.server");
         await createHotelDruidBooking({
           room_id: ext?.external_id ?? bk.property_id,
-          guest_name: profile?.full_name ?? "Kenya Stays Guest",
+          guest_name: profile?.full_name ?? "Black Coma Ventures Guest",
           guest_phone: tx.phone,
           check_in: bk.check_in,
           check_out: bk.check_out,

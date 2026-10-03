@@ -64,7 +64,7 @@ export async function payoutHostForBooking(bookingId: string) {
     const res = await b2cPayout({
       phone,
       amount: booking.host_payout_kes,
-      remarks: `Kenya Stays payout ${booking.id.slice(0, 8)}`,
+      remarks: `Black Coma Ventures payout ${booking.id.slice(0, 8)}`,
       occasion: "Host payout",
       originatorConversationId: originator,
       resultUrl: `${appOrigin()}/api/public/hooks/payout-result`,

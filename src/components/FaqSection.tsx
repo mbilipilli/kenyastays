@@ -8,9 +8,9 @@ import { HelpCircle } from "lucide-react";
 
 const FAQS = [
   {
-    question: "What is Kenya Stays?",
+    question: "What is Black Coma Ventures?",
     answer:
-      "Kenya Stays is a platform that connects travelers with short-term rental options across Kenya, including apartments, holiday homes, and serviced stays.",
+      "Black Coma Ventures is a platform that connects travelers with short-term rental options across Kenya, including apartments, holiday homes, and serviced stays.",
   },
   {
     question: "How do I book accommodation?",
@@ -18,7 +18,7 @@ const FAQS = [
       "You can browse listings, select your preferred property, and follow the booking instructions provided. Most hosts require online confirmation and payment through secure channels.",
   },
   {
-    question: "Is Kenya Stays only for tourists?",
+    question: "Is Black Coma Ventures only for tourists?",
     answer:
       "No. It caters to both tourists and locals looking for short-term stays, business trips, or weekend getaways.",
   },
@@ -33,7 +33,7 @@ const FAQS = [
       "Listings usually include verified photos, host details, and reviews from past guests. Always check ratings and host verification before booking.",
   },
   {
-    question: "Can I list my property on Kenya Stays?",
+    question: "Can I list my property on Black Coma Ventures?",
     answer:
       "Yes. Property owners can register and upload their listings with photos, descriptions, and pricing details.",
   },
@@ -43,7 +43,7 @@ const FAQS = [
       "Yes. Each host sets their own cancellation terms, which are displayed before booking confirmation.",
   },
   {
-    question: "Does Kenya Stays cover all regions in Kenya?",
+    question: "Does Black Coma Ventures cover all regions in Kenya?",
     answer:
       "The platform features properties in major towns and tourist destinations like Nairobi, Mombasa, Nakuru, Diani, and Naivasha, with more areas being added regularly.",
   },
@@ -59,7 +59,7 @@ export function FaqSection() {
           </span>
           <h2 className="mt-3 font-serif text-2xl md:text-3xl">Frequently Asked Questions</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Quick answers to common questions about booking and listing on Kenya Stays.
+            Quick answers to common questions about booking and listing on Black Coma Ventures.
           </p>
         </div>
 

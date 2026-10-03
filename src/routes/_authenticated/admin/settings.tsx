@@ -12,7 +12,7 @@ import { ArrowLeft, Check, KeyRound, PlugZap, Smartphone, X } from "lucide-react
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/settings")({
-  head: () => ({ meta: [{ title: "Payment settings — Kenya Stays Admin" }] }),
+  head: () => ({ meta: [{ title: "Payment settings — Black Coma Ventures Admin" }] }),
   component: PaymentSettingsPage,
 });
 

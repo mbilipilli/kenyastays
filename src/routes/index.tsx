@@ -22,9 +22,9 @@ const featuredQO = queryOptions({
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Kenya Stays — Stay Local. Stay Kenyan." },
+      { title: "Black Coma Ventures — Stay Local. Stay Kenyan." },
       { name: "description", content: "Find authentic Kenyan stays — Nairobi apartments, Mombasa beach cottages and Maasai Mara lodges. Trusted hosts, secure M-Pesa payments." },
-      { property: "og:title", content: "Kenya Stays — Stay Local. Stay Kenyan." },
+      { property: "og:title", content: "Black Coma Ventures — Stay Local. Stay Kenyan." },
       { property: "og:description", content: "Authentic Kenyan stays from Nairobi to the Maasai Mara, booked securely with M-Pesa or card." },
       { property: "og:url", content: "https://kenyastayske.lovable.app/" },
     ],
@@ -37,14 +37,14 @@ export const Route = createFileRoute("/")({
           "@graph": [
             {
               "@type": "Organization",
-              name: "Kenya Stays",
+              name: "Black Coma Ventures",
               url: "https://kenyastayske.lovable.app/",
               slogan: "Stay Local. Stay Kenyan.",
               areaServed: "KE",
             },
             {
               "@type": "WebSite",
-              name: "Kenya Stays",
+              name: "Black Coma Ventures",
               url: "https://kenyastayske.lovable.app/",
               potentialAction: {
                 "@type": "SearchAction",
@@ -164,7 +164,7 @@ function Index() {
             <h2 className="mt-3 font-serif text-3xl md:text-4xl">Stay close to Kenyan culture.</h2>
             <p className="mt-3 text-foreground/80">
               From matatu art in Nairobi to Eldoret's highland charm, Nakuru's flamingo lakes, and coastal Swahili heritage —
-              Kenya Stays connects you to stays where the country feels like home.
+              Black Coma Ventures connects you to stays where the country feels like home.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {["Matatu art", "Swahili coast", "Rift Valley", "Highland farms", "Mara plains"].map((t) => (

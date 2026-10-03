@@ -24,7 +24,7 @@ const AGREEMENT_ITEMS = [
     label: "Ownership & Compliance",
     summary: "You are the owner and comply with Kenyan laws.",
     detail:
-      "Hosts must either own the property or have written authority to list it. All listings must comply with Kenyan land-use, zoning, tourism, and short-term rental regulations. Kenya Stays reserves the right to request proof of ownership or authority at any time.",
+      "Hosts must either own the property or have written authority to list it. All listings must comply with Kenyan land-use, zoning, tourism, and short-term rental regulations. Black Coma Ventures reserves the right to request proof of ownership or authority at any time.",
   },
   {
     icon: Camera,
@@ -38,7 +38,7 @@ const AGREEMENT_ITEMS = [
     label: "Pricing & Payments",
     summary: "Accept platform commission & receive payouts via M-Pesa.",
     detail:
-      "Hosts agree to Kenya Stays' commission structure and any applicable service fees. Payouts are processed to the verified M-Pesa number on file after a booking is completed. The platform fee is retained by Kenya Stays; the stay payout is forwarded to the host.",
+      "Hosts agree to Black Coma Ventures' commission structure and any applicable service fees. Payouts are processed to the verified M-Pesa number on file after a booking is completed. The platform fee is retained by Black Coma Ventures; the stay payout is forwarded to the host.",
   },
   {
     icon: CalendarCheck,
@@ -59,38 +59,38 @@ const AGREEMENT_ITEMS = [
     label: "Verification Docs",
     summary: "Upload ID, ownership proof & KRA PIN.",
     detail:
-      "To list a property, hosts must provide a valid government-issued ID, proof of ownership or management authority, and a KRA PIN certificate. These documents are reviewed by the Kenya Stays compliance team before a listing can go live.",
+      "To list a property, hosts must provide a valid government-issued ID, proof of ownership or management authority, and a KRA PIN certificate. These documents are reviewed by the Black Coma Ventures compliance team before a listing can go live.",
   },
   {
     icon: Shield,
     label: "Platform Rules",
     summary: "No direct bookings or policy violations.",
     detail:
-      "Circumventing Kenya Stays to accept direct payments or offline bookings discovered through the platform is not allowed. Fraud, fake reviews, harassment, or repeated policy violations will result in account suspension or permanent removal.",
+      "Circumventing Black Coma Ventures to accept direct payments or offline bookings discovered through the platform is not allowed. Fraud, fake reviews, harassment, or repeated policy violations will result in account suspension or permanent removal.",
   },
   {
     icon: HousePlus,
     label: "Host Liability",
     summary: "Responsible for safety & insurance.",
     detail:
-      "Hosts are responsible for maintaining a safe, clean, and habitable property. Kenya Stays recommends appropriate insurance coverage. The platform is not liable for personal injury, theft, or property damage occurring during a stay.",
+      "Hosts are responsible for maintaining a safe, clean, and habitable property. Black Coma Ventures recommends appropriate insurance coverage. The platform is not liable for personal injury, theft, or property damage occurring during a stay.",
   },
   {
     icon: TriangleAlert,
     label: "Termination Terms",
     summary: "Honor pending bookings if ending agreement.",
     detail:
-      "A host may terminate this agreement at any time by requesting account closure. Any bookings confirmed before termination must still be honored. Kenya Stays may also terminate or suspend access for violations of these terms.",
+      "A host may terminate this agreement at any time by requesting account closure. Any bookings confirmed before termination must still be honored. Black Coma Ventures may also terminate or suspend access for violations of these terms.",
   },
 ];
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms & Conditions — Kenya Stays" },
-      { name: "description", content: "Read the Kenya Stays host agreement checklist, terms of service, and booking policies." },
-      { property: "og:title", content: "Terms & Conditions — Kenya Stays" },
-      { property: "og:description", content: "Read the Kenya Stays host agreement checklist, terms of service, and booking policies." },
+      { title: "Terms & Conditions — Black Coma Ventures" },
+      { name: "description", content: "Read the Black Coma Ventures host agreement checklist, terms of service, and booking policies." },
+      { property: "og:title", content: "Terms & Conditions — Black Coma Ventures" },
+      { property: "og:description", content: "Read the Black Coma Ventures host agreement checklist, terms of service, and booking policies." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -111,12 +111,12 @@ function TermsPage() {
 
         <section className="mt-8 space-y-4 text-sm leading-relaxed text-foreground">
           <p>
-            Welcome to Kenya Stays. These Terms & Conditions govern your use of our platform
-            as a guest, host, or visitor. By accessing or using Kenya Stays, you agree to be
+            Welcome to Black Coma Ventures. These Terms & Conditions govern your use of our platform
+            as a guest, host, or visitor. By accessing or using Black Coma Ventures, you agree to be
             bound by these terms and all applicable Kenyan laws and regulations.
           </p>
           <p>
-            Kenya Stays is a marketplace that connects travelers with local hosts offering
+            Black Coma Ventures is a marketplace that connects travelers with local hosts offering
             short-term accommodations. We are not a property owner, operator, or travel agent.
             The actual rental agreement is between the guest and the host.
           </p>
@@ -170,7 +170,7 @@ function TermsPage() {
           <h2 className="font-serif text-xl font-semibold text-foreground">Payments & Payouts</h2>
           <p>
             When a guest pays, the accommodation amount is allocated to the host and the
-            platform fee is retained by Kenya Stays. Host payouts are made to the verified
+            platform fee is retained by Black Coma Ventures. Host payouts are made to the verified
             M-Pesa number after check-in or the completion window defined in the host's payout
             settings.
           </p>

@@ -36,7 +36,7 @@ export function RotatingBanner() {
   return (
     <section
       className="w-full border-y border-border bg-card"
-      aria-label="Kenya Stays trust banner"
+      aria-label="Black Coma Ventures trust banner"
       aria-live="polite"
     >
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-3 px-4 py-4 text-center md:py-5">

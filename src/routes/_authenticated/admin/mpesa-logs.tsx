@@ -6,13 +6,13 @@ import { ArrowLeft } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/admin/mpesa-logs")({
   head: () => ({
     meta: [
-      { title: "STK push logs — Kenya Stays Admin" },
+      { title: "STK push logs — Black Coma Ventures Admin" },
       {
         name: "description",
         content:
           "Admin ledger of every M-Pesa STK push request with its callback events, response codes and timestamps.",
       },
-      { property: "og:title", content: "STK push logs — Kenya Stays Admin" },
+      { property: "og:title", content: "STK push logs — Black Coma Ventures Admin" },
       {
         property: "og:description",
         content: "Track M-Pesa STK push requests, callbacks and response codes in one place.",
